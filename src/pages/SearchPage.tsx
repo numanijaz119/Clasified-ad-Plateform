@@ -22,9 +22,10 @@ interface Listing {
 
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get('q') || '';
+  const initialSearchQuery = searchParams.get('q') || '';
   const cityFilter = searchParams.get('city') || 'all';
   
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedCity, setSelectedCity] = useState(cityFilter);
   const [sortBy, setSortBy] = useState('newest');
@@ -186,16 +187,16 @@ const SearchPage: React.FC = () => {
         <div className="flex gap-2 md:gap-4 lg:gap-6">
           {/* Left Sidebar with Ads */}
           <div className="w-20 md:w-32 lg:w-48 flex-shrink-0">
-            <div className="sticky top-24 space-y-4">
+            <div className="sticky top-24 space-y-4 z-10">
               <div className="block lg:hidden">
                 <AdBanners.FlippingAd size="small" />
               </div>
               <div className="hidden lg:block">
-                <AdBanners.SideBanner position="left" size="large" />
+                <AdBanners.SideBanner />
               </div>
-              <AdBanners.FlippingAd size={window.innerWidth >= 1024 ? "large" : "small"} />
+              <AdBanners.FlippingAd size="large" />
               <div className="hidden md:block">
-                <AdBanners.FlippingAd size={window.innerWidth >= 1024 ? "medium" : "small"} />
+                <AdBanners.FlippingAd size="medium" />
               </div>
             </div>
           </div>
@@ -382,8 +383,8 @@ const SearchPage: React.FC = () => {
 
           {/* Right Sidebar with Ads */}
           <div className="w-20 md:w-32 xl:w-48 flex-shrink-0">
-            <div className="sticky top-24 space-y-4">
-              <AdBanners.FlippingAd size={window.innerWidth >= 1280 ? "large" : "small"} />
+            <div className="sticky top-24 space-y-4 z-10">
+              <AdBanners.FlippingAd size="large" />
               <AdBanners.FlippingAd size="small" />
             </div>
           </div>

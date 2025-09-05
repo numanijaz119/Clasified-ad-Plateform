@@ -5,6 +5,9 @@ import HomePage from './pages/HomePage';
 import CityPage from './pages/CityPage';
 import CategoryPage from './pages/CategoryPage';
 import SearchPage from './pages/SearchPage';
+import FeaturedAdsPage from './pages/FeaturedAdsPage';
+import AdminDashboard from './pages/AdminDashboard';
+import UserDashboard from './pages/UserDashboard';
 import Footer from './components/Footer';
 import PostAdModal from './components/PostAdModal';
 import SignInModal from './components/SignInModal';
@@ -28,7 +31,7 @@ function App() {
     setIsPostAdModalOpen(true);
   };
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen bg-gray-50 pt-24">
       <Header 
         onPostAd={handlePostAd}
         onSignIn={() => setIsSignInModalOpen(true)}
@@ -41,6 +44,9 @@ function App() {
         <Route path="/city/:cityName" element={<CityPage />} />
         <Route path="/category/:categoryName" element={<CategoryPage />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/featured-ads" element={<FeaturedAdsPage />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/dashboard" element={<UserDashboard />} />
       </Routes>
       
       <Footer />

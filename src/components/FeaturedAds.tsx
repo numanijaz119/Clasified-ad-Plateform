@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { MapPin, Eye, Clock, Star, Heart } from 'lucide-react';
 import ListingModal from './ListingModal';
 
@@ -128,12 +129,12 @@ const FeaturedAds: React.FC = () => {
           <h2 className="text-lg font-bold text-gray-900 mb-0.5">Featured Ads</h2>
           <p className="text-xs text-gray-600">Premium listings from our community</p>
         </div>
-        <button 
-          onClick={() => window.location.href = '/featured-ads'}
-          className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105 text-sm"
+        <Link 
+          to="/featured-ads"
+          className="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105 text-sm"
         >
           View All →
-        </button>
+        </Link>
       </div>
 
       {/* Scrolling Container */}

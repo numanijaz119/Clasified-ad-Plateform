@@ -1,48 +1,48 @@
-import React from 'react';
-import { 
-  Facebook, 
-  Twitter, 
-  Instagram, 
-  Youtube, 
-  Mail, 
-  Phone, 
+import React from "react";
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Youtube,
+  Mail,
+  Phone,
   MapPin,
-  Heart
-} from 'lucide-react';
+  Heart,
+} from "lucide-react";
 
 const Footer: React.FC = () => {
   const quickLinks = [
-    'About Us',
-    'How It Works',
-    'Pricing',
-    'Safety Tips',
-    'Terms of Service',
-    'Privacy Policy'
+    "About Us",
+    "How It Works",
+    "Pricing",
+    "Safety Tips",
+    "Terms of Service",
+    "Privacy Policy",
   ];
 
   const categories = [
-    'Jobs',
-    'Real Estate',
-    'Vehicles',
-    'Buy & Sell',
-    'Services',
-    'Education'
+    "Jobs",
+    "Real Estate",
+    "Vehicles",
+    "Buy & Sell",
+    "Services",
+    "Education",
   ];
 
   const cities = [
-    'Chicago',
-    'Aurora',
-    'Naperville',
-    'Bloomington-Normal',
-    'Peoria',
-    'Springfield'
+    "Chicago",
+    "Aurora",
+    "Naperville",
+    "Bloomington-Normal",
+    "Peoria",
+    "Springfield",
   ];
 
   const socialLinks = [
-    { icon: Facebook, href: '#', label: 'Facebook' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Youtube, href: '#', label: 'YouTube' }
+    { icon: Facebook, href: "#", label: "Facebook" },
+    { icon: Twitter, href: "#", label: "Twitter" },
+    { icon: Instagram, href: "#", label: "Instagram" },
+    { icon: Youtube, href: "#", label: "YouTube" },
   ];
 
   return (
@@ -61,10 +61,11 @@ const Footer: React.FC = () => {
               </div>
             </div>
             <p className="text-gray-300 mb-6 leading-relaxed">
-              Connecting the Indian community across Illinois. Find jobs, homes, services, 
-              and build meaningful connections with fellow Indians in your area.
+              Connecting the Indian community across Illinois. Find jobs, homes,
+              services, and build meaningful connections with fellow Indians in
+              your area.
             </p>
-            
+
             {/* Contact Info */}
             <div className="space-y-3">
               <div className="flex items-center text-gray-300">
@@ -154,7 +155,7 @@ const Footer: React.FC = () => {
 
             {/* Newsletter Signup */}
             <div className="flex items-center space-x-4">
-              <span className="text-gray-300 font-medium">Stay Updated:</span>
+              {/* <span className="text-gray-300 font-medium">Stay Updated:</span> */}
               <div className="flex">
                 <input
                   type="email"

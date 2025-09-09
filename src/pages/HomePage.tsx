@@ -1,8 +1,8 @@
-import React from 'react';
-import Hero from '../components/Hero';
-import FeaturedAds from '../components/FeaturedAds';
-import AdBanners from '../components/AdBanners';
-import ListingModal from '../components/ListingModal';
+import React from "react";
+import Hero from "../components/Hero";
+import FeaturedAds from "../components/FeaturedAds";
+import AdBanners from "../components/AdBanners";
+import ListingModal from "../components/ListingModal";
 
 const HomePage: React.FC = () => {
   const [selectedListing, setSelectedListing] = React.useState(null);
@@ -33,9 +33,9 @@ const HomePage: React.FC = () => {
           {/* Main Content */}
           <div className="flex-1 min-w-0">
             <Hero />
-            
+
             <FeaturedAds />
-            
+
             {/* Inline Banner Ad */}
             <div className="my-3">
               <AdBanners.InlineBanner />
@@ -56,7 +56,7 @@ const HomePage: React.FC = () => {
       </main>
 
       {/* Listing Modal */}
-      <ListingModal 
+      <ListingModal
         listing={selectedListing}
         isOpen={isModalOpen}
         onClose={handleCloseModal}

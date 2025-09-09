@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({
             <Link to="/">
               <div className="flex-shrink-0 flex items-center">
                 <img
-                  src="/DesiloginILlogo.png"
+                  src="/DesiloginILlogo.webp"
                   className="h-16 w-auto object-contain hover:opacity-90 transition-opacity"
                   // onError={(e) => {
                   //   console.log('Logo failed to load, falling back to text logo');

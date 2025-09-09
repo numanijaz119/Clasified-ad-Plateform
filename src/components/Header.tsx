@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Menu, X, User, Plus } from "lucide-react";
+import { Menu, X, User, Plus } from "lucide-react";
 
 interface HeaderProps {
   onPostAd: () => void;
@@ -16,16 +16,6 @@ const Header: React.FC<HeaderProps> = ({
   onSignOut,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery("");
-    }
-  };
 
   return (
     <header className="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">

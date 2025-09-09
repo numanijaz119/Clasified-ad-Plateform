@@ -1,4 +1,5 @@
 import React from 'react';
+import { X } from 'lucide-react';
 
 interface RecentListing {
   id: number;
@@ -25,14 +26,27 @@ const TopBanner: React.FC = () => (
   </div>
 );
 
-const SideBanner: React.FC = () => (
+interface SideBannerProps {
+  position?: 'left' | 'right';
+  size?: 'small' | 'medium' | 'large';
+}
+
+const SideBanner: React.FC<SideBannerProps> = ({ position = 'left', size = 'medium' }) => {
+  const sizeClasses = {
+    small: 'h-32 w-full',
+    medium: 'h-48 w-full', 
+    large: 'h-64 w-full'
+  };
+
+  return (
   <div className="bg-gradient-to-br from-green-100 to-green-200 border-2 border-dashed border-green-300 rounded-lg flex items-center justify-center text-green-600 font-medium h-64 w-full">
     <div className="text-center">
       <div className="text-sm font-semibold mb-1">Side Advertisement</div>
       <div className="text-xs">300 x 250 - Medium Rectangle</div>
     </div>
   </div>
-);
+  );
+};
 
 const InlineBanner: React.FC = () => (
   <div className="bg-gradient-to-r from-purple-100 to-purple-200 border-2 border-dashed border-purple-300 rounded-lg flex items-center justify-center text-purple-600 font-medium h-16 w-full">
@@ -250,61 +264,6 @@ const RecentListings: React.FC<RecentListingsProps> = ({ onListingClick }) => {
   );
 };
 
-// Bullion Widget Component
-const BullionWidget: React.FC = () => {
-  const [prices, setPrices] = React.useState({
-    gold: { price: 2045.50, change: +12.30, changePercent: +0.61 },
-    silver: { price: 24.85, change: -0.15, changePercent: -0.60 }
-  });
-
-  React.useEffect(() => {
-    // Simulate real-time price updates
-    const interval = setInterval(() => {
-      setPrices(prev => ({
-        gold: {
-          price: prev.gold.price + (Math.random() - 0.5) * 5,
-          change: (Math.random() - 0.5) * 20,
-          changePercent: (Math.random() - 0.5) * 2
-        },
-        silver: {
-          price: prev.silver.price + (Math.random() - 0.5) * 0.5,
-          change: (Math.random() - 0.5) * 2,
-          changePercent: (Math.random() - 0.5) * 3
-        }
-      }));
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">Live Precious Metals</h3>
-      <div className="flex items-center justify-between">
-        {/* Gold */}
-        <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-          <span className="text-xs font-semibold text-yellow-800">Gold</span>
-          <span className="text-sm font-bold text-yellow-900">${prices.gold.price.toFixed(0)}</span>
-          <span className={`text-xs ${prices.gold.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {prices.gold.change >= 0 ? '↗' : '↘'}{prices.gold.changePercent.toFixed(1)}%
-          </span>
-        </div>
-        
-        {/* Silver */}
-        <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-          <span className="text-xs font-semibold text-gray-800">Silver</span>
-          <span className="text-sm font-bold text-gray-900">${prices.silver.price.toFixed(2)}</span>
-          <span className={`text-xs ${prices.silver.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {prices.silver.change >= 0 ? '↗' : '↘'}{prices.silver.changePercent.toFixed(1)}%
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // Time Widget Component
 const TimeWidget: React.FC = () => {
   const [currentTime, setCurrentTime] = React.useState(new Date());
@@ -476,7 +435,7 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
         onClick={handleAdClick}
       >
         {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-16 translate-x-16"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-12 -translate-x-12"></div>
         </div>
@@ -518,7 +477,7 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
 
       {/* Ad Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -590,7 +549,6 @@ const AdBanners = {
   BottomBanner,
   MobileBanner,
   RecentListings,
-  BullionWidget,
   TimeWidget,
   FlippingAd
 };

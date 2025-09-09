@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, MapPin, User, Plus, Cloud, Home, Briefcase, Car, ShoppingBag, Wrench, GraduationCap, Calendar, Heart, TrendingUp } from 'lucide-react';
-import SignInModal from './SignInModal';
+import { Search, Menu, X, User, Plus } from 'lucide-react';
 
 interface HeaderProps {
   onPostAd: () => void;
@@ -12,23 +11,21 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onPostAd, onSignIn, isLoggedIn, onSignOut }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
-  const navigationPages = [
-    { name: 'Home', path: '/', icon: Home },
-    { name: 'Jobs', path: '/category/Jobs', icon: Briefcase },
-    { name: 'Real Estate', path: '/category/Real Estate', icon: Home },
-    { name: 'Vehicles', path: '/category/Vehicles', icon: Car },
-    { name: 'Buy & Sell', path: '/category/Buy & Sell', icon: ShoppingBag },
-    { name: 'Services', path: '/category/Services', icon: Wrench },
-    { name: 'Education', path: '/category/Education', icon: GraduationCap },
-    { name: 'Events', path: '/category/Community Events', icon: Calendar },
-    { name: 'Health', path: '/category/Health & Wellness', icon: Heart }
-  ];
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
+  };
 
   return (
     <header className="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-24">
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/">
@@ -49,14 +46,30 @@ const Header: React.FC<HeaderProps> = ({ onPostAd, onSignIn, isLoggedIn, onSignO
             </Link>
           </div>
 
+          {/* Global Search Bar - Desktop */}
+          <div className="hidden md:flex flex-1 max-w-2xl mx-8">
+            <form onSubmit={handleSearch} className="w-full">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for jobs, homes, cars, services..."
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-1.5 rounded-md hover:from-orange-600 hover:to-red-600 transition-all duration-200 text-sm font-medium"
+                >
+                  Search
+                </button>
+              </div>
+            </form>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-4">
-            {/* Weather Widget - Desktop */}
-            <div className="flex items-center space-x-3 min-w-[400px]">
-              <WeatherWidget />
-              <ScrollingWidgets />
-            </div>
             <button
               onClick={onPostAd}
               className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-5 py-2.5 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 flex items-center space-x-2 font-semibold text-sm"
@@ -84,6 +97,27 @@ const Header: React.FC<HeaderProps> = ({ onPostAd, onSignIn, isLoggedIn, onSignO
           </div>
         </div>
 
+        {/* Mobile Search Bar */}
+        <div className="md:hidden pb-4">
+          <form onSubmit={handleSearch}>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search listings..."
+                className="w-full pl-10 pr-20 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+              />
+              <button
+                type="submit"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-1.5 rounded-md hover:from-orange-600 hover:to-red-600 transition-all duration-200 text-xs font-medium"
+              >
+                Search
+              </button>
+            </div>
+          </form>
+        </div>
 
         {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
@@ -109,125 +143,6 @@ const Header: React.FC<HeaderProps> = ({ onPostAd, onSignIn, isLoggedIn, onSignO
         )}
       </div>
     </header>
-  );
-};
-
-// Weather Widget Component
-const WeatherWidget: React.FC = () => {
-  const [currentCityIndex, setCurrentCityIndex] = useState(0);
-  
-  const cities = [
-    { name: 'Chicago', temp: '32°F', condition: 'Partly Cloudy' },
-    { name: 'Aurora', temp: '30°F', condition: 'Cloudy' },
-    { name: 'Naperville', temp: '33°F', condition: 'Clear' },
-    { name: 'Bloomington-Normal', temp: '29°F', condition: 'Snow' },
-    { name: 'Peoria', temp: '31°F', condition: 'Overcast' },
-    { name: 'Springfield', temp: '28°F', condition: 'Windy' },
-    { name: 'Urbana-Champaign', temp: '27°F', condition: 'Foggy' },
-    { name: 'Rockford', temp: '25°F', condition: 'Cold' }
-  ];
-
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentCityIndex((prevIndex) => 
-        prevIndex >= cities.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [cities.length]);
-
-  const currentCity = cities[currentCityIndex];
-
-  return (
-    <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg min-w-[140px]">
-      <div className="flex items-center">
-        <Cloud className="h-4 w-4 mr-2" />
-        <div className="text-xs">
-          <div className="font-semibold">{currentCity.name}</div>
-          <div className="text-xs opacity-90">{currentCity.temp}</div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Scrolling Widgets Component
-const ScrollingWidgets: React.FC = () => {
-  const [currentDealIndex, setCurrentDealIndex] = useState(0);
-
-  const deals = [
-    {
-      title: "50% OFF Electronics",
-      subtitle: "Limited time offer",
-      color: "from-blue-500 to-blue-600",
-      discount: "50%"
-    },
-    {
-      title: "Free Delivery on Orders $50+",
-      subtitle: "No minimum required",
-      color: "from-green-500 to-green-600",
-      discount: "FREE"
-    },
-    {
-      title: "Buy 2 Get 1 Free",
-      subtitle: "On selected items",
-      color: "from-purple-500 to-purple-600",
-      discount: "B2G1"
-    },
-    {
-      title: "30% OFF Services",
-      subtitle: "Professional services",
-      color: "from-pink-500 to-pink-600",
-      discount: "30%"
-    },
-    {
-      title: "Flash Sale - 70% OFF",
-      subtitle: "Today only",
-      color: "from-red-500 to-red-600",
-      discount: "70%"
-    },
-    {
-      title: "Student Discount 25%",
-      subtitle: "Valid student ID required",
-      color: "from-indigo-500 to-indigo-600",
-      discount: "25%"
-    }
-  ];
-
-  // Deal cycling
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDealIndex((prevIndex) => (prevIndex + 1) % deals.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [deals.length]);
-
-  const currentDeal = deals[currentDealIndex];
-
-  return (
-    <div className="relative bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-lg min-w-[200px] cursor-pointer hover:opacity-90 transition-all duration-300 overflow-hidden">
-      {/* Illumination Effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 animate-pulse"></div>
-      
-      {/* NEW Badge - Slanted Left */}
-      <div className="absolute -top-2 -left-2 bg-red-500 text-white text-xs font-bold px-3 py-1 transform -rotate-12 shadow-lg">
-        NEW
-      </div>
-      
-      {/* Content */}
-      <div className="relative z-10">
-        <div className="flex items-center justify-between">
-          <div className="text-xs">
-            <div className="font-bold text-sm">Deals & Coupons</div>
-            <div className="text-xs opacity-90">{currentDeal.subtitle}</div>
-          </div>
-          <div className="bg-white/20 text-white font-bold text-xs px-2 py-1 rounded-full">
-            {currentDeal.discount}
-          </div>
-        </div>
-      </div>
-    </div>
   );
 };
 

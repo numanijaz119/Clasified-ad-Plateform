@@ -20,11 +20,11 @@ const HomePage: React.FC = () => {
 
   return (
     <>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto px-4">
         <div className="flex gap-4">
           {/* Left Sidebar with Ads */}
           <div className="hidden lg:block w-48 flex-shrink-0">
-            <div className="sticky top-24 space-y-2 z-10">
+            <div className="sticky top-24 space-y-4 z-10">
               <AdBanners.SideBanner />
               <AdBanners.FlippingAd size="large" />
             </div>
@@ -37,14 +37,14 @@ const HomePage: React.FC = () => {
             <FeaturedAds />
 
             {/* Inline Banner Ad */}
-            <div className="my-3">
+            <div className="mt-3">
               <AdBanners.InlineBanner />
             </div>
           </div>
 
           {/* Right Sidebar with Ads */}
           <div className="hidden xl:block w-48 flex-shrink-0">
-            <div className="sticky top-24 space-y-2 z-10">
+            <div className="sticky top-24 space-y-4 z-10">
               <AdBanners.SideBanner />
               <AdBanners.RecentListings onListingClick={handleListingClick} />
             </div>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { X } from 'lucide-react';
+import React from "react";
+import { X } from "lucide-react";
 
 interface RecentListing {
   id: number;
@@ -27,24 +27,27 @@ const TopBanner: React.FC = () => (
 );
 
 interface SideBannerProps {
-  position?: 'left' | 'right';
-  size?: 'small' | 'medium' | 'large';
+  position?: "left" | "right";
+  size?: "small" | "medium" | "large";
 }
 
-const SideBanner: React.FC<SideBannerProps> = ({ position = 'left', size = 'medium' }) => {
+const SideBanner: React.FC<SideBannerProps> = ({
+  position = "left",
+  size = "medium",
+}) => {
   const sizeClasses = {
-    small: 'h-32 w-full',
-    medium: 'h-48 w-full', 
-    large: 'h-64 w-full'
+    small: "h-32 w-full",
+    medium: "h-48 w-full",
+    large: "h-64 w-full",
   };
 
   return (
-  <div className="bg-gradient-to-br from-green-100 to-green-200 border-2 border-dashed border-green-300 rounded-lg flex items-center justify-center text-green-600 font-medium h-64 w-full">
-    <div className="text-center">
-      <div className="text-sm font-semibold mb-1">Side Advertisement</div>
-      <div className="text-xs">300 x 250 - Medium Rectangle</div>
+    <div className="bg-gradient-to-br from-green-100 to-green-200 border-2 border-dashed border-green-300 rounded-lg flex items-center justify-center text-green-600 font-medium h-64 w-full">
+      <div className="text-center">
+        <div className="text-sm font-semibold mb-1">Side Advertisement</div>
+        <div className="text-xs">300 x 250 - Medium Rectangle</div>
+      </div>
     </div>
-  </div>
   );
 };
 
@@ -58,9 +61,11 @@ const InlineBanner: React.FC = () => (
 );
 
 const BottomBanner: React.FC = () => (
-  <div className="bg-gradient-to-r from-orange-100 to-orange-200 border-2 border-dashed border-orange-300 rounded-lg flex items-center justify-center text-orange-600 font-medium h-20 w-full">
+  <div className="bg-gradient-to-r from-orange-100 to-orange-200 border-2 my-4 border-dashed border-orange-300 rounded-lg flex items-center justify-center text-orange-600 font-medium h-20">
     <div className="text-center">
-      <div className="text-sm font-semibold mb-1">Bottom Advertisement Banner</div>
+      <div className="text-sm font-semibold mb-1">
+        Bottom Advertisement Banner
+      </div>
       <div className="text-xs">728 x 90 - Leaderboard</div>
     </div>
   </div>
@@ -81,145 +86,165 @@ interface RecentListingsProps {
 
 const RecentListings: React.FC<RecentListingsProps> = ({ onListingClick }) => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
-  
+
   const recentListings: RecentListing[] = [
-    { 
-      id: 1, 
-      title: 'Senior Software Engineer - React/Node.js',
-      category: 'Jobs',
-      price: '$95,000',
-      location: 'Chicago, IL',
-      image: 'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=400',
+    {
+      id: 1,
+      title: "Senior Software Engineer - React/Node.js",
+      category: "Jobs",
+      price: "$95,000",
+      location: "Chicago, IL",
+      image:
+        "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=400",
       views: 345,
-      timeAgo: '1 hour ago',
-      postedDate: new Date('2025-01-12'),
+      timeAgo: "1 hour ago",
+      postedDate: new Date("2025-01-12"),
       featured: true,
-      description: 'Join our innovative team building next-generation web applications. We are looking for a senior developer with 5+ years of experience in React and Node.js.',
-      phone: '(312) 555-0101',
-      email: 'hr@techcompany.com'
+      description:
+        "Join our innovative team building next-generation web applications. We are looking for a senior developer with 5+ years of experience in React and Node.js.",
+      phone: "(312) 555-0101",
+      email: "hr@techcompany.com",
     },
-    { 
-      id: 2, 
-      title: 'Beautiful 3BR Downtown Condo',
-      category: 'Real Estate',
-      price: '$2,200/month',
-      location: 'Naperville, IL',
-      image: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=400',
+    {
+      id: 2,
+      title: "Beautiful 3BR Downtown Condo",
+      category: "Real Estate",
+      price: "$2,200/month",
+      location: "Naperville, IL",
+      image:
+        "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=400",
       views: 289,
-      timeAgo: '3 hours ago',
-      postedDate: new Date('2025-01-12'),
+      timeAgo: "3 hours ago",
+      postedDate: new Date("2025-01-12"),
       featured: true,
-      description: 'Beautiful 3-bedroom apartment with modern amenities and city views.'
+      description:
+        "Beautiful 3-bedroom apartment with modern amenities and city views.",
     },
-    { 
-      id: 3, 
-      title: 'Honda Civic 2020 - Excellent Condition',
-      category: 'Vehicles',
-      price: '$22,500',
-      location: 'Aurora, IL',
-      image: 'https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=400',
+    {
+      id: 3,
+      title: "Honda Civic 2020 - Excellent Condition",
+      category: "Vehicles",
+      price: "$22,500",
+      location: "Aurora, IL",
+      image:
+        "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=400",
       views: 234,
-      timeAgo: '6 hours ago',
-      postedDate: new Date('2025-01-11'),
+      timeAgo: "6 hours ago",
+      postedDate: new Date("2025-01-11"),
       featured: false,
-      description: 'Well-maintained Honda Civic with low mileage. Single owner, all service records available.'
+      description:
+        "Well-maintained Honda Civic with low mileage. Single owner, all service records available.",
     },
-    { 
-      id: 4, 
-      title: 'Professional Wedding Photography Services',
-      category: 'Services',
-      price: '$1,200',
-      location: 'Peoria, IL',
-      image: 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400',
+    {
+      id: 4,
+      title: "Professional Wedding Photography Services",
+      category: "Services",
+      price: "$1,200",
+      location: "Peoria, IL",
+      image:
+        "https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400",
       views: 134,
-      timeAgo: '8 hours ago',
-      postedDate: new Date('2025-01-11'),
+      timeAgo: "8 hours ago",
+      postedDate: new Date("2025-01-11"),
       featured: true,
-      description: 'Professional wedding photography with Indian cultural expertise. Portfolio available.'
+      description:
+        "Professional wedding photography with Indian cultural expertise. Portfolio available.",
     },
-    { 
-      id: 5, 
-      title: 'Math Tutoring - All Levels Available',
-      category: 'Education',
-      price: '$40/hour',
-      location: 'Springfield, IL',
-      image: 'https://images.pexels.com/photos/1701194/pexels-photo-1701194.jpeg?auto=compress&cs=tinysrgb&w=400',
+    {
+      id: 5,
+      title: "Math Tutoring - All Levels Available",
+      category: "Education",
+      price: "$40/hour",
+      location: "Springfield, IL",
+      image:
+        "https://images.pexels.com/photos/1701194/pexels-photo-1701194.jpeg?auto=compress&cs=tinysrgb&w=400",
       views: 89,
-      timeAgo: '12 hours ago',
-      postedDate: new Date('2025-01-10'),
+      timeAgo: "12 hours ago",
+      postedDate: new Date("2025-01-10"),
       featured: false,
-      description: 'Experienced math tutor for students of all ages. Flexible scheduling available.'
+      description:
+        "Experienced math tutor for students of all ages. Flexible scheduling available.",
     },
-    { 
-      id: 6, 
-      title: 'MacBook Pro 2021 - Like New Condition',
-      category: 'Buy & Sell',
-      price: '$1,800',
-      location: 'Rockford, IL',
-      image: 'https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400',
+    {
+      id: 6,
+      title: "MacBook Pro 2021 - Like New Condition",
+      category: "Buy & Sell",
+      price: "$1,800",
+      location: "Rockford, IL",
+      image:
+        "https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400",
       views: 156,
-      timeAgo: '1 day ago',
-      postedDate: new Date('2025-01-09'),
+      timeAgo: "1 day ago",
+      postedDate: new Date("2025-01-09"),
       featured: false,
-      description: 'MacBook Pro 14" with M1 Pro chip. Barely used, includes original box and accessories.'
+      description:
+        'MacBook Pro 14" with M1 Pro chip. Barely used, includes original box and accessories.',
     },
-    { 
-      id: 7, 
-      title: 'Indian Classical Dance Classes - Bharatanatyam',
-      category: 'Education',
-      price: '$60/month',
-      location: 'Urbana-Champaign, IL',
-      image: 'https://images.pexels.com/photos/1701194/pexels-photo-1701194.jpeg?auto=compress&cs=tinysrgb&w=400',
+    {
+      id: 7,
+      title: "Indian Classical Dance Classes - Bharatanatyam",
+      category: "Education",
+      price: "$60/month",
+      location: "Urbana-Champaign, IL",
+      image:
+        "https://images.pexels.com/photos/1701194/pexels-photo-1701194.jpeg?auto=compress&cs=tinysrgb&w=400",
       views: 98,
-      timeAgo: '2 days ago',
-      postedDate: new Date('2025-01-08'),
+      timeAgo: "2 days ago",
+      postedDate: new Date("2025-01-08"),
       featured: false,
-      description: 'Learn Bharatanatyam from certified instructor. All ages welcome, flexible scheduling.'
+      description:
+        "Learn Bharatanatyam from certified instructor. All ages welcome, flexible scheduling.",
     },
-    { 
-      id: 8, 
-      title: 'Professional House Cleaning Service',
-      category: 'Services',
-      price: '$80/visit',
-      location: 'Bloomington-Normal, IL',
-      image: 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400',
+    {
+      id: 8,
+      title: "Professional House Cleaning Service",
+      category: "Services",
+      price: "$80/visit",
+      location: "Bloomington-Normal, IL",
+      image:
+        "https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400",
       views: 145,
-      timeAgo: '3 days ago',
-      postedDate: new Date('2025-01-07'),
+      timeAgo: "3 days ago",
+      postedDate: new Date("2025-01-07"),
       featured: false,
-      description: 'Professional house cleaning service with excellent reviews. Weekly or bi-weekly service available.'
+      description:
+        "Professional house cleaning service with excellent reviews. Weekly or bi-weekly service available.",
     },
-    { 
-      id: 9, 
-      title: 'Yoga Instructor Position - RYT-200 Required',
-      category: 'Jobs',
-      price: '$50/hour',
-      location: 'Chicago, IL',
-      image: 'https://images.pexels.com/photos/4173251/pexels-photo-4173251.jpeg?auto=compress&cs=tinysrgb&w=400',
+    {
+      id: 9,
+      title: "Yoga Instructor Position - RYT-200 Required",
+      category: "Jobs",
+      price: "$50/hour",
+      location: "Chicago, IL",
+      image:
+        "https://images.pexels.com/photos/4173251/pexels-photo-4173251.jpeg?auto=compress&cs=tinysrgb&w=400",
       views: 123,
-      timeAgo: '4 days ago',
-      postedDate: new Date('2025-01-06'),
+      timeAgo: "4 days ago",
+      postedDate: new Date("2025-01-06"),
       featured: false,
-      description: 'Seeking experienced yoga instructor for wellness center. RYT-200 certification required.'
+      description:
+        "Seeking experienced yoga instructor for wellness center. RYT-200 certification required.",
     },
-    { 
-      id: 10, 
-      title: 'Indian Catering Services for All Events',
-      category: 'Services',
-      price: '$15/person',
-      location: 'Aurora, IL',
-      image: 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400',
+    {
+      id: 10,
+      title: "Indian Catering Services for All Events",
+      category: "Services",
+      price: "$15/person",
+      location: "Aurora, IL",
+      image:
+        "https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400",
       views: 167,
-      timeAgo: '5 days ago',
-      postedDate: new Date('2025-01-05'),
+      timeAgo: "5 days ago",
+      postedDate: new Date("2025-01-05"),
       featured: false,
-      description: 'Professional catering for all occasions. Specializing in Indian cuisine and fusion dishes.'
-    }
+      description:
+        "Professional catering for all occasions. Specializing in Indian cuisine and fusion dishes.",
+    },
   ];
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => 
+      setCurrentIndex((prevIndex) =>
         prevIndex >= recentListings.length - 1 ? 0 : prevIndex + 1
       );
     }, 2000); // Scroll every 2 seconds
@@ -234,13 +259,13 @@ const RecentListings: React.FC<RecentListingsProps> = ({ onListingClick }) => {
         Recent Listings
       </h3>
       <div className="relative overflow-hidden h-64">
-        <div 
+        <div
           className="transition-transform duration-500 ease-in-out"
           style={{ transform: `translateY(-${currentIndex * 26}px)` }}
         >
           {recentListings.map((listing) => (
-            <div 
-              key={listing.id} 
+            <div
+              key={listing.id}
               className="h-9 flex items-center justify-between py-1 mb-1 cursor-pointer hover:bg-gray-50 transition-colors rounded px-2 border-l-2 border-transparent hover:border-orange-500"
               onClick={() => onListingClick && onListingClick(listing)}
             >
@@ -253,7 +278,9 @@ const RecentListings: React.FC<RecentListingsProps> = ({ onListingClick }) => {
                 </div>
               </div>
               <div className="flex flex-col items-end text-xs text-gray-500 ml-2">
-                <span className="font-semibold text-orange-600 text-sm">{listing.price}</span>
+                <span className="font-semibold text-orange-600 text-sm">
+                  {listing.price}
+                </span>
                 <span className="text-xs">{listing.timeAgo}</span>
               </div>
             </div>
@@ -277,22 +304,22 @@ const TimeWidget: React.FC = () => {
   }, []);
 
   const getIndiaTime = () => {
-    return new Intl.DateTimeFormat('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true
+    return new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
     }).format(currentTime);
   };
 
   const getUSTime = () => {
-    return new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/Chicago',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Chicago",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
     }).format(currentTime);
   };
 
@@ -304,14 +331,18 @@ const TimeWidget: React.FC = () => {
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
           <span className="text-xs font-semibold text-orange-800">India</span>
-          <span className="text-sm font-bold text-orange-900 font-mono">{getIndiaTime()}</span>
+          <span className="text-sm font-bold text-orange-900 font-mono">
+            {getIndiaTime()}
+          </span>
         </div>
-        
+
         {/* US Time */}
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
           <span className="text-xs font-semibold text-blue-800">US</span>
-          <span className="text-sm font-bold text-blue-900 font-mono">{getUSTime()}</span>
+          <span className="text-sm font-bold text-blue-900 font-mono">
+            {getUSTime()}
+          </span>
         </div>
       </div>
     </div>
@@ -319,10 +350,12 @@ const TimeWidget: React.FC = () => {
 };
 
 // Flipping Ad Component for Landing Pages
-const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 'medium' }) => {
+const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
+  size = "medium",
+}) => {
   const [currentAdIndex, setCurrentAdIndex] = React.useState(0);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  
+
   const ads = [
     {
       id: 1,
@@ -331,7 +364,7 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
       bgColor: "from-blue-500 to-blue-600",
       textColor: "text-white",
       buttonText: "Get Started",
-      icon: "🚀"
+      icon: "🚀",
     },
     {
       id: 2,
@@ -340,7 +373,7 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
       bgColor: "from-green-500 to-green-600",
       textColor: "text-white",
       buttonText: "Learn More",
-      icon: "⭐"
+      icon: "⭐",
     },
     {
       id: 3,
@@ -349,7 +382,7 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
       bgColor: "from-purple-500 to-purple-600",
       textColor: "text-white",
       buttonText: "Find Services",
-      icon: "🔧"
+      icon: "🔧",
     },
     {
       id: 4,
@@ -358,7 +391,7 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
       bgColor: "from-orange-500 to-orange-600",
       textColor: "text-white",
       buttonText: "Browse Homes",
-      icon: "🏠"
+      icon: "🏠",
     },
     {
       id: 5,
@@ -367,7 +400,7 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
       bgColor: "from-indigo-500 to-indigo-600",
       textColor: "text-white",
       buttonText: "View Jobs",
-      icon: "💼"
+      icon: "💼",
     },
     {
       id: 6,
@@ -376,7 +409,7 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
       bgColor: "from-red-500 to-red-600",
       textColor: "text-white",
       buttonText: "Shop Now",
-      icon: "🚗"
+      icon: "🚗",
     },
     {
       id: 7,
@@ -385,7 +418,7 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
       bgColor: "from-pink-500 to-pink-600",
       textColor: "text-white",
       buttonText: "Join Events",
-      icon: "🎉"
+      icon: "🎉",
     },
     {
       id: 8,
@@ -394,8 +427,8 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
       bgColor: "from-teal-500 to-teal-600",
       textColor: "text-white",
       buttonText: "Explore",
-      icon: "📚"
-    }
+      icon: "📚",
+    },
   ];
 
   React.useEffect(() => {
@@ -415,22 +448,34 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
   };
 
   const currentAd = ads[currentAdIndex];
-  
+
   const sizeClasses = {
-    small: 'h-32 p-4',
-    medium: 'h-40 p-6',
-    large: 'h-48 p-8'
+    small: "h-32 p-4",
+    medium: "h-40 p-6",
+    large: "h-48 p-8",
   };
 
   const textSizes = {
-    small: { title: 'text-sm', subtitle: 'text-xs', button: 'text-xs px-3 py-1' },
-    medium: { title: 'text-lg', subtitle: 'text-sm', button: 'text-sm px-4 py-2' },
-    large: { title: 'text-xl', subtitle: 'text-base', button: 'text-base px-6 py-3' }
+    small: {
+      title: "text-sm",
+      subtitle: "text-xs",
+      button: "text-xs px-3 py-1",
+    },
+    medium: {
+      title: "text-lg",
+      subtitle: "text-sm",
+      button: "text-sm px-4 py-2",
+    },
+    large: {
+      title: "text-xl",
+      subtitle: "text-base",
+      button: "text-base px-6 py-3",
+    },
   };
 
   return (
     <>
-      <div 
+      <div
         className={`bg-gradient-to-r ${currentAd.bgColor} ${currentAd.textColor} rounded-lg shadow-lg ${sizeClasses[size]} transition-all duration-500 ease-in-out transform hover:scale-105 cursor-pointer overflow-hidden relative`}
         onClick={handleAdClick}
       >
@@ -439,38 +484,44 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
           <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-16 translate-x-16"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-12 -translate-x-12"></div>
         </div>
-        
+
         {/* Content */}
         <div className="relative z-10 h-full flex flex-col justify-between">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-2">
                 <span className="text-2xl">{currentAd.icon}</span>
-                <h3 className={`font-bold ${textSizes[size].title}`}>{currentAd.title}</h3>
+                <h3 className={`font-bold ${textSizes[size].title}`}>
+                  {currentAd.title}
+                </h3>
               </div>
-              <p className={`${textSizes[size].subtitle} opacity-90`}>{currentAd.subtitle}</p>
+              <p className={`${textSizes[size].subtitle} opacity-90`}>
+                {currentAd.subtitle}
+              </p>
             </div>
           </div>
-          
+
           <div className="flex items-end justify-between">
-            <button className={`bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg font-semibold transition-all duration-200 ${textSizes[size].button}`}>
+            <button
+              className={`bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg font-semibold transition-all duration-200 ${textSizes[size].button}`}
+            >
               {currentAd.buttonText}
             </button>
-            
+
             {/* Progress Dots */}
             <div className="flex space-x-1">
               {ads.map((_, index) => (
                 <div
                   key={index}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentAdIndex ? 'bg-white' : 'bg-white/40'
+                    index === currentAdIndex ? "bg-white" : "bg-white/40"
                   }`}
                 />
               ))}
             </div>
           </div>
         </div>
-        
+
         {/* Slide Animation Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 -translate-x-full animate-pulse"></div>
       </div>
@@ -481,20 +532,34 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">Advertisement</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Advertisement
+              </h2>
               <button
                 onClick={handleCloseModal}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
 
             {/* Modal Content */}
             <div className="p-6">
-              <div className={`bg-gradient-to-r ${currentAd.bgColor} ${currentAd.textColor} rounded-lg p-8 mb-6`}>
+              <div
+                className={`bg-gradient-to-r ${currentAd.bgColor} ${currentAd.textColor} rounded-lg p-8 mb-6`}
+              >
                 <div className="flex items-center space-x-4 mb-4">
                   <span className="text-4xl">{currentAd.icon}</span>
                   <div>
@@ -502,11 +567,12 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
                     <p className="text-lg opacity-90">{currentAd.subtitle}</p>
                   </div>
                 </div>
-                
+
                 <div className="mb-6">
                   <p className="text-base opacity-90 mb-4">
-                    This is a premium advertisement space. Contact us to learn more about advertising opportunities 
-                    and how we can help promote your business to the Illinois Desi community.
+                    This is a premium advertisement space. Contact us to learn
+                    more about advertising opportunities and how we can help
+                    promote your business to the Illinois Desi community.
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-sm opacity-80">
                     <li>Reach thousands of potential customers</li>
@@ -515,12 +581,12 @@ const FlippingAd: React.FC<{ size?: 'small' | 'medium' | 'large' }> = ({ size = 
                     <li>Detailed analytics and performance tracking</li>
                   </ul>
                 </div>
-                
+
                 <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg px-6 py-3 font-semibold transition-all duration-200">
                   {currentAd.buttonText}
                 </button>
               </div>
-              
+
               <div className="text-center">
                 <p className="text-gray-600 mb-4">
                   Interested in advertising with us?
@@ -550,7 +616,7 @@ const AdBanners = {
   MobileBanner,
   RecentListings,
   TimeWidget,
-  FlippingAd
+  FlippingAd,
 };
 
 export default AdBanners;

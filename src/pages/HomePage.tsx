@@ -44,7 +44,7 @@ const HomePage: React.FC = () => {
 
           {/* Right Sidebar with Ads */}
           <div className="hidden xl:block w-48 flex-shrink-0">
-            <div className="sticky top-24 space-y-4 z-10">
+            <div className="sticky top-24 space-y-2">
               <AdBanners.SideBanner />
               <AdBanners.RecentListings onListingClick={handleListingClick} />
             </div>

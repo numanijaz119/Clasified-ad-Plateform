@@ -555,7 +555,7 @@ const FeaturedAdsPage: React.FC = () => {
 
           {/* Right Sidebar with Ads */}
           <div className="w-20 md:w-32 xl:w-48 flex-shrink-0">
-            <div className="sticky top-24 space-y-4 z-10">
+            <div className="sticky top-24 space-y-4">
               <AdBanners.FlippingAd size="large" />
               <AdBanners.FlippingAd size="small" />
             </div>

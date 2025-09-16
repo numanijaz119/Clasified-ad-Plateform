@@ -41,6 +41,11 @@ const HomePage: React.FC = () => {
           <div className="flex-1 min-w-0">
             <Hero />
 
+            {/* Mobile Recent Listing component */}
+            <div className="md:hidden">
+              <RecentListings onListingClick={handleListingClick} />
+            </div>
+
             <FeaturedAds />
 
             {/* Inline Banner Ad */}

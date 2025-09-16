@@ -75,7 +75,7 @@ const RecentListings: React.FC<RecentListingsProps> = ({ onListingClick }) => {
         <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
         Recent Listings
       </h3>
-      <div className="relative overflow-hidden h-64">
+      <div className="relative overflow-hidden h-24">
         <div
           className="transition-transform duration-500 ease-in-out"
           style={{ transform: `translateY(-${currentIndex * 26}px)` }}

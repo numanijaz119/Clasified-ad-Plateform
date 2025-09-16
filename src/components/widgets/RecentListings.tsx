@@ -41,7 +41,126 @@ const RecentListings: React.FC<RecentListingsProps> = ({ onListingClick }) => {
       phone: "(312) 555-0101",
       email: "hr@techcompany.com",
     },
-    // ... rest of your listings data
+    {
+      id: 2,
+      title: "Beautiful 3BR Downtown Condo",
+      category: "Real Estate",
+      price: "$2,200/month",
+      location: "Naperville, IL",
+      image:
+        "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=400",
+      views: 289,
+      timeAgo: "3 hours ago",
+      postedDate: new Date("2025-01-12"),
+      featured: true,
+      description:
+        "Beautiful 3-bedroom apartment with modern amenities and city views.",
+    },
+    {
+      id: 3,
+      title: "Honda Civic 2020 - Excellent Condition",
+      category: "Vehicles",
+      price: "$22,500",
+      location: "Aurora, IL",
+      image:
+        "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=400",
+      views: 234,
+      timeAgo: "6 hours ago",
+      postedDate: new Date("2025-01-11"),
+      featured: false,
+      description:
+        "Well-maintained Honda Civic with low mileage. Single owner, all service records available.",
+    },
+    {
+      id: 4,
+      title: "Professional Wedding Photography Services",
+      category: "Services",
+      price: "$1,200",
+      location: "Peoria, IL",
+      image:
+        "https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400",
+      views: 134,
+      timeAgo: "8 hours ago",
+      postedDate: new Date("2025-01-11"),
+      featured: true,
+      description:
+        "Professional wedding photography with Indian cultural expertise. Portfolio available.",
+    },
+    {
+      id: 5,
+      title: "Math Tutoring - All Levels Available",
+      category: "Education",
+      price: "$40/hour",
+      location: "Springfield, IL",
+      image:
+        "https://images.pexels.com/photos/1701194/pexels-photo-1701194.jpeg?auto=compress&cs=tinysrgb&w=400",
+      views: 89,
+      timeAgo: "12 hours ago",
+      postedDate: new Date("2025-01-10"),
+      featured: false,
+      description:
+        "Experienced math tutor for students of all ages. Flexible scheduling available.",
+    },
+    {
+      id: 6,
+      title: "MacBook Pro 2021 - Like New Condition",
+      category: "Buy & Sell",
+      price: "$1,800",
+      location: "Rockford, IL",
+      image:
+        "https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400",
+      views: 156,
+      timeAgo: "1 day ago",
+      postedDate: new Date("2025-01-09"),
+      featured: false,
+      description:
+        'MacBook Pro 14" with M1 Pro chip. Barely used, includes original box and accessories.',
+    },
+    {
+      id: 7,
+      title: "Indian Classical Dance Classes - Bharatanatyam",
+      category: "Education",
+      price: "$60/month",
+      location: "Urbana-Champaign, IL",
+      image:
+        "https://images.pexels.com/photos/1701194/pexels-photo-1701194.jpeg?auto=compress&cs=tinysrgb&w=400",
+      views: 98,
+      timeAgo: "2 days ago",
+      postedDate: new Date("2025-01-08"),
+      featured: false,
+      description:
+        "Learn Bharatanatyam from certified instructor. All ages welcome, flexible scheduling.",
+    },
+    {
+      id: 8,
+      title: "Professional House Cleaning Service",
+      category: "Services",
+      price: "$80/visit",
+      location: "Bloomington-Normal, IL",
+      image:
+        "https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400",
+      views: 145,
+      timeAgo: "3 days ago",
+      postedDate: new Date("2025-01-07"),
+      featured: false,
+      description:
+        "Professional house cleaning service with excellent reviews. Weekly or bi-weekly service available.",
+    },
+    {
+      id: 9,
+      title: "Yoga Instructor Position - RYT-200 Required",
+      category: "Jobs",
+      price: "$50/hour",
+      location: "Chicago, IL",
+      image:
+        "https://images.pexels.com/photos/4173251/pexels-photo-4173251.jpeg?auto=compress&cs=tinysrgb&w=400",
+      views: 123,
+      timeAgo: "4 days ago",
+      postedDate: new Date("2025-01-06"),
+      featured: false,
+      description:
+        "Seeking experienced yoga instructor for wellness center. RYT-200 certification required.",
+    },
     {
       id: 10,
       title: "Indian Catering Services for All Events",
@@ -75,7 +194,7 @@ const RecentListings: React.FC<RecentListingsProps> = ({ onListingClick }) => {
         <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
         Recent Listings
       </h3>
-      <div className="relative overflow-hidden h-64">
+      <div className="relative overflow-hidden h-48">
         <div
           className="transition-transform duration-500 ease-in-out"
           style={{ transform: `translateY(-${currentIndex * 26}px)` }}

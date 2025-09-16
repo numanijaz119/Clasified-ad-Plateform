@@ -16,7 +16,9 @@ const SideBanner: React.FC<SideBannerProps> = ({
   };
 
   return (
-    <div className="bg-gradient-to-br from-green-100 to-green-200 border-2 border-dashed border-green-300 rounded-lg flex items-center justify-center text-green-600 font-medium h-64 w-full">
+    <div
+      className={`bg-gradient-to-br from-green-100 to-green-200 border-2 border-dashed border-green-300 rounded-lg flex items-center justify-center text-green-600 font-medium ${sizeClasses[size]}`}
+    >
       <div className="text-center">
         <div className="text-sm font-semibold mb-1">Side Advertisement</div>
         <div className="text-xs">300 x 250 - Medium Rectangle</div>

@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Cloud } from "lucide-react";
 import SearchBar from "./SearchBar";
+import { SideBanner } from "./banners";
 
 const Hero: React.FC = () => {
   const cities = [
@@ -93,7 +94,7 @@ const Hero: React.FC = () => {
           <h2 className="text-lg font-bold text-gray-900 mb-3 text-center">
             Browse by Illinois Cities
           </h2>
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+          <div className="grid grid-cols-4 xl:grid-rows-1 grid-rows-2 xl:grid-cols-8 gap-2">
             {cities.map((city, index) => (
               <Link
                 to={`/city/${encodeURIComponent(city.name)}`}
@@ -134,7 +135,7 @@ const Hero: React.FC = () => {
           <h2 className="text-lg font-bold text-gray-900 mb-3 text-center">
             Browse Categories
           </h2>
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+          <div className="grid grid-cols-4 xl:grid-rows-1 grid-rows-2 xl:grid-cols-8 gap-2">
             {[
               {
                 name: "Jobs",

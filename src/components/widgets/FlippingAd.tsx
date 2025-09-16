@@ -18,7 +18,69 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
       buttonText: "Get Started",
       icon: "🚀",
     },
-    // ... rest of your ads data
+    {
+      id: 2,
+      title: "Featured Ad Placement",
+      subtitle: "Get noticed by thousands",
+      bgColor: "from-green-500 to-green-600",
+      textColor: "text-white",
+      buttonText: "Learn More",
+      icon: "⭐",
+    },
+    {
+      id: 3,
+      title: "Professional Services",
+      subtitle: "Connect with local experts",
+      bgColor: "from-purple-500 to-purple-600",
+      textColor: "text-white",
+      buttonText: "Find Services",
+      icon: "🔧",
+    },
+    {
+      id: 4,
+      title: "Real Estate Deals",
+      subtitle: "Find your dream home",
+      bgColor: "from-orange-500 to-orange-600",
+      textColor: "text-white",
+      buttonText: "Browse Homes",
+      icon: "🏠",
+    },
+    {
+      id: 5,
+      title: "Job Opportunities",
+      subtitle: "Advance your career",
+      bgColor: "from-indigo-500 to-indigo-600",
+      textColor: "text-white",
+      buttonText: "View Jobs",
+      icon: "💼",
+    },
+    {
+      id: 6,
+      title: "Vehicle Marketplace",
+      subtitle: "Buy & sell with confidence",
+      bgColor: "from-red-500 to-red-600",
+      textColor: "text-white",
+      buttonText: "Shop Now",
+      icon: "🚗",
+    },
+    {
+      id: 7,
+      title: "Community Events",
+      subtitle: "Stay connected locally",
+      bgColor: "from-pink-500 to-pink-600",
+      textColor: "text-white",
+      buttonText: "Join Events",
+      icon: "🎉",
+    },
+    {
+      id: 8,
+      title: "Education & Training",
+      subtitle: "Learn new skills today",
+      bgColor: "from-teal-500 to-teal-600",
+      textColor: "text-white",
+      buttonText: "Explore",
+      icon: "📚",
+    },
   ];
 
   React.useEffect(() => {
@@ -44,7 +106,7 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
   const sizeClasses = {
     small: "h-32 p-4",
     medium: "h-40 p-6",
-    large: "h-48 p-8",
+    large: "h-48 p-6",
   };
 
   const textSizes = {
@@ -71,7 +133,6 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
         className={`bg-gradient-to-r ${currentAd.bgColor} ${currentAd.textColor} rounded-lg shadow-lg ${sizeClasses[size]} transition-all duration-500 ease-in-out transform hover:scale-105 cursor-pointer overflow-hidden relative`}
         onClick={handleAdClick}
       >
-        {/* Your existing component JSX */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-16 translate-x-16"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-12 -translate-x-12"></div>

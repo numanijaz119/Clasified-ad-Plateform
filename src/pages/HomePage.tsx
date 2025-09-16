@@ -46,6 +46,11 @@ const HomePage: React.FC = () => {
               <RecentListings onListingClick={handleListingClick} />
             </div>
 
+            {/* Mobile Ad */}
+            <div className="md:hidden my-4">
+              <SideBanner size="small" />
+            </div>
+
             <FeaturedAds />
 
             {/* Inline Banner Ad */}
@@ -62,17 +67,14 @@ const HomePage: React.FC = () => {
           {/* Right Sidebar with Ads */}
           <div className="hidden md:block w-48 flex-shrink-0">
             <div className="sticky top-24 space-y-2">
-              <SideBanner />
+              {/* <SideBanner /> */}
               <RecentListings onListingClick={handleListingClick} />
             </div>
           </div>
         </div>
 
-        {/* <div className="my-4"> */}
-
         {/* Bottom Banner Ad */}
         <BottomBanner />
-        {/* </div> */}
       </main>
 
       {/* Listing Modal */}

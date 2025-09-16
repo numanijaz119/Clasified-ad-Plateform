@@ -106,7 +106,7 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
   const sizeClasses = {
     small: "h-32 p-4",
     medium: "h-40 p-6",
-    large: "h-48 p-8",
+    large: "h-48 p-6",
   };
 
   const textSizes = {
@@ -133,7 +133,6 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
         className={`bg-gradient-to-r ${currentAd.bgColor} ${currentAd.textColor} rounded-lg shadow-lg ${sizeClasses[size]} transition-all duration-500 ease-in-out transform hover:scale-105 cursor-pointer overflow-hidden relative`}
         onClick={handleAdClick}
       >
-        {/* Your existing component JSX */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-16 translate-x-16"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-12 -translate-x-12"></div>

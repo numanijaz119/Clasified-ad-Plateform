@@ -1,4 +1,3 @@
-export { default as AdBanners } from "./AdBanners";
 export { default as AdminPanel } from "./AdminPanel";
 export { default as Categories } from "./Categories";
 export { default as FeaturedAds } from "./FeaturedAds";

@@ -173,7 +173,7 @@ const FeaturedAds: React.FC = () => {
                 <img
                   src={ad.image}
                   alt={ad.title}
-                  className="w-full h-28 object-cover group-hover:scale-110 transition-transform duration-300"
+                  className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
                 />
 
                 {/* Featured Badge */}

@@ -1,15 +1,13 @@
 import React, { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
+import { ArrowLeft, Eye, Clock, Star, MapPin, Search } from "lucide-react";
 import {
-  ArrowLeft,
-  SlidersHorizontal,
-  Eye,
-  Clock,
-  Star,
-  MapPin,
-  Search,
-} from "lucide-react";
-import AdBanners from "../components/AdBanners";
+  MobileBanner,
+  FlippingAd,
+  SideBanner,
+  InlineBanner,
+  BottomBanner,
+} from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
 
 interface Listing {
@@ -251,14 +249,14 @@ const CityPage: React.FC = () => {
       {/* Mobile Ad Banner */}
       <div className="md:hidden bg-white border-b border-gray-200">
         <div className="px-4 py-2">
-          <AdBanners.MobileBanner />
+          <MobileBanner />
         </div>
       </div>
 
       {/* Tablet Ad Banner */}
       <div className="hidden md:block lg:hidden bg-white border-b border-gray-200">
         <div className="px-4 py-2">
-          <AdBanners.FlippingAd size="medium" />
+          <FlippingAd size="medium" />
         </div>
       </div>
 
@@ -268,14 +266,14 @@ const CityPage: React.FC = () => {
           <div className="w-20 md:w-32 lg:w-48 flex-shrink-0">
             <div className="sticky top-24 space-y-4 z-10">
               <div className="block lg:hidden">
-                <AdBanners.FlippingAd size="small" />
+                <FlippingAd size="small" />
               </div>
               <div className="hidden lg:block">
-                <AdBanners.SideBanner />
+                <SideBanner />
               </div>
-              <AdBanners.FlippingAd size="large" />
+              <FlippingAd size="large" />
               <div className="hidden md:block">
-                <AdBanners.FlippingAd size="medium" />
+                <FlippingAd size="medium" />
               </div>
             </div>
           </div>
@@ -431,7 +429,7 @@ const CityPage: React.FC = () => {
                     {(index + 1) % 5 === 0 &&
                       index < filteredListings.length - 1 && (
                         <div className="p-2 bg-gray-50 border-t border-b border-gray-200">
-                          <AdBanners.InlineBanner />
+                          <InlineBanner />
                         </div>
                       )}
                   </div>
@@ -458,15 +456,15 @@ const CityPage: React.FC = () => {
           {/* Right Sidebar with Ads */}
           <div className="w-20 md:w-32 xl:w-48 flex-shrink-0">
             <div className="sticky top-24 space-y-4">
-              <AdBanners.FlippingAd size="large" />
-              <AdBanners.FlippingAd size="small" />
+              <FlippingAd size="large" />
+              <FlippingAd size="small" />
             </div>
           </div>
         </div>
       </main>
 
       {/* Bottom Banner Ad */}
-      <AdBanners.BottomBanner />
+      <BottomBanner />
 
       {/* Listing Modal */}
       <ListingModal

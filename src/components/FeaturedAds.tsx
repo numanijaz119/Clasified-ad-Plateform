@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Eye, Clock, Star, Heart } from "lucide-react";
 import ListingModal from "./ListingModal";
+import Button from "./ui/Button";
 
 const FeaturedAds: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -145,11 +146,8 @@ const FeaturedAds: React.FC = () => {
             Premium listings from our community
           </p>
         </div>
-        <Link
-          to="/featured-ads"
-          className="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105 text-sm"
-        >
-          View All →
+        <Link to="/featured-ads">
+          <Button>View All → </Button>
         </Link>
       </div>
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Menu, X, User, Plus } from "lucide-react";
+import { Button } from "./";
 
 interface HeaderProps {
   onPostAd: () => void;
@@ -68,22 +69,17 @@ const Header: React.FC<HeaderProps> = ({
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-4">
-            <button
-              onClick={onPostAd}
-              className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-5 py-2.5 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 flex items-center space-x-2 font-semibold text-sm"
-            >
+            <Button variant="primary">
               <Plus className="h-4 w-4" />
               <span>Post Ad</span>
-            </button>
-            <button
-              onClick={isLoggedIn ? onSignOut : onSignIn}
-              className="flex items-center space-x-2 text-gray-700 hover:text-orange-500 transition-colors"
-            >
+            </Button>
+
+            <Button variant="ghost">
               <User className="h-5 w-5" />
               <span className="text-sm">
                 {isLoggedIn ? "Sign Out" : "Sign In"}
               </span>
-            </button>
+            </Button>
           </div>
 
           {/* Mobile menu button */}
@@ -127,23 +123,18 @@ const Header: React.FC<HeaderProps> = ({
         {isMobileMenuOpen && (
           <div className="lg:hidden border-t border-gray-200 py-3">
             {/* Mobile Action Buttons */}
-            <div className="space-y-2">
-              <button
-                onClick={onPostAd}
-                className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2.5 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 flex items-center justify-center space-x-2 font-semibold text-sm"
-              >
+            <div className="space-y-2 flex flex-col items-center">
+              <Button>
                 <Plus className="h-4 w-4" />
                 <span>Post Ad</span>
-              </button>
-              <button
-                onClick={isLoggedIn ? onSignOut : onSignIn}
-                className="w-full flex items-center justify-center space-x-2 text-gray-700 hover:text-orange-500 transition-colors py-2"
-              >
+              </Button>
+
+              <Button variant="ghost">
                 <User className="h-5 w-5" />
                 <span className="text-sm">
                   {isLoggedIn ? "Sign Out" : "Sign In"}
                 </span>
-              </button>
+              </Button>
             </div>
           </div>
         )}

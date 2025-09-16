@@ -30,7 +30,7 @@ const HomePage: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4">
         <div className="flex gap-4">
           {/* Left Sidebar with Ads */}
-          <div className="hidden lg:block w-48 flex-shrink-0">
+          <div className="hidden md:block w-48 flex-shrink-0">
             <div className="sticky top-24 space-y-4 z-10">
               <SideBanner />
               <FlippingAd size="large" />
@@ -44,13 +44,18 @@ const HomePage: React.FC = () => {
             <FeaturedAds />
 
             {/* Inline Banner Ad */}
-            <div className="mt-3">
+            <div className="mt-3 space-y-4">
+              {/* Mobile flipping ad */}
+              <div className=" md:hidden">
+                <FlippingAd size="large" />
+              </div>
+
               <InlineBanner />
             </div>
           </div>
 
           {/* Right Sidebar with Ads */}
-          <div className="hidden xl:block w-48 flex-shrink-0">
+          <div className="hidden md:block w-48 flex-shrink-0">
             <div className="sticky top-24 space-y-2">
               <SideBanner />
               <RecentListings onListingClick={handleListingClick} />
@@ -58,8 +63,11 @@ const HomePage: React.FC = () => {
           </div>
         </div>
 
+        {/* <div className="my-4"> */}
+
         {/* Bottom Banner Ad */}
         <BottomBanner />
+        {/* </div> */}
       </main>
 
       {/* Listing Modal */}

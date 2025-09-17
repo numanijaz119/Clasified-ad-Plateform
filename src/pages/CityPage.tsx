@@ -474,7 +474,9 @@ const CityPage: React.FC = () => {
       </div>
 
       {/* Bottom Banner Ad */}
-      <BottomBanner />
+      <div className="mx-4">
+        <BottomBanner />
+      </div>
 
       {/* Listing Modal */}
       <ListingModal

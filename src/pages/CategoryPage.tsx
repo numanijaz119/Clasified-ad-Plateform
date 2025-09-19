@@ -428,35 +428,40 @@ const CategoryPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Ad Banner */}
-      <div className="md:hidden bg-white border-b border-gray-200">
+      {/* Top Ad Banner */}
+      <div className=" bg-white border-b border-gray-200">
         <div className="px-4 py-2">
           <MobileBanner />
         </div>
       </div>
 
       {/* Tablet Ad Banner */}
-      <div className="hidden md:block lg:hidden bg-white border-b border-gray-200">
+      {/* <div className="hidden md:block lg:hidden bg-white border-b border-gray-200">
         <div className="px-4 py-2">
           <FlippingAd size="medium" />
         </div>
+      </div> */}
+
+      {/* Mobile FlippingAd */}
+      <div className=" md:hidden m-4 mb-0">
+        <FlippingAd size="medium" />
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex gap-2 md:gap-4 lg:gap-6">
           {/* Left Sidebar with Ads */}
-          <div className="w-20 md:w-32 lg:w-48 flex-shrink-0">
+          <div className="md:w-48 hidden md:block  xl:w-72 lg:w-64 flex-shrink-0">
             <div className="sticky top-24 space-y-4 z-10">
-              <div className="block lg:hidden">
+              {/* <div className="block lg:hidden">
                 <FlippingAd size="small" />
-              </div>
-              <div className="hidden lg:block">
+              </div> */}
+              <div className="block">
                 <SideBanner />
               </div>
-              <FlippingAd size="large" />
-              <div className="hidden md:block">
+              <FlippingAd size="medium" />
+              {/* <div className="hidden md:block">
                 <FlippingAd size="medium" />
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -640,17 +645,24 @@ const CategoryPage: React.FC = () => {
           </div>
 
           {/* Right Sidebar with Ads */}
-          <div className="w-20 md:w-32 xl:w-48 flex-shrink-0">
+          <div className="md:w-48 xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
             <div className="sticky top-24 space-y-4">
-              <FlippingAd size="large" />
+              <FlippingAd size="medium" />
               <FlippingAd size="small" />
             </div>
           </div>
         </div>
       </main>
 
+      {/* Mobile Bottom FlippingAd */}
+      <div className="md:hiddenm m-4 mt-0">
+        <FlippingAd size="medium" />
+      </div>
+
       {/* Bottom Banner Ad */}
-      <BottomBanner />
+      <div className="mx-4">
+        <BottomBanner />
+      </div>
 
       {/* Listing Modal */}
       <ListingModal

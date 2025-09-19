@@ -8,6 +8,7 @@ interface HeaderProps {
   onSignIn: () => void;
   isLoggedIn: boolean;
   onSignOut: () => void;
+  user: any;
 }
 
 const Header: React.FC<HeaderProps> = ({

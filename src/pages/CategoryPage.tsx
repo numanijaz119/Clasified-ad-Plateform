@@ -645,7 +645,7 @@ const CategoryPage: React.FC = () => {
           </div>
 
           {/* Right Sidebar with Ads */}
-          <div className="md:w-48   xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
+          <div className="md:w-48 xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
             <div className="sticky top-24 space-y-4">
               <FlippingAd size="medium" />
               <FlippingAd size="small" />

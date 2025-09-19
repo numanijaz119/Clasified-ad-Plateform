@@ -1,6 +1,8 @@
+// src/components/SignInModal.tsx
 import React, { useState } from "react";
 import { Mail, Eye, EyeOff, ArrowLeft } from "lucide-react";
-import BaseModal from "./modals/BaseModal"; // Adjust path as needed
+import BaseModal from "./modals/BaseModal";
+import { authService } from "../services/authService";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -18,25 +20,29 @@ const SignInModal: React.FC<SignInModalProps> = ({
   >("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    // Simulate Google OAuth flow
-    setTimeout(() => {
+    setError("");
+
+    try {
+      // Google OAuth integration placeholder
+      // In production, this would use Google OAuth SDK
+      alert("Google Sign-In integration coming soon!");
+    } catch (err: any) {
+      setError(err.message || "Google sign-in failed");
+    } finally {
       setIsLoading(false);
-      // In real implementation, this would redirect to Google OAuth
-      if (onSignInSuccess) {
-        onSignInSuccess();
-      } else {
-        alert("Google Sign-In would redirect to Google OAuth in production");
-        onClose();
-      }
-    }, 1000);
+    }
   };
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
@@ -44,33 +50,70 @@ const SignInModal: React.FC<SignInModalProps> = ({
     setError("");
     setIsLoading(true);
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address");
-      setIsLoading(false);
-      return;
-    }
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      if (isSignUp) {
-        // For sign up, always go to verification
-        setCurrentStep("verify");
-      } else {
-        // For sign in, simulate checking if user exists
-        const existingUser = Math.random() > 0.5; // 50% chance user exists
-        if (existingUser) {
-          // User exists, sign in directly (in real app, check password)
-          alert("Sign in successful!");
-          onClose();
-        } else {
-          // User doesn't exist, go to verification for new account
-          setCurrentStep("verify");
-        }
+    try {
+      // Basic validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new Error("Please enter a valid email address");
       }
-    }, 1000);
+
+      if (isSignUp) {
+        // Registration flow
+        if (password !== confirmPassword) {
+          throw new Error("Passwords do not match");
+        }
+
+        if (password.length < 8) {
+          throw new Error("Password must be at least 8 characters long");
+        }
+
+        const registerData = {
+          email: email.trim(),
+          password,
+          confirm_password: confirmPassword,
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          phone_number: phoneNumber.trim(),
+        };
+
+        await authService.register(registerData);
+
+        // Success - auth service handles token storage
+        onSignInSuccess();
+        resetForm();
+        onClose();
+      } else {
+        // Login flow
+        const loginData = {
+          email: email.trim(),
+          password,
+        };
+
+        await authService.login(loginData);
+
+        // Success - auth service handles token storage
+        onSignInSuccess();
+        resetForm();
+        onClose();
+      }
+    } catch (err: any) {
+      console.error("Auth error:", err);
+      // Handle different error types from your backend
+      if (err.details && typeof err.details === "object") {
+        // Handle field-specific errors
+        const fieldErrors = Object.entries(err.details);
+        if (fieldErrors.length > 0) {
+          const [field, messages] = fieldErrors[0];
+          setError(Array.isArray(messages) ? messages[0] : messages);
+        } else {
+          setError(err.message || "Authentication failed");
+        }
+      } else {
+        setError(err.message || "Something went wrong. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleVerifyCode = async (e: React.FormEvent) => {
@@ -78,37 +121,47 @@ const SignInModal: React.FC<SignInModalProps> = ({
     setError("");
     setIsLoading(true);
 
-    if (verificationCode.length !== 6) {
-      setError("Please enter a 6-digit verification code");
-      setIsLoading(false);
-      return;
-    }
-
-    // Simulate verification
-    setTimeout(() => {
-      setIsLoading(false);
-      if (verificationCode === "123456") {
-        alert("Email verified successfully! Account created.");
-        onClose();
-        resetForm();
-      } else {
-        setError("Invalid verification code. Try 123456 for demo.");
+    try {
+      if (verificationCode.length !== 6) {
+        throw new Error("Please enter a 6-digit verification code");
       }
-    }, 1000);
+
+      // Use your auth service for verification
+      await authService.verifyEmail({ token: verificationCode });
+
+      alert("Email verified successfully!");
+      onClose();
+      resetForm();
+    } catch (err: any) {
+      setError(err.message || "Verification failed");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const resendCode = () => {
+  const resendCode = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    setError("");
+
+    try {
+      // Placeholder for resend functionality
+      // You might want to add a resend endpoint to your backend
       alert("Verification code sent to " + email);
-    }, 1000);
+    } catch (err: any) {
+      setError(err.message || "Failed to resend code");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resetForm = () => {
     setCurrentStep("signin");
     setEmail("");
     setPassword("");
+    setConfirmPassword("");
+    setFirstName("");
+    setLastName("");
+    setPhoneNumber("");
     setVerificationCode("");
     setError("");
     setIsSignUp(false);
@@ -128,6 +181,7 @@ const SignInModal: React.FC<SignInModalProps> = ({
             <button
               onClick={() => setCurrentStep("signin")}
               className="mr-3 text-gray-400 hover:text-gray-600 transition-colors"
+              disabled={isLoading}
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
@@ -138,6 +192,7 @@ const SignInModal: React.FC<SignInModalProps> = ({
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
+            disabled={isLoading}
           >
             <svg
               className="h-6 w-6"
@@ -213,54 +268,105 @@ const SignInModal: React.FC<SignInModalProps> = ({
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  Or continue with email
-                </span>
+                <span className="px-2 bg-white text-gray-500">or</span>
               </div>
             </div>
 
             {/* Email Form */}
             <form onSubmit={handleEmailSignIn} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
+              {/* Name fields for sign up */}
+              {isSignUp && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First Name"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last Name"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Phone for sign up */}
+              {isSignUp && (
+                <div>
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="Phone Number (optional)"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    disabled={isLoading}
+                  />
+                </div>
+              )}
+
+              {/* Email */}
+              <div className="relative">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Email address"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   required
+                  disabled={isLoading}
                 />
+                <Mail className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
               </div>
 
-              {!isSignUp && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
+              {/* Password */}
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  required
+                  disabled={isLoading}
+                  minLength={isSignUp ? 8 : undefined}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600"
+                  disabled={isLoading}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+
+              {/* Confirm Password for sign up */}
+              {isSignUp && (
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm Password"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    required
+                    disabled={isLoading}
+                    minLength={8}
+                  />
                 </div>
               )}
 
@@ -288,6 +394,7 @@ const SignInModal: React.FC<SignInModalProps> = ({
               <button
                 onClick={() => setIsSignUp(!isSignUp)}
                 className="text-orange-500 hover:text-orange-600 font-medium"
+                disabled={isLoading}
               >
                 {isSignUp
                   ? "Already have an account? Sign In"
@@ -339,10 +446,8 @@ const SignInModal: React.FC<SignInModalProps> = ({
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-center text-lg font-mono tracking-widest"
                   maxLength={6}
                   required
+                  disabled={isLoading}
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  For demo, use: 123456
-                </p>
               </div>
 
               {error && (

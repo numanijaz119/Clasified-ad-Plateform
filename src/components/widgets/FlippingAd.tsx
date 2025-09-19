@@ -105,8 +105,8 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
 
   const sizeClasses = {
     small: "h-32 p-4",
-    medium: "h-40 p-6",
-    large: "h-48 p-6",
+    medium: "h-40 p-4",
+    large: "h-48 p-4",
   };
 
   const textSizes = {
@@ -116,12 +116,12 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
       button: "text-xs px-3 py-1",
     },
     medium: {
-      title: "text-lg",
+      title: "text-base",
       subtitle: "text-sm",
       button: "text-sm px-4 py-2",
     },
     large: {
-      title: "text-xl",
+      title: "text-lg",
       subtitle: "text-base",
       button: "text-base px-6 py-3",
     },
@@ -160,7 +160,7 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
               {currentAd.buttonText}
             </button>
 
-            <div className="flex space-x-1">
+            {/* <div className="flex space-x-1">
               {ads.map((_, index) => (
                 <div
                   key={index}
@@ -169,7 +169,7 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
                   }`}
                 />
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
 

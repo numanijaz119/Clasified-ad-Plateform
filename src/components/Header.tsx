@@ -69,12 +69,12 @@ const Header: React.FC<HeaderProps> = ({
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-4">
-            <Button variant="primary">
+            <Button variant="primary" onClick={onPostAd}>
               <Plus className="h-4 w-4" />
               <span>Post Ad</span>
             </Button>
 
-            <Button variant="ghost">
+            <Button variant="ghost" onClick={isLoggedIn ? onSignOut : onSignIn}>
               <User className="h-5 w-5" />
               <span className="text-sm">
                 {isLoggedIn ? "Sign Out" : "Sign In"}
@@ -124,12 +124,15 @@ const Header: React.FC<HeaderProps> = ({
           <div className="lg:hidden border-t border-gray-200 py-3">
             {/* Mobile Action Buttons */}
             <div className="space-y-2 flex flex-col items-center">
-              <Button>
+              <Button onClick={onPostAd}>
                 <Plus className="h-4 w-4" />
                 <span>Post Ad</span>
               </Button>
 
-              <Button variant="ghost">
+              <Button
+                variant="ghost"
+                onClick={isLoggedIn ? onSignOut : onSignIn}
+              >
                 <User className="h-5 w-5" />
                 <span className="text-sm">
                   {isLoggedIn ? "Sign Out" : "Sign In"}

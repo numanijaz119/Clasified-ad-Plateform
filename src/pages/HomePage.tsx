@@ -29,7 +29,7 @@ const HomePage: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4">
         <div className="flex gap-4">
           {/* Left Sidebar with Ads */}
-          <div className="hidden md:block lg:w-60 xl:w-72 md:w-48 flex-shrink-0">
+          <div className="hidden md:block lg:w-64 xl:w-72 md:w-48 flex-shrink-0">
             <div className="sticky top-24 space-y-4 z-10">
               <SideBanner />
               <FlippingAd size="medium" />
@@ -64,7 +64,7 @@ const HomePage: React.FC = () => {
           </div>
 
           {/* Right Sidebar with Ads */}
-          <div className="hidden md:block lg:w-60 xl:w-72 md:w-48 flex-shrink-0">
+          <div className="hidden md:block lg:w-64 xl:w-72 md:w-48 flex-shrink-0">
             <div className="sticky top-24 space-y-2">
               {/* <SideBanner /> */}
               <RecentListings onListingClick={handleListingClick} />

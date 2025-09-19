@@ -85,21 +85,37 @@ class AuthService extends BaseApiService {
   }
 
   /**
-   * Verify email with token
+   * Verify email with 6-digit code
    */
-  async verifyEmail(
-    verificationData: EmailVerificationRequest
-  ): Promise<EmailVerificationResponse> {
+  async verifyEmail(code: string): Promise<any> {
     try {
-      const response = await this.post<EmailVerificationResponse>(
-        `${API_CONFIG.ENDPOINTS.AUTH.VERIFY_EMAIL}/${verificationData.token}/`,
-        {},
+      const response = await this.put<any>(
+        API_CONFIG.ENDPOINTS.AUTH.VERIFY_EMAIL, // Changed from /${token}/ to just the endpoint
+        { code }, // Send code in request body
         false // Don't include auth header for email verification
       );
 
       return response.data || { message: "Email verified successfully" };
     } catch (error: any) {
       console.error("Email verification error:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Resend verification email
+   */
+  async resendVerificationEmail(email: string): Promise<any> {
+    try {
+      const response = await this.post<any>(
+        `${API_CONFIG.ENDPOINTS.AUTH.VERIFY_EMAIL}/resend/`,
+        { email },
+        false
+      );
+
+      return response.data || { message: "Verification email sent" };
+    } catch (error: any) {
+      console.error("Resend verification error:", error);
       throw error;
     }
   }

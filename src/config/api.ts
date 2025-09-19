@@ -7,7 +7,7 @@ export const API_CONFIG = {
       REGISTER: "/api/auth/register/",
       LOGIN: "/api/auth/login/",
       GOOGLE_LOGIN: "/api/auth/google-login/",
-      VERIFY_EMAIL: "/api/auth/verify-email",
+      VERIFY_EMAIL: "/api/auth/verify-email/",
       PROFILE: "/api/auth/profile/",
       PROFILE_UPDATE: "/api/auth/profile/update/",
       DELETE_ACCOUNT: "/api/auth/delete-account/",

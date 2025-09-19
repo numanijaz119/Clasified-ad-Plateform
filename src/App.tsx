@@ -1,4 +1,4 @@
-// src/App.tsx
+// src/App.tsx - UPDATED VERSION (matches your existing pattern)
 import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
@@ -91,6 +91,9 @@ function App() {
     setUser(userData);
     setIsLoggedIn(true);
     setIsSignInModalOpen(false);
+
+    // If user was trying to post an ad, open that modal after sign in
+    // Otherwise, they'll be navigated to dashboard by the modal
     setIsPostAdModalOpen(true);
   };
 
@@ -144,7 +147,7 @@ function App() {
         isLoggedIn={isLoggedIn}
       />
 
-      {/* Sign In Modal */}
+      {/* Sign In Modal - Now properly refactored with smaller components */}
       <SignInModal
         isOpen={isSignInModalOpen}
         onClose={() => setIsSignInModalOpen(false)}

@@ -24,7 +24,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  confirm_password: string;
+  password_confirm: string;
   first_name?: string;
   last_name?: string;
   phone_number?: string;

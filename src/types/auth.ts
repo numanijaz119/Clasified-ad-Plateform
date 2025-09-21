@@ -1,14 +1,16 @@
+// src/types/auth.ts
 export interface User {
   id: number;
   email: string;
-  first_name?: string;
-  last_name?: string;
-  phone_number?: string;
-  is_verified?: boolean;
-  is_active?: boolean;
-  date_joined?: string;
-  last_login?: string;
-  profile_picture?: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  full_name: string;
+  email_verified: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  avatar?: string;
 }
 
 export interface AuthTokens {
@@ -25,9 +27,9 @@ export interface RegisterRequest {
   email: string;
   password: string;
   password_confirm: string;
-  first_name?: string;
-  last_name?: string;
-  phone_number?: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
 }
 
 export interface GoogleLoginRequest {
@@ -47,12 +49,44 @@ export interface RegisterResponse {
 }
 
 export interface EmailVerificationRequest {
-  token: string;
+  code: string;
 }
 
 export interface EmailVerificationResponse {
   message: string;
-  user?: User;
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  code: string;
+  new_password: string;
+  confirm_password: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
+export interface ChangePasswordRequest {
+  old_password: string;
+  new_password: string;
+  confirm_password: string;
+}
+
+export interface ChangePasswordResponse {
+  message: string;
 }
 
 export interface AuthState {
@@ -66,7 +100,20 @@ export interface AuthContextType extends AuthState {
   login: (credentials: LoginRequest) => Promise<void>;
   register: (userData: RegisterRequest) => Promise<void>;
   googleLogin: (tokenData: GoogleLoginRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   clearError: () => void;
   updateUser: (userData: Partial<User>) => void;
+  verifyEmail: (
+    data: EmailVerificationRequest
+  ) => Promise<EmailVerificationResponse>;
+  resendVerification: (
+    data: ResendVerificationRequest
+  ) => Promise<EmailVerificationResponse>;
+  forgotPassword: (
+    data: ForgotPasswordRequest
+  ) => Promise<ForgotPasswordResponse>;
+  resetPassword: (data: ResetPasswordRequest) => Promise<ResetPasswordResponse>;
+  changePassword: (
+    data: ChangePasswordRequest
+  ) => Promise<ChangePasswordResponse>;
 }

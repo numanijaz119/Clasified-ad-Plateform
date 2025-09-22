@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Mail, Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
-import { authService } from "../../services/authService";
+import { Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 import GoogleSignInButton from "./GoogleSignInButton";
 
 interface SignInFormProps {
@@ -14,16 +14,14 @@ const SignInForm: React.FC<SignInFormProps> = ({
   onSwitchToSignUp,
   onSwitchToVerification,
 }) => {
+  const { login, isLoading, error, clearError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
+    clearError();
 
     try {
       // Basic validation
@@ -37,10 +35,9 @@ const SignInForm: React.FC<SignInFormProps> = ({
         password,
       };
 
-      await authService.login(loginData);
+      await login(loginData);
 
-      // Success - the auth service should handle token storage and emit auth events
-      // App.tsx will catch the auth:login event and update state
+      // Success - the auth context handles state updates
       onSuccess();
     } catch (err: any) {
       console.error("Sign in error:", err);
@@ -49,7 +46,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
 
       if (err.details && typeof err.details === "object") {
         const fieldErrors = [];
-        for (const [field, messages] of Object.entries(err.details)) {
+        for (const [, messages] of Object.entries(err.details)) {
           if (Array.isArray(messages)) {
             fieldErrors.push(...messages);
           } else if (typeof messages === "string") {
@@ -71,11 +68,8 @@ const SignInForm: React.FC<SignInFormProps> = ({
         errorMessage.includes("email_not_verified")
       ) {
         onSwitchToVerification(email);
-      } else {
-        setError(errorMessage);
       }
-    } finally {
-      setIsLoading(false);
+      // Error is handled by auth context, no need to set local error
     }
   };
 

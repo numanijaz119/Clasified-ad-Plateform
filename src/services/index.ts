@@ -22,13 +22,32 @@ export type {
 export type {
   Ad,
   AdImage,
+  AdCategory,
+  AdCity,
+  AdState,
+  AdUser,
   CreateAdRequest,
   UpdateAdRequest,
   AdListParams,
   AdListResponse,
-} from "./adsService";
+  AdAnalytics,
+  DashboardAnalytics,
+  AdFavorite,
+  AdReport,
+  CreateReportRequest,
+  AdminAdListParams,
+  AdminAnalytics,
+  AdminAdAction,
+} from "../types/ads";
 
-export type { Category, City, State } from "./contentService";
+export type {
+  Category,
+  City,
+  State,
+  ContentStats,
+  LocationSearchResult,
+  CategoryHierarchy,
+} from "../types/content";
 
 // Export API configuration
 export { API_CONFIG } from "../config/api";

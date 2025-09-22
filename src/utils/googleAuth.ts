@@ -1,5 +1,4 @@
 // src/utils/googleAuth.ts
-import { authService } from "../services/authService";
 
 declare global {
   interface Window {
@@ -31,7 +30,9 @@ export const loadGoogleOAuth = (): Promise<void> => {
 };
 
 // Initialize Google OAuth
-export const initializeGoogleAuth = async (): Promise<void> => {
+export const initializeGoogleAuth = async (
+  onGoogleLogin: (tokenData: { id_token: string }) => Promise<void>
+): Promise<void> => {
   try {
     await loadGoogleOAuth();
 
@@ -41,7 +42,7 @@ export const initializeGoogleAuth = async (): Promise<void> => {
 
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
-      callback: handleGoogleCallback,
+      callback: (response: any) => handleGoogleCallback(response, onGoogleLogin),
       auto_select: false,
       cancel_on_tap_outside: true,
     });
@@ -52,11 +53,14 @@ export const initializeGoogleAuth = async (): Promise<void> => {
 };
 
 // Handle Google OAuth callback
-const handleGoogleCallback = async (response: any) => {
+const handleGoogleCallback = async (
+  response: any,
+  onGoogleLogin: (tokenData: { id_token: string }) => Promise<void>
+) => {
   try {
     if (response.credential) {
       // response.credential is the ID token (JWT)
-      await authService.googleLogin({
+      await onGoogleLogin({
         id_token: response.credential, // Correctly sending id_token
       });
     }
@@ -67,7 +71,9 @@ const handleGoogleCallback = async (response: any) => {
 };
 
 // Trigger Google Sign-In
-export const signInWithGoogle = (): Promise<void> => {
+export const signInWithGoogle = (
+  onGoogleLogin: (tokenData: { id_token: string }) => Promise<void>
+): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (!window.google) {
       reject(new Error("Google OAuth not loaded"));
@@ -79,7 +85,7 @@ export const signInWithGoogle = (): Promise<void> => {
       window.google.accounts.id.prompt((notification: any) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
           // Fallback to popup
-          showGooglePopup(resolve, reject);
+          showGooglePopup(resolve, reject, onGoogleLogin);
         } else if (notification.isDismissedMoment()) {
           reject(new Error("Google sign-in was dismissed"));
         } else {
@@ -87,18 +93,22 @@ export const signInWithGoogle = (): Promise<void> => {
         }
       });
     } catch (error) {
-      showGooglePopup(resolve, reject);
+      showGooglePopup(resolve, reject, onGoogleLogin);
     }
   });
 };
 
 // Fallback popup method
-const showGooglePopup = (resolve: Function, reject: Function) => {
+const showGooglePopup = (
+  resolve: Function,
+  reject: Function,
+  onGoogleLogin: (tokenData: { id_token: string }) => Promise<void>
+) => {
   try {
     const popupCallback = async (response: any) => {
       try {
         if (response.credential) {
-          await authService.googleLogin({
+          await onGoogleLogin({
             id_token: response.credential, // Correctly sending id_token
           });
           resolve();

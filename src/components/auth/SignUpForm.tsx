@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Mail, Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
-import { authService } from "../../services/authService";
+import { Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 import GoogleSignInButton from "./GoogleSignInButton";
 
 interface SignUpFormProps {
@@ -12,6 +12,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   onSuccess,
   onSwitchToSignIn,
 }) => {
+  const { register, isLoading, error, clearError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -19,13 +20,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
+    clearError();
 
     try {
       // Basic validation
@@ -60,7 +58,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         phone: phone.trim(),
       };
 
-      const response = await authService.register(registerData);
+      const response = await register(registerData);
 
       // Registration successful - switch to verification step
       onSuccess(
@@ -74,7 +72,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 
       if (err.details && typeof err.details === "object") {
         const fieldErrors = [];
-        for (const [field, messages] of Object.entries(err.details)) {
+        for (const [, messages] of Object.entries(err.details)) {
           if (Array.isArray(messages)) {
             fieldErrors.push(...messages);
           } else if (typeof messages === "string") {
@@ -90,9 +88,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         errorMessage = err.message;
       }
 
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
+      // Error is handled by auth context, but we can throw with custom message
+      throw new Error(errorMessage);
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
-import { authService } from "../../services/authService";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface EmailVerificationProps {
   email: string;
@@ -15,42 +15,37 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
   onBack,
   initialMessage,
 }) => {
+  const { verifyEmail, resendVerification, isLoading, error, clearError } = useAuth();
   const [verificationCode, setVerificationCode] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(initialMessage || "");
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
+    clearError();
 
     try {
       if (verificationCode.length < 6) {
         throw new Error("Please enter a valid verification code");
       }
 
-      await authService.verifyEmail(verificationCode);
+      await verifyEmail({ code: verificationCode });
       onSuccess();
     } catch (err: any) {
-      setError(err.message || "Invalid verification code. Please try again.");
-    } finally {
-      setIsLoading(false);
+      // Error is handled by auth context
+      console.error("Email verification error:", err);
     }
   };
 
   const resendVerificationEmail = async () => {
-    setIsLoading(true);
-    setError("");
+    clearError();
     setSuccess("");
 
     try {
-      await authService.resendVerificationEmail(email);
+      await resendVerification({ email });
       setSuccess("Verification email sent! Please check your inbox.");
     } catch (err: any) {
-      setError(err.message || "Failed to resend verification email");
-    } finally {
-      setIsLoading(false);
+      // Error is handled by auth context
+      console.error("Resend verification error:", err);
     }
   };
 

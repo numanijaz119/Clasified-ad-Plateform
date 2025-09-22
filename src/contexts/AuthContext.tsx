@@ -12,7 +12,17 @@ import {
   User,
   LoginRequest,
   RegisterRequest,
+  RegisterResponse,
   GoogleLoginRequest,
+  EmailVerificationRequest,
+  EmailVerificationResponse,
+  ResendVerificationRequest,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
 } from "../types/auth";
 
 // Initial state
@@ -167,13 +177,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Register function
-  const register = async (userData: RegisterRequest): Promise<void> => {
+  const register = async (userData: RegisterRequest): Promise<RegisterResponse> => {
     try {
       dispatch({ type: "AUTH_START" });
 
       const response = await authService.register(userData);
 
       dispatch({ type: "AUTH_SUCCESS", payload: response.user });
+      return response;
     } catch (error: any) {
       const errorMessage =
         error.message || "Registration failed. Please try again.";
@@ -199,9 +210,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Logout function
-  const logout = (): void => {
+  const logout = async (): Promise<void> => {
     try {
-      authService.logout();
+      await authService.logout();
       dispatch({ type: "AUTH_LOGOUT" });
     } catch (error) {
       console.error("Logout error:", error);
@@ -220,6 +231,76 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: "UPDATE_USER", payload: userData });
   };
 
+  // Email verification function
+  const verifyEmail = async (data: EmailVerificationRequest): Promise<EmailVerificationResponse> => {
+    try {
+      dispatch({ type: "AUTH_START" });
+      const response = await authService.verifyEmail(data);
+      dispatch({ type: "SET_LOADING", payload: false });
+      return response;
+    } catch (error: any) {
+      const errorMessage = error.message || "Email verification failed. Please try again.";
+      dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
+      throw error;
+    }
+  };
+
+  // Resend verification function
+  const resendVerification = async (data: ResendVerificationRequest): Promise<EmailVerificationResponse> => {
+    try {
+      dispatch({ type: "AUTH_START" });
+      const response = await authService.resendVerificationEmail(data);
+      dispatch({ type: "SET_LOADING", payload: false });
+      return response;
+    } catch (error: any) {
+      const errorMessage = error.message || "Failed to resend verification email. Please try again.";
+      dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
+      throw error;
+    }
+  };
+
+  // Forgot password function
+  const forgotPassword = async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
+    try {
+      dispatch({ type: "AUTH_START" });
+      const response = await authService.forgotPassword(data);
+      dispatch({ type: "SET_LOADING", payload: false });
+      return response;
+    } catch (error: any) {
+      const errorMessage = error.message || "Failed to send password reset email. Please try again.";
+      dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
+      throw error;
+    }
+  };
+
+  // Reset password function
+  const resetPassword = async (data: ResetPasswordRequest): Promise<ResetPasswordResponse> => {
+    try {
+      dispatch({ type: "AUTH_START" });
+      const response = await authService.resetPassword(data);
+      dispatch({ type: "SET_LOADING", payload: false });
+      return response;
+    } catch (error: any) {
+      const errorMessage = error.message || "Password reset failed. Please try again.";
+      dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
+      throw error;
+    }
+  };
+
+  // Change password function
+  const changePassword = async (data: ChangePasswordRequest): Promise<ChangePasswordResponse> => {
+    try {
+      dispatch({ type: "AUTH_START" });
+      const response = await authService.changePassword(data);
+      dispatch({ type: "SET_LOADING", payload: false });
+      return response;
+    } catch (error: any) {
+      const errorMessage = error.message || "Password change failed. Please try again.";
+      dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
+      throw error;
+    }
+  };
+
   const value: AuthContextType = {
     ...state,
     login,
@@ -228,6 +309,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     clearError,
     updateUser,
+    verifyEmail,
+    resendVerification,
+    forgotPassword,
+    resetPassword,
+    changePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -9,6 +9,13 @@ import {
   RegisterResponse,
   EmailVerificationRequest,
   EmailVerificationResponse,
+  ResendVerificationRequest,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
 } from "../types/auth";
 
 class AuthService extends BaseApiService {
@@ -87,11 +94,11 @@ class AuthService extends BaseApiService {
   /**
    * Verify email with 6-digit code
    */
-  async verifyEmail(code: string): Promise<any> {
+  async verifyEmail(data: EmailVerificationRequest): Promise<EmailVerificationResponse> {
     try {
-      const response = await this.put<any>(
-        API_CONFIG.ENDPOINTS.AUTH.VERIFY_EMAIL, // Changed from /${token}/ to just the endpoint
-        { code }, // Send code in request body
+      const response = await this.post<EmailVerificationResponse>(
+        API_CONFIG.ENDPOINTS.AUTH.VERIFY_EMAIL,
+        data,
         false // Don't include auth header for email verification
       );
 
@@ -105,11 +112,11 @@ class AuthService extends BaseApiService {
   /**
    * Resend verification email
    */
-  async resendVerificationEmail(email: string): Promise<any> {
+  async resendVerificationEmail(data: ResendVerificationRequest): Promise<EmailVerificationResponse> {
     try {
-      const response = await this.post<any>(
-        `${API_CONFIG.ENDPOINTS.AUTH.VERIFY_EMAIL}/resend/`,
-        { email },
+      const response = await this.post<EmailVerificationResponse>(
+        API_CONFIG.ENDPOINTS.AUTH.RESEND_VERIFICATION,
+        data,
         false
       );
 
@@ -168,16 +175,68 @@ class AuthService extends BaseApiService {
   }
 
   /**
+   * Forgot password - send reset code
+   */
+  async forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    try {
+      const response = await this.post<ForgotPasswordResponse>(
+        API_CONFIG.ENDPOINTS.AUTH.FORGOT_PASSWORD,
+        data,
+        false
+      );
+
+      return response.data || { message: "Password reset code sent to your email" };
+    } catch (error: any) {
+      console.error("Forgot password error:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Reset password using code
+   */
+  async resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+    try {
+      const response = await this.post<ResetPasswordResponse>(
+        API_CONFIG.ENDPOINTS.AUTH.RESET_PASSWORD,
+        data,
+        false
+      );
+
+      return response.data || { message: "Password reset successful" };
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Change password for authenticated users
+   */
+  async changePassword(data: ChangePasswordRequest): Promise<ChangePasswordResponse> {
+    try {
+      const response = await this.post<ChangePasswordResponse>(
+        API_CONFIG.ENDPOINTS.AUTH.CHANGE_PASSWORD,
+        data,
+        true
+      );
+
+      return response.data || { message: "Password changed successfully" };
+    } catch (error: any) {
+      console.error("Change password error:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Delete user account
    */
-  async deleteAccount(password?: string): Promise<void> {
+  async deleteAccount(): Promise<void> {
     try {
-      const data = password ? { password } : {};
-
       await this.delete(API_CONFIG.ENDPOINTS.AUTH.DELETE_ACCOUNT, true);
 
       // Clear all stored auth data after successful deletion
-      this.logout();
+      await this.logout();
 
       console.log("Account deleted successfully");
     } catch (error: any) {
@@ -189,8 +248,24 @@ class AuthService extends BaseApiService {
   /**
    * Logout user
    */
-  logout(): void {
+  async logout(): Promise<void> {
     try {
+      const refreshToken = localStorage.getItem("refresh_token");
+      
+      // Call backend logout endpoint if refresh token exists
+      if (refreshToken) {
+        try {
+          await this.post(
+            API_CONFIG.ENDPOINTS.AUTH.LOGOUT,
+            { refresh_token: refreshToken },
+            true
+          );
+        } catch (error) {
+          // Continue with logout even if backend call fails
+          console.warn("Backend logout failed, continuing with local logout:", error);
+        }
+      }
+
       // Clear all stored auth data
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");

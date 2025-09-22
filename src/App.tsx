@@ -1,6 +1,7 @@
-// src/App.tsx - UPDATED VERSION (matches your existing pattern)
-import React, { useState, useEffect } from "react";
+// src/App.tsx
+import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
 import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
 import CityPage from "./pages/CityPage";
@@ -12,73 +13,16 @@ import UserDashboard from "./pages/UserDashboard";
 import Footer from "./components/Footer";
 import PostAdModal from "./components/PostAdModal";
 import SignInModal from "./components/SignInModal";
-import { authService } from "./services/authService";
 
 function App() {
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Check authentication status on app load
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        // Initialize auth state using your existing auth service
-        const { user: currentUser, isAuthenticated } =
-          authService.initializeAuth();
-
-        if (isAuthenticated && currentUser) {
-          // Verify the token is still valid by calling the profile endpoint
-          const userData = await authService.getProfile();
-          setUser(userData);
-          setIsLoggedIn(true);
-        } else {
-          // No valid auth data found
-          setIsLoggedIn(false);
-          setUser(null);
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        // Token is invalid or expired, logout
-        authService.logout();
-        setIsLoggedIn(false);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuthStatus();
-  }, []);
-
-  // Listen for auth events from your auth service
-  useEffect(() => {
-    const handleAuthLogin = (event: CustomEvent) => {
-      setUser(event.detail);
-      setIsLoggedIn(true);
-    };
-
-    const handleAuthLogout = () => {
-      setUser(null);
-      setIsLoggedIn(false);
-    };
-
-    window.addEventListener("auth:login", handleAuthLogin as EventListener);
-    window.addEventListener("auth:logout", handleAuthLogout);
-
-    return () => {
-      window.removeEventListener(
-        "auth:login",
-        handleAuthLogin as EventListener
-      );
-      window.removeEventListener("auth:logout", handleAuthLogout);
-    };
-  }, []);
+  
+  // Get auth state from context
+  const { isAuthenticated, user, isLoading, logout } = useAuth();
 
   const handlePostAd = () => {
-    if (isLoggedIn) {
+    if (isAuthenticated) {
       setIsPostAdModalOpen(true);
     } else {
       setIsSignInModalOpen(true);
@@ -86,24 +30,19 @@ function App() {
   };
 
   const handleSignInSuccess = () => {
-    // Get user data from auth service after successful login
-    const userData = authService.getCurrentUser();
-    setUser(userData);
-    setIsLoggedIn(true);
     setIsSignInModalOpen(false);
-
     // If user was trying to post an ad, open that modal after sign in
-    // Otherwise, they'll be navigated to dashboard by the modal
     setIsPostAdModalOpen(true);
   };
 
-  const handleSignOut = () => {
-    // Use your auth service logout method
-    authService.logout();
-    setIsLoggedIn(false);
-    setUser(null);
-    setIsPostAdModalOpen(false);
-    setIsSignInModalOpen(false);
+  const handleSignOut = async () => {
+    try {
+      await logout();
+      setIsPostAdModalOpen(false);
+      setIsSignInModalOpen(false);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   // Show loading spinner while checking auth status
@@ -123,7 +62,7 @@ function App() {
       <Header
         onPostAd={handlePostAd}
         onSignIn={() => setIsSignInModalOpen(true)}
-        isLoggedIn={isLoggedIn}
+        isLoggedIn={isAuthenticated}
         user={user}
         onSignOut={handleSignOut}
       />
@@ -144,10 +83,10 @@ function App() {
       <PostAdModal
         isOpen={isPostAdModalOpen}
         onClose={() => setIsPostAdModalOpen(false)}
-        isLoggedIn={isLoggedIn}
+        isLoggedIn={isAuthenticated}
       />
 
-      {/* Sign In Modal - Now properly refactored with smaller components */}
+      {/* Sign In Modal */}
       <SignInModal
         isOpen={isSignInModalOpen}
         onClose={() => setIsSignInModalOpen(false)}

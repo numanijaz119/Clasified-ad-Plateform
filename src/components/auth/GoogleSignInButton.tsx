@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 import { initializeGoogleAuth, signInWithGoogle } from "../../utils/googleAuth";
 
 interface GoogleSignInButtonProps {
@@ -10,6 +11,7 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
   onSuccess,
   buttonText = "Continue with Google",
 }) => {
+  const { googleLogin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [googleInitialized, setGoogleInitialized] = useState(false);
@@ -17,14 +19,14 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
   // Initialize Google OAuth when component mounts
   useEffect(() => {
     if (!googleInitialized) {
-      initializeGoogleAuth()
+      initializeGoogleAuth(googleLogin)
         .then(() => setGoogleInitialized(true))
         .catch((err) => {
           console.error("Google OAuth initialization failed:", err);
           setError("Google sign-in is temporarily unavailable");
         });
     }
-  }, [googleInitialized]);
+  }, [googleInitialized, googleLogin]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
@@ -35,10 +37,9 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
         throw new Error("Google OAuth not initialized. Please try again.");
       }
 
-      await signInWithGoogle();
+      await signInWithGoogle(googleLogin);
 
-      // Success - auth service handles token storage and should emit auth events
-      // App.tsx will catch the auth:login event and update state
+      // Success - auth context handles state updates
       onSuccess();
     } catch (err: any) {
       console.error("Google sign-in error:", err);

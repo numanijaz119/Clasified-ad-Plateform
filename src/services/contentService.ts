@@ -1,39 +1,12 @@
 import BaseApiService from "./baseApiService";
 import { API_CONFIG } from "../config/api";
-
-// Content Types
-export interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string;
-  icon?: string;
-  parent?: Category;
-  children?: Category[];
-  ad_count?: number;
-  is_active: boolean;
-  sort_order: number;
-}
-
-export interface City {
-  id: number;
-  name: string;
-  slug: string;
-  state: number;
-  state_name?: string;
-  state_code?: string;
-  is_active: boolean;
-  ad_count?: number;
-}
-
-export interface State {
-  id: number;
-  name: string;
-  code: string;
-  is_active: boolean;
-  cities?: City[];
-  ad_count?: number;
-}
+import type {
+  Category,
+  City,
+  State,
+  ContentStats,
+  LocationSearchResult,
+} from "../types/content";
 
 class ContentService extends BaseApiService {
   // Cache for frequently accessed data
@@ -201,7 +174,7 @@ class ContentService extends BaseApiService {
    */
   async searchLocations(
     query: string
-  ): Promise<{ cities: City[]; states: State[] }> {
+  ): Promise<LocationSearchResult> {
     try {
       const [cities, states] = await Promise.all([
         this.getCities(),
@@ -244,19 +217,9 @@ class ContentService extends BaseApiService {
   /**
    * Get content statistics
    */
-  async getContentStats(): Promise<{
-    total_categories: number;
-    total_cities: number;
-    total_states: number;
-    total_ads: number;
-  }> {
+  async getContentStats(): Promise<ContentStats> {
     try {
-      const response = await this.get<{
-        total_categories: number;
-        total_cities: number;
-        total_states: number;
-        total_ads: number;
-      }>(`${API_CONFIG.ENDPOINTS.CONTENT.CATEGORIES}stats/`, false);
+      const response = await this.get<ContentStats>(`${API_CONFIG.ENDPOINTS.CONTENT.CATEGORIES}stats/`, false);
 
       if (response.data) {
         return response.data;

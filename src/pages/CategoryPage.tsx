@@ -655,7 +655,7 @@ const CategoryPage: React.FC = () => {
       </main>
 
       {/* Mobile Bottom FlippingAd */}
-      <div className="md:hiddenm m-4 mt-0">
+      <div className="md:hidden m-4 mt-0">
         <FlippingAd size="medium" />
       </div>
 

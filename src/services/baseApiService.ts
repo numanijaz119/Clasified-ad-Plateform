@@ -30,12 +30,24 @@ class BaseApiService {
 
       const config: RequestInit = {
         ...options,
-        headers: {
-          ...getHeaders(includeAuth),
-          ...options.headers,
-        },
         signal: controller.signal,
       };
+
+      // Only merge headers if not FormData
+      if (!(options.body instanceof FormData)) {
+        config.headers = {
+          ...getHeaders(includeAuth),
+          ...options.headers,
+        };
+      } else {
+        // For FormData, only include auth headers without Content-Type
+        const authHeaders = getHeaders(includeAuth);
+        delete (authHeaders as any)["Content-Type"];
+        config.headers = {
+          ...authHeaders,
+          ...options.headers,
+        };
+      }
 
       const response = await fetch(`${this.baseURL}${url}`, config);
       clearTimeout(timeoutId);
@@ -43,10 +55,17 @@ class BaseApiService {
       let data: any;
       const contentType = response.headers.get("content-type");
 
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        data = await response.text();
+      // Better response parsing
+      try {
+        if (contentType && contentType.includes("application/json")) {
+          const text = await response.text();
+          data = text ? JSON.parse(text) : {};
+        } else {
+          data = await response.text();
+        }
+      } catch (parseError) {
+        console.warn("Failed to parse response:", parseError);
+        data = {};
       }
 
       if (!response.ok) {
@@ -58,59 +77,29 @@ class BaseApiService {
           }
         }
 
-        // Extract error message from DRF response format
-        let errorMessage = "Request failed";
-
-        if (data && typeof data === "object") {
-          // Handle DRF non_field_errors (most common for auth errors)
-          if (data.non_field_errors && Array.isArray(data.non_field_errors)) {
-            errorMessage = data.non_field_errors[0];
-          }
-          // Handle DRF field-specific errors
-          else if (data.email && Array.isArray(data.email)) {
-            errorMessage = data.email[0];
-          } else if (data.password && Array.isArray(data.password)) {
-            errorMessage = data.password[0];
-          }
-          // Handle DRF detail field
-          else if (data.detail) {
-            errorMessage = data.detail;
-          }
-          // Handle custom error field
-          else if (data.error) {
-            errorMessage = data.error;
-          }
-          // Handle other field errors
-          else {
-            const fieldErrors = [];
-            for (const [key, value] of Object.entries(data)) {
-              if (Array.isArray(value)) {
-                fieldErrors.push(...value);
-              } else if (typeof value === "string") {
-                fieldErrors.push(value);
-              }
-            }
-            if (fieldErrors.length > 0) {
-              errorMessage = fieldErrors[0];
-            }
-          }
-        }
-
-        console.error(`API Error ${response.status}:`, errorMessage, data);
+        // Better error handling
+        const errorMessage =
+          typeof data === "object" && data
+            ? data.error || data.detail || data.message
+            : typeof data === "string"
+            ? data
+            : "Request failed";
 
         throw {
-          message: errorMessage,
+          message: errorMessage || `HTTP ${response.status}`,
           status: response.status,
-          details: data, // Keep full response for debugging
+          details: typeof data === "object" ? data : { error: data },
         } as ApiError;
       }
 
       return {
         data,
         status: response.status,
-        message: data.message,
+        message: (typeof data === "object" && data?.message) || undefined,
       };
     } catch (error: any) {
+      console.error("API Request Error:", error);
+
       // Retry logic for network errors
       if (attempt < this.retryAttempts && this.shouldRetry(error)) {
         await this.delay(this.retryDelay * attempt);
@@ -131,6 +120,7 @@ class BaseApiService {
       throw {
         message: error.message || "Network error",
         status: error.status || 500,
+        details: error.details || {},
       } as ApiError;
     }
   }
@@ -212,12 +202,9 @@ class BaseApiService {
     if (data) {
       if (data instanceof FormData) {
         options.body = data;
-        // Remove Content-Type header for FormData (browser will set it with boundary)
-        options.headers = { ...getHeaders(includeAuth) };
-        delete (options.headers as any)["Content-Type"];
+        // Headers will be handled in makeRequest
       } else {
         options.body = JSON.stringify(data);
-        options.headers = getHeaders(includeAuth);
       }
     }
 
@@ -236,11 +223,9 @@ class BaseApiService {
     if (data) {
       if (data instanceof FormData) {
         options.body = data;
-        options.headers = { ...getHeaders(includeAuth) };
-        delete (options.headers as any)["Content-Type"];
+        // Headers will be handled in makeRequest
       } else {
         options.body = JSON.stringify(data);
-        options.headers = getHeaders(includeAuth);
       }
     }
 
@@ -259,11 +244,9 @@ class BaseApiService {
     if (data) {
       if (data instanceof FormData) {
         options.body = data;
-        options.headers = { ...getHeaders(includeAuth) };
-        delete (options.headers as any)["Content-Type"];
+        // Headers will be handled in makeRequest
       } else {
         options.body = JSON.stringify(data);
-        options.headers = getHeaders(includeAuth);
       }
     }
 

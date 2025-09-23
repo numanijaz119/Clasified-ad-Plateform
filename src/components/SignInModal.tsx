@@ -123,10 +123,10 @@ const SignInModal: React.FC<SignInModalProps> = ({
           />
         );
 
-      case "success":
-        return (
-          <VerificationSuccess onContinueToSignIn={handleContinueToSignIn} />
-        );
+      // case "success":
+      //   return (
+      //     <VerificationSuccess onContinueToSignIn={handleContinueToSignIn} />
+      //   );
 
       default:
         return null;

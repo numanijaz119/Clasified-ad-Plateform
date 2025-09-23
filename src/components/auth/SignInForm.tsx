@@ -14,7 +14,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
   onSwitchToSignUp,
   onSwitchToVerification,
 }) => {
-  const { login, isLoading, error, clearError } = useAuth();
+  const { login, isLoading, resendVerification, error, clearError } = useAuth();
   const [email, setEmail] = useState("umanijaz5@gmail.com");
   const [password, setPassword] = useState("abc@12345");
   const [showPassword, setShowPassword] = useState(false);
@@ -58,11 +58,21 @@ const SignInForm: React.FC<SignInFormProps> = ({
       ) {
         console.log("EMAIL_NOT_VERIFIED detected - switching to verification");
         onSwitchToVerification(email);
+        sendVerificationOtp();
         return; // Don't show error, just switch to verification
       }
 
       // For other errors, the auth context already handles displaying them
       // The error is already set by the login function in AuthContext
+    }
+  };
+
+  //Auto send otp if credentials correct but not verifed email
+  const sendVerificationOtp = async () => {
+    try {
+      await resendVerification({ email });
+    } catch (err: any) {
+      console.error("Auto-send verification error:", err);
     }
   };
 

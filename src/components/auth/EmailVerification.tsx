@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Mail, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
+import { Mail, ArrowLeft, AlertCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
 interface EmailVerificationProps {
@@ -19,12 +19,8 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
     useAuth();
   const [verificationCode, setVerificationCode] = useState("");
   const [success, setSuccess] = useState(initialMessage || "");
+  const [sendingOtp, setSendingOtp] = useState(false);
   const isCodeShort = verificationCode.length < 6 ? true : false;
-
-  //Intial code sent
-  useEffect(function () {
-    clearError();
-  }, []);
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +42,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
   const resendVerificationEmail = async () => {
     clearError();
     setSuccess("");
+    setSendingOtp(true);
 
     try {
       await resendVerification({ email });
@@ -53,6 +50,8 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
     } catch (err: any) {
       // Error is handled by auth context
       console.error("Resend verification error:", err);
+    } finally {
+      setSendingOtp(false);
     }
   };
 
@@ -127,7 +126,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
               disabled={isLoading || !verificationCode || isCodeShort}
               className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Verifying..." : "Verify Email"}
+              {isLoading && sendingOtp ? "Verifying..." : "Verify Email"}
             </button>
           </form>
 
@@ -140,7 +139,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
               disabled={isLoading}
               className="text-orange-500 hover:text-orange-600 font-medium disabled:opacity-50"
             >
-              {isLoading ? "Sending..." : "Resend Email"}
+              {sendingOtp ? "Sending..." : "Resend Email"}
             </button>
           </div>
         </div>

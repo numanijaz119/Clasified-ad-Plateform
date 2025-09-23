@@ -1,3 +1,4 @@
+// src/components/auth/SignInForm.tsx - Updated with forgot password
 import React, { useState } from "react";
 import { Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -7,16 +8,18 @@ interface SignInFormProps {
   onSuccess: () => void;
   onSwitchToSignUp: () => void;
   onSwitchToVerification: (email: string) => void;
+  onForgotPassword: () => void; // New prop for forgot password
 }
 
 const SignInForm: React.FC<SignInFormProps> = ({
   onSuccess,
   onSwitchToSignUp,
   onSwitchToVerification,
+  onForgotPassword, // New prop
 }) => {
-  const { login, isLoading, error, clearError } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { login, isLoading, resendVerification, error, clearError } = useAuth();
+  const [email, setEmail] = useState("umanijaz5@gmail.com");
+  const [password, setPassword] = useState("abc@12345");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,34 +45,37 @@ const SignInForm: React.FC<SignInFormProps> = ({
     } catch (err: any) {
       console.error("Sign in error:", err);
 
-      let errorMessage = "Something went wrong. Please try again.";
+      // Get the error message from the caught error
+      const errorMessage =
+        err.message || "Something went wrong. Please try again.";
 
-      if (err.details && typeof err.details === "object") {
-        const fieldErrors = [];
-        for (const [, messages] of Object.entries(err.details)) {
-          if (Array.isArray(messages)) {
-            fieldErrors.push(...messages);
-          } else if (typeof messages === "string") {
-            fieldErrors.push(messages);
-          } else {
-            fieldErrors.push(String(messages));
-          }
-        }
-        if (fieldErrors.length > 0) {
-          errorMessage = fieldErrors[0];
-        }
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
+      console.log("Error message:", errorMessage);
 
-      // Handle email verification error
+      // Check if this is an email verification error
       if (
-        errorMessage.includes("verify your email") ||
-        errorMessage.includes("email_not_verified")
+        errorMessage.toLowerCase().includes("verify your email") ||
+        errorMessage.toLowerCase().includes("email_not_verified") ||
+        errorMessage
+          .toLowerCase()
+          .includes("please verify your email address before logging in")
       ) {
+        console.log("EMAIL_NOT_VERIFIED detected - switching to verification");
         onSwitchToVerification(email);
+        sendVerificationOtp();
+        return; // Don't show error, just switch to verification
       }
-      // Error is handled by auth context, no need to set local error
+
+      // For other errors, the auth context already handles displaying them
+      // The error is already set by the login function in AuthContext
+    }
+  };
+
+  //Auto send otp if credentials correct but not verifed email
+  const sendVerificationOtp = async () => {
+    try {
+      await resendVerification({ email });
+    } catch (err: any) {
+      console.error("Auto-send verification error:", err);
     }
   };
 
@@ -129,6 +135,18 @@ const SignInForm: React.FC<SignInFormProps> = ({
           </button>
         </div>
 
+        {/* Forgot Password Link */}
+        <div className="text-right">
+          <button
+            type="button"
+            onClick={onForgotPassword}
+            className="text-sm text-orange-500 hover:text-orange-600"
+            disabled={isLoading}
+          >
+            Forgot your password?
+          </button>
+        </div>
+
         {error && (
           <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg flex items-start space-x-2">
             <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
@@ -153,13 +171,6 @@ const SignInForm: React.FC<SignInFormProps> = ({
           disabled={isLoading}
         >
           Don't have an account? Sign Up
-        </button>
-      </div>
-
-      {/* Forgot Password */}
-      <div className="text-center">
-        <button className="text-sm text-gray-500 hover:text-gray-700">
-          Forgot your password?
         </button>
       </div>
     </div>

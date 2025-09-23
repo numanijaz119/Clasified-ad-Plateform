@@ -15,8 +15,8 @@ const SignInForm: React.FC<SignInFormProps> = ({
   onSwitchToVerification,
 }) => {
   const { login, isLoading, error, clearError } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("mrwhite0798@gmail.com");
+  const [password, setPassword] = useState("abc@12345");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,34 +42,27 @@ const SignInForm: React.FC<SignInFormProps> = ({
     } catch (err: any) {
       console.error("Sign in error:", err);
 
-      let errorMessage = "Something went wrong. Please try again.";
+      // Get the error message from the caught error
+      const errorMessage =
+        err.message || "Something went wrong. Please try again.";
 
-      if (err.details && typeof err.details === "object") {
-        const fieldErrors = [];
-        for (const [, messages] of Object.entries(err.details)) {
-          if (Array.isArray(messages)) {
-            fieldErrors.push(...messages);
-          } else if (typeof messages === "string") {
-            fieldErrors.push(messages);
-          } else {
-            fieldErrors.push(String(messages));
-          }
-        }
-        if (fieldErrors.length > 0) {
-          errorMessage = fieldErrors[0];
-        }
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
+      console.log("Error message:", errorMessage);
 
-      // Handle email verification error
+      // Check if this is an email verification error
       if (
-        errorMessage.includes("verify your email") ||
-        errorMessage.includes("email_not_verified")
+        errorMessage.toLowerCase().includes("verify your email") ||
+        errorMessage.toLowerCase().includes("email_not_verified") ||
+        errorMessage
+          .toLowerCase()
+          .includes("please verify your email address before logging in")
       ) {
+        console.log("EMAIL_NOT_VERIFIED detected - switching to verification");
         onSwitchToVerification(email);
+        return; // Don't show error, just switch to verification
       }
-      // Error is handled by auth context, no need to set local error
+
+      // For other errors, the auth context already handles displaying them
+      // The error is already set by the login function in AuthContext
     }
   };
 

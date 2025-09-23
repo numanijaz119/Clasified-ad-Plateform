@@ -58,10 +58,50 @@ class BaseApiService {
           }
         }
 
+        // Extract error message from DRF response format
+        let errorMessage = "Request failed";
+
+        if (data && typeof data === "object") {
+          // Handle DRF non_field_errors (most common for auth errors)
+          if (data.non_field_errors && Array.isArray(data.non_field_errors)) {
+            errorMessage = data.non_field_errors[0];
+          }
+          // Handle DRF field-specific errors
+          else if (data.email && Array.isArray(data.email)) {
+            errorMessage = data.email[0];
+          } else if (data.password && Array.isArray(data.password)) {
+            errorMessage = data.password[0];
+          }
+          // Handle DRF detail field
+          else if (data.detail) {
+            errorMessage = data.detail;
+          }
+          // Handle custom error field
+          else if (data.error) {
+            errorMessage = data.error;
+          }
+          // Handle other field errors
+          else {
+            const fieldErrors = [];
+            for (const [key, value] of Object.entries(data)) {
+              if (Array.isArray(value)) {
+                fieldErrors.push(...value);
+              } else if (typeof value === "string") {
+                fieldErrors.push(value);
+              }
+            }
+            if (fieldErrors.length > 0) {
+              errorMessage = fieldErrors[0];
+            }
+          }
+        }
+
+        console.error(`API Error ${response.status}:`, errorMessage, data);
+
         throw {
-          message: data.error || data.detail || "Request failed",
+          message: errorMessage,
           status: response.status,
-          details: data,
+          details: data, // Keep full response for debugging
         } as ApiError;
       }
 

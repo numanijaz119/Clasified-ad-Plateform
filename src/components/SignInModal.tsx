@@ -140,6 +140,7 @@ const SignInModal: React.FC<SignInModalProps> = ({
       maxWidth="max-w-md"
       title={getModalTitle()}
       showCloseButton={shouldShowCloseButton()}
+      closeOnOverlayClick={currentStep !== "verify"}
     >
       {renderContent()}
     </BaseModal>

@@ -1,3 +1,4 @@
+// src/components/auth/SignInForm.tsx - Updated with forgot password
 import React, { useState } from "react";
 import { Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -7,12 +8,14 @@ interface SignInFormProps {
   onSuccess: () => void;
   onSwitchToSignUp: () => void;
   onSwitchToVerification: (email: string) => void;
+  onForgotPassword: () => void; // New prop for forgot password
 }
 
 const SignInForm: React.FC<SignInFormProps> = ({
   onSuccess,
   onSwitchToSignUp,
   onSwitchToVerification,
+  onForgotPassword, // New prop
 }) => {
   const { login, isLoading, resendVerification, error, clearError } = useAuth();
   const [email, setEmail] = useState("umanijaz5@gmail.com");
@@ -132,6 +135,18 @@ const SignInForm: React.FC<SignInFormProps> = ({
           </button>
         </div>
 
+        {/* Forgot Password Link */}
+        <div className="text-right">
+          <button
+            type="button"
+            onClick={onForgotPassword}
+            className="text-sm text-orange-500 hover:text-orange-600"
+            disabled={isLoading}
+          >
+            Forgot your password?
+          </button>
+        </div>
+
         {error && (
           <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg flex items-start space-x-2">
             <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
@@ -156,13 +171,6 @@ const SignInForm: React.FC<SignInFormProps> = ({
           disabled={isLoading}
         >
           Don't have an account? Sign Up
-        </button>
-      </div>
-
-      {/* Forgot Password */}
-      <div className="text-center">
-        <button className="text-sm text-gray-500 hover:text-gray-700">
-          Forgot your password?
         </button>
       </div>
     </div>

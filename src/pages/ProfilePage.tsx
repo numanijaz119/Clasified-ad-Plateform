@@ -1,6 +1,6 @@
 // ProfilePage.tsx - Complete Component
 import React, { useState, useEffect } from "react";
-import { authService } from "../services/authService";
+import { authService } from "../services/index";
 import { ProfileHeader } from "../components/profile";
 import { ProfileForm } from "../components/profile";
 import { PasswordChangeForm } from "../components/profile";
@@ -64,7 +64,7 @@ const ProfilePage: React.FC = () => {
   const [success, setSuccess] = useState<string>("");
   const [avatarPreview, setAvatarPreview] = useState<string>("");
 
-  //   Load user profile on component mount
+  // Load user profile on component mount
   useEffect(() => {
     loadUserProfile();
   }, []);

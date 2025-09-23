@@ -13,6 +13,7 @@ import UserDashboard from "./pages/UserDashboard";
 import Footer from "./components/Footer";
 import PostAdModal from "./components/PostAdModal";
 import SignInModal from "./components/SignInModal";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
@@ -75,6 +76,7 @@ function App() {
         <Route path="/featured-ads" element={<FeaturedAdsPage />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/dashboard" element={<UserDashboard />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
 
       <Footer />

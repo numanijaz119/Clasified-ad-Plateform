@@ -1,11 +1,9 @@
-// ProfilePage.tsx - Complete Component
 import React, { useState, useEffect } from "react";
 import { authService } from "../services/index";
 import { ProfileHeader } from "../components/profile";
 import { ProfileForm } from "../components/profile";
 import { PasswordChangeForm } from "../components/profile";
 import { AccountInfo } from "../components/profile";
-import { AlertMessage } from "../components/profile";
 import { LoadingSpinner } from "../components/profile";
 import { useToast } from "../contexts/ToastContext";
 
@@ -62,7 +60,6 @@ const ProfilePage: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [success, setSuccess] = useState<string>("");
   const [avatarPreview, setAvatarPreview] = useState<string>("");
 
   const toast = useToast();
@@ -70,7 +67,6 @@ const ProfilePage: React.FC = () => {
   // Load user profile on component mount
   useEffect(() => {
     loadUserProfile();
-    // toast.info("Loading profile...");
   }, []);
 
   const loadUserProfile = async () => {
@@ -87,6 +83,7 @@ const ProfilePage: React.FC = () => {
         setAvatarPreview(profile.avatar);
       }
     } catch (error: any) {
+      toast.error(error.message || "Failed to load profile");
       setErrors({ general: error.message || "Failed to load profile" });
     } finally {
       setLoading(false);
@@ -122,19 +119,17 @@ const ProfilePage: React.FC = () => {
     if (file) {
       // Validate file type
       if (!file.type.startsWith("image/")) {
-        setErrors((prev) => ({
-          ...prev,
-          avatar: "Please select a valid image file",
-        }));
+        const errorMsg = "Please select a valid image file";
+        toast.error(errorMsg);
+        setErrors((prev) => ({ ...prev, avatar: errorMsg }));
         return;
       }
 
       // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({
-          ...prev,
-          avatar: "Image size must be less than 5MB",
-        }));
+        const errorMsg = "Image size must be less than 5MB";
+        toast.error(errorMsg);
+        setErrors((prev) => ({ ...prev, avatar: errorMsg }));
         return;
       }
 
@@ -151,6 +146,9 @@ const ProfilePage: React.FC = () => {
       if (errors.avatar) {
         setErrors((prev) => ({ ...prev, avatar: "" }));
       }
+
+      // Success message for file selection
+      toast.info("Avatar image selected successfully");
     }
   };
 
@@ -158,7 +156,6 @@ const ProfilePage: React.FC = () => {
     e.preventDefault();
     setUpdating(true);
     setErrors({});
-    setSuccess("");
 
     try {
       // Create FormData for file upload
@@ -174,14 +171,23 @@ const ProfilePage: React.FC = () => {
       const updatedUser = await authService.updateProfile(updateData);
       setUser(updatedUser);
       setIsEditing(false);
-      setSuccess("Profile updated successfully!");
+
+      // Success toast notification
       toast.success("Profile updated successfully!");
+
+      // Reload profile to get latest data
       loadUserProfile();
     } catch (error: any) {
+      // Error handling with toast
       if (error.details) {
         setErrors(error.details);
+        // Show first error in toast
+        const firstError = Object.values(error.details)[0] as string;
+        toast.error(firstError);
       } else {
-        setErrors({ general: error.message || "Failed to update profile" });
+        const errorMsg = error.message || "Failed to update profile";
+        setErrors({ general: errorMsg });
+        toast.error(errorMsg);
       }
     } finally {
       setUpdating(false);
@@ -192,28 +198,46 @@ const ProfilePage: React.FC = () => {
     e.preventDefault();
     setUpdating(true);
     setErrors({});
-    setSuccess("");
 
     try {
+      // Client-side validation
       if (passwordData.new_password !== passwordData.confirm_password) {
-        setErrors({ confirm_password: "Passwords do not match" });
+        const errorMsg = "Passwords do not match";
+        setErrors({ confirm_password: errorMsg });
+        toast.error(errorMsg);
+        return;
+      }
+
+      if (passwordData.new_password.length < 8) {
+        const errorMsg = "Password must be at least 8 characters long";
+        setErrors({ new_password: errorMsg });
+        toast.error(errorMsg);
         return;
       }
 
       await authService.changePassword(passwordData);
+
+      // Reset form and state
       setPasswordData({
         old_password: "",
         new_password: "",
         confirm_password: "",
       });
       setIsChangingPassword(false);
-      setSuccess("Password changed successfully!");
+
+      // Success toast notification
       toast.success("Password changed successfully!");
     } catch (error: any) {
+      // Error handling with toast
       if (error.details) {
         setErrors(error.details);
+        // Show first error in toast
+        const firstError = Object.values(error.details)[0] as string;
+        toast.error(firstError);
       } else {
-        setErrors({ general: error.message || "Failed to change password" });
+        const errorMsg = error.message || "Failed to change password";
+        setErrors({ general: errorMsg });
+        toast.error(errorMsg);
       }
     } finally {
       setUpdating(false);
@@ -229,7 +253,6 @@ const ProfilePage: React.FC = () => {
 
   const handleEditProfile = () => {
     setIsEditing(true);
-    setSuccess("");
     setErrors({});
   };
 
@@ -248,7 +271,6 @@ const ProfilePage: React.FC = () => {
 
   const handleStartPasswordChange = () => {
     setIsChangingPassword(true);
-    setSuccess("");
     setErrors({});
   };
 
@@ -260,24 +282,6 @@ const ProfilePage: React.FC = () => {
       confirm_password: "",
     });
     setErrors({});
-  };
-
-  const handleResendVerification = async () => {
-    if (!user) return;
-
-    try {
-      await authService.resendVerificationEmail({ email: user.email });
-      setSuccess("Verification email sent successfully!");
-    } catch (error: any) {
-      setErrors({
-        general: error.message || "Failed to send verification email",
-      });
-    }
-  };
-
-  const clearMessages = () => {
-    setSuccess("");
-    setErrors((prev) => ({ ...prev, general: "" }));
   };
 
   if (loading) {
@@ -313,21 +317,19 @@ const ProfilePage: React.FC = () => {
           onAvatarChange={handleAvatarChange}
         />
 
-        {/* Success/Error Messages */}
-        {/* {success && (
-          <AlertMessage
-            type="success"
-            message={success}
-            onClose={clearMessages}
-          />
-        )} */}
-
+        {/* Only show general errors that aren't handled by toast */}
         {errors.general && (
-          <AlertMessage
-            type="error"
-            message={errors.general}
-            onClose={clearMessages}
-          />
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <div className="text-red-800 text-sm">{errors.general}</div>
+              <button
+                onClick={() => setErrors((prev) => ({ ...prev, general: "" }))}
+                className="ml-auto text-red-500 hover:text-red-700"
+              >
+                ×
+              </button>
+            </div>
+          </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

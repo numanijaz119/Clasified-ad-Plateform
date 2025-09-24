@@ -49,6 +49,13 @@ class BaseApiService {
         };
       }
 
+      console.log("=== DEBUG LOGIN REQUEST ===");
+      console.log("URL:", `${this.baseURL}${url}`);
+      console.log("Method:", config.method);
+      console.log("Headers:", config.headers);
+      console.log("Body:", config.body);
+      console.log("============================");
+
       const response = await fetch(`${this.baseURL}${url}`, config);
       clearTimeout(timeoutId);
 
@@ -77,14 +84,35 @@ class BaseApiService {
           }
         }
 
-        // Better error handling
-        const errorMessage =
-          typeof data === "object" && data
-            ? data.error || data.detail || data.message
-            : typeof data === "string"
-            ? data
-            : "Request failed";
+        // Better error handling for Django DRF responses
+        let errorMessage = "Request failed";
 
+        if (typeof data === "object" && data) {
+          // Handle DRF validation errors (non_field_errors is common for login errors)
+          if (data.non_field_errors && Array.isArray(data.non_field_errors)) {
+            errorMessage = data.non_field_errors[0];
+          }
+          // Handle specific field errors
+          else if (data.email && Array.isArray(data.email)) {
+            errorMessage = data.email[0];
+          } else if (data.password && Array.isArray(data.password)) {
+            errorMessage = data.password[0];
+          }
+          // Handle generic error fields
+          else if (data.error) {
+            errorMessage = data.error;
+          } else if (data.detail) {
+            errorMessage = data.detail;
+          } else if (data.message) {
+            errorMessage = data.message;
+          }
+          // If it's a string error
+          else if (typeof data === "string") {
+            errorMessage = data;
+          }
+        } else if (typeof data === "string") {
+          errorMessage = data;
+        }
         throw {
           message: errorMessage || `HTTP ${response.status}`,
           status: response.status,

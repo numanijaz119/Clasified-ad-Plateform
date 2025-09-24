@@ -31,6 +31,28 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  // Basic phone number validation
+  const validatePhoneNumber = (phone: string): boolean => {
+    if (!phone.trim()) return true; // Optional field
+
+    // Remove all non-digit characters for validation
+    const digitsOnly = phone.replace(/\D/g, "");
+
+    // Allow 10-11 digits (US format with or without country code)
+    return digitsOnly.length >= 10 && digitsOnly.length <= 11;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // Allow only numbers, spaces, parentheses, hyphens, and plus signs
+    const sanitized = value.replace(/[^0-9\s\-\(\)\+]/g, "");
+
+    // Update the event target value
+    e.target.value = sanitized;
+    onInputChange(e);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">
@@ -38,72 +60,100 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
       </h2>
 
       {isEditing ? (
-        <div className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="first_name"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               First Name
             </label>
             <input
               type="text"
+              id="first_name"
               name="first_name"
               value={formData.first_name}
               onChange={onInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
               required
+              autoComplete="given-name"
             />
             {errors.first_name && (
-              <p className="text-red-500 text-sm mt-1">{errors.first_name}</p>
+              <p className="text-red-500 text-sm mt-1" role="alert">
+                {errors.first_name}
+              </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="last_name"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Last Name
             </label>
             <input
               type="text"
+              id="last_name"
               name="last_name"
               value={formData.last_name}
               onChange={onInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
               required
+              autoComplete="family-name"
             />
             {errors.last_name && (
-              <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>
+              <p className="text-red-500 text-sm mt-1" role="alert">
+                {errors.last_name}
+              </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Phone Number
             </label>
             <input
               type="tel"
+              id="phone"
               name="phone"
               value={formData.phone}
-              onChange={onInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
-              placeholder="(optional)"
+              onChange={handlePhoneChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+              placeholder="(555) 123-4567 (optional)"
+              autoComplete="tel"
             />
             {errors.phone && (
-              <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+              <p className="text-red-500 text-sm mt-1" role="alert">
+                {errors.phone}
+              </p>
+            )}
+            {formData.phone && !validatePhoneNumber(formData.phone) && (
+              <p className="text-amber-600 text-sm mt-1">
+                Please enter a valid phone number (10-11 digits)
+              </p>
             )}
           </div>
 
           {errors.avatar && (
-            <p className="text-red-500 text-sm">{errors.avatar}</p>
+            <p className="text-red-500 text-sm" role="alert">
+              {errors.avatar}
+            </p>
           )}
 
           <div className="flex space-x-3 pt-4">
-            <Button variant="primary" onClick={onSubmit}>
+            <Button type="submit" variant="primary" disabled={updating}>
               <Save className="w-4 h-4" />
               <span>{updating ? "Saving..." : "Save Changes"}</span>
             </Button>
-            <Button variant="secondary" onClick={onCancel}>
+            <Button type="button" variant="secondary" onClick={onCancel}>
               Cancel
             </Button>
           </div>
-        </div>
+        </form>
       ) : (
         <div className="space-y-4">
           <div>

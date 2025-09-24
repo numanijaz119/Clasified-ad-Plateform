@@ -1,6 +1,7 @@
 import React from "react";
 import { User, Edit3, Mail, Phone, Check, X, Camera } from "lucide-react";
 import Button from "../ui/Button";
+import Badge from "../ui/Badge";
 
 interface User {
   id: number;
@@ -74,15 +75,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               <Mail className="w-4 h-4 text-gray-500" />
               <span className="text-gray-600">{user.email}</span>
               {user.email_verified ? (
-                <div className="flex items-center space-x-1">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-green-600 text-sm">Verified</span>
-                </div>
+                <Badge variant="success">Verified</Badge>
               ) : (
-                <div className="flex items-center space-x-1">
-                  <X className="w-4 h-4 text-red-500" />
-                  <span className="text-red-600 text-sm">Not Verified</span>
-                </div>
+                <Badge variant="error">Not Verified</Badge>
               )}
             </div>
             {user.phone && (

@@ -49,13 +49,6 @@ class BaseApiService {
         };
       }
 
-      console.log("=== DEBUG LOGIN REQUEST ===");
-      console.log("URL:", `${this.baseURL}${url}`);
-      console.log("Method:", config.method);
-      console.log("Headers:", config.headers);
-      console.log("Body:", config.body);
-      console.log("============================");
-
       const response = await fetch(`${this.baseURL}${url}`, config);
       clearTimeout(timeoutId);
 

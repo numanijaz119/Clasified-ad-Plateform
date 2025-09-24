@@ -6,6 +6,7 @@ import { PasswordChangeForm } from "../components/profile";
 import { AccountInfo } from "../components/profile";
 import { LoadingSpinner } from "../components/profile";
 import { useToast } from "../contexts/ToastContext";
+import { useAuth } from "../contexts/AuthContext";
 
 interface User {
   id: number;
@@ -40,6 +41,8 @@ const ProfilePage: React.FC = () => {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+
+  const { updateUser } = useAuth();
 
   const [showPassword, setShowPassword] = useState({
     old: false,
@@ -146,9 +149,6 @@ const ProfilePage: React.FC = () => {
       if (errors.avatar) {
         setErrors((prev) => ({ ...prev, avatar: "" }));
       }
-
-      // Success message for file selection
-      toast.info("Avatar image selected successfully");
     }
   };
 
@@ -170,6 +170,7 @@ const ProfilePage: React.FC = () => {
 
       const updatedUser = await authService.updateProfile(updateData);
       setUser(updatedUser);
+      updateUser(updatedUser);
       setIsEditing(false);
 
       // Success toast notification

@@ -1,6 +1,8 @@
 import React from "react";
 import { Shield, Eye, EyeOff } from "lucide-react";
-import { User } from './types';
+import { User } from "./types";
+import Badge from "../ui/Badge";
+import Button from "../ui/Button";
 
 interface PasswordChangeData {
   old_password: string;
@@ -39,6 +41,29 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
   onCancel,
   onStartChanging,
 }) => {
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Calculate password last changed from updated_at
+  // This assumes password changes update the user's updated_at field
+  const getPasswordLastChanged = () => {
+    // If user has a specific password_updated_at field, use that
+    // Otherwise, fall back to updated_at as approximation
+    const lastChanged = (user as any).password_updated_at || user.updated_at;
+
+    if (lastChanged) {
+      return formatDate(lastChanged);
+    }
+
+    // If no date available, show account creation date as fallback
+    return `Since account creation (${formatDate(user.created_at)})`;
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">
@@ -46,7 +71,7 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
       </h2>
 
       {isChangingPassword ? (
-        <div className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Current Password
@@ -57,8 +82,9 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
                 name="old_password"
                 value={passwordData.old_password}
                 onChange={onPasswordChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10 transition-colors"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none pr-10 transition-colors"
                 required
+                autoComplete="current-password"
               />
               <button
                 type="button"
@@ -87,8 +113,9 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
                 name="new_password"
                 value={passwordData.new_password}
                 onChange={onPasswordChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10 transition-colors"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none pr-10 transition-colors"
                 required
+                autoComplete="new-password"
               />
               <button
                 type="button"
@@ -117,8 +144,9 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
                 name="confirm_password"
                 value={passwordData.confirm_password}
                 onChange={onPasswordChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10 transition-colors"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none pr-10 transition-colors"
                 required
+                autoComplete="new-password"
               />
               <button
                 type="button"
@@ -140,34 +168,26 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
           </div>
 
           <div className="flex space-x-3 pt-4">
-            <button
-              onClick={onSubmit}
-              disabled={updating}
-              className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-            >
+            <Button type="submit" variant="primary" disabled={updating}>
               {updating ? "Changing..." : "Change Password"}
-            </button>
-            <button
-              onClick={onCancel}
-              className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-            >
+            </Button>
+            <Button type="button" variant="secondary" onClick={onCancel}>
               Cancel
-            </button>
+            </Button>
           </div>
-        </div>
+        </form>
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-medium text-gray-900">Password</h3>
-              <p className="text-sm text-gray-500">Last changed: Not tracked</p>
+              <p className="text-sm text-gray-500">
+                Last changed: {getPasswordLastChanged()}
+              </p>
             </div>
-            <button
-              onClick={onStartChanging}
-              className="text-orange-600 hover:text-orange-700 text-sm font-medium transition-colors"
-            >
+            <Button variant="ghost" size="sm" onClick={onStartChanging}>
               Change Password
-            </button>
+            </Button>
           </div>
 
           <div className="border-t pt-4">

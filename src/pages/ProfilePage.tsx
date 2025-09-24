@@ -171,6 +171,7 @@ const ProfilePage: React.FC = () => {
       setUser(updatedUser);
       setIsEditing(false);
       setSuccess("Profile updated successfully!");
+      loadUserProfile();
     } catch (error: any) {
       if (error.details) {
         setErrors(error.details);

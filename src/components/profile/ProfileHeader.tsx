@@ -1,5 +1,6 @@
 import React from "react";
 import { User, Edit3, Mail, Phone, Check, X, Camera } from "lucide-react";
+import Button from "../ui/Button";
 
 interface User {
   id: number;
@@ -94,13 +95,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
           {/* Edit Button */}
           {!isEditing && !isChangingPassword && (
-            <button
-              onClick={onEditClick}
-              className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 flex items-center space-x-2 font-medium"
-            >
+            <Button onClick={onEditClick} variant="primary">
               <Edit3 className="w-4 h-4" />
               <span>Edit Profile</span>
-            </button>
+            </Button>
           )}
         </div>
       </div>

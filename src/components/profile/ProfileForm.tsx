@@ -1,6 +1,7 @@
 import React from "react";
 import { Save } from "lucide-react";
 import { User } from "./types";
+import Button from "../ui/Button";
 
 interface ProfileFormData {
   first_name: string;
@@ -94,20 +95,13 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
           )}
 
           <div className="flex space-x-3 pt-4">
-            <button
-              onClick={onSubmit}
-              disabled={updating}
-              className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 font-medium"
-            >
+            <Button variant="primary" onClick={onSubmit}>
               <Save className="w-4 h-4" />
               <span>{updating ? "Saving..." : "Save Changes"}</span>
-            </button>
-            <button
-              onClick={onCancel}
-              className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-            >
+            </Button>
+            <Button variant="secondary" onClick={onCancel}>
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       ) : (

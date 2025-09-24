@@ -7,6 +7,7 @@ import { PasswordChangeForm } from "../components/profile";
 import { AccountInfo } from "../components/profile";
 import { AlertMessage } from "../components/profile";
 import { LoadingSpinner } from "../components/profile";
+import { useToast } from "../contexts/ToastContext";
 
 interface User {
   id: number;
@@ -64,9 +65,12 @@ const ProfilePage: React.FC = () => {
   const [success, setSuccess] = useState<string>("");
   const [avatarPreview, setAvatarPreview] = useState<string>("");
 
+  const toast = useToast();
+
   // Load user profile on component mount
   useEffect(() => {
     loadUserProfile();
+    // toast.info("Loading profile...");
   }, []);
 
   const loadUserProfile = async () => {
@@ -171,6 +175,7 @@ const ProfilePage: React.FC = () => {
       setUser(updatedUser);
       setIsEditing(false);
       setSuccess("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
       loadUserProfile();
     } catch (error: any) {
       if (error.details) {
@@ -203,6 +208,7 @@ const ProfilePage: React.FC = () => {
       });
       setIsChangingPassword(false);
       setSuccess("Password changed successfully!");
+      toast.success("Password changed successfully!");
     } catch (error: any) {
       if (error.details) {
         setErrors(error.details);
@@ -308,13 +314,13 @@ const ProfilePage: React.FC = () => {
         />
 
         {/* Success/Error Messages */}
-        {success && (
+        {/* {success && (
           <AlertMessage
             type="success"
             message={success}
             onClose={clearMessages}
           />
-        )}
+        )} */}
 
         {errors.general && (
           <AlertMessage
@@ -355,10 +361,7 @@ const ProfilePage: React.FC = () => {
 
         {/* Account Information */}
         <div className="mt-8">
-          <AccountInfo
-            user={user}
-            onResendVerification={handleResendVerification}
-          />
+          <AccountInfo user={user} />
         </div>
       </div>
     </div>

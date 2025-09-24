@@ -13,11 +13,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   onSwitchToSignIn,
 }) => {
   const { register, isLoading, error, clearError } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("umanijaz5@gmail.com");
+  const [password, setPassword] = useState("abc@12345");
+  const [confirmPassword, setConfirmPassword] = useState("abc@12345");
+  const [firstName, setFirstName] = useState("Umanijaz");
+  const [lastName, setLastName] = useState("Khan");
   const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 

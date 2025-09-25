@@ -269,6 +269,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Forgot password function
+  // const forgotPassword = async (
+  //   data: ForgotPasswordRequest
+  // ): Promise<ForgotPasswordResponse> => {
+  //   try {
+  //     dispatch({ type: "AUTH_START" });
+  //     const response = await authService.forgotPassword(data);
+  //     dispatch({ type: "SET_LOADING", payload: false });
+  //     return response;
+  //   } catch (error: any) {
+  //     const errorMessage =
+  //       error.message ||
+  //       "Failed to send password reset email. Please try again.";
+  //     dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
+  //     throw error;
+  //   }
+  // };
+
   const forgotPassword = async (
     data: ForgotPasswordRequest
   ): Promise<ForgotPasswordResponse> => {
@@ -278,15 +295,85 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       dispatch({ type: "SET_LOADING", payload: false });
       return response;
     } catch (error: any) {
-      const errorMessage =
-        error.message ||
-        "Failed to send password reset email. Please try again.";
+      // Enhanced error handling for forgot password
+      let errorMessage = "Failed to send reset code. Please try again.";
+
+      if (error.details) {
+        // Handle Django field-specific errors
+        if (error.details.email && Array.isArray(error.details.email)) {
+          const emailErrors = error.details.email;
+
+          // Map common Django email validation errors
+          for (const emailError of emailErrors) {
+            const lowerError = emailError.toLowerCase();
+            if (lowerError.includes("valid email")) {
+              errorMessage = "Please enter a valid email address";
+              break;
+            } else if (lowerError.includes("required")) {
+              errorMessage = "Email address is required";
+              break;
+            } else {
+              errorMessage = emailError;
+              break;
+            }
+          }
+        } else if (
+          error.details.non_field_errors &&
+          Array.isArray(error.details.non_field_errors)
+        ) {
+          errorMessage = error.details.non_field_errors[0];
+        } else if (error.details.error) {
+          // Single error message from backend
+          errorMessage = error.details.error;
+        } else if (typeof error.details === "string") {
+          errorMessage = error.details;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      // Handle specific HTTP status codes
+      if (error.status) {
+        switch (error.status) {
+          case 404:
+            errorMessage =
+              "We couldn't find an account with this email address.";
+            break;
+          case 400:
+            // Keep the detailed message from backend for 400 errors
+            break;
+          case 429:
+            errorMessage =
+              "Too many requests. Please wait before trying again.";
+            break;
+          case 500:
+            errorMessage = "Server error. Please try again later.";
+            break;
+        }
+      }
+
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }
   };
 
   // Reset password function
+  // const resetPassword = async (
+  //   data: ResetPasswordRequest
+  // ): Promise<ResetPasswordResponse> => {
+  //   try {
+  //     dispatch({ type: "AUTH_START" });
+  //     const response = await authService.resetPassword(data);
+  //     dispatch({ type: "SET_LOADING", payload: false });
+  //     return response;
+  //   } catch (error: any) {
+  //     const errorMessage =
+  //       error.message || "Password reset failed. Please try again.";
+  //     dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
+  //     throw error;
+  //   }
+  // };
+
   const resetPassword = async (
     data: ResetPasswordRequest
   ): Promise<ResetPasswordResponse> => {
@@ -296,8 +383,61 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       dispatch({ type: "SET_LOADING", payload: false });
       return response;
     } catch (error: any) {
-      const errorMessage =
-        error.message || "Password reset failed. Please try again.";
+      let errorMessage = "Password reset failed. Please try again.";
+
+      if (error.details) {
+        if (
+          error.details.new_password &&
+          Array.isArray(error.details.new_password)
+        ) {
+          const passwordErrors = error.details.new_password;
+
+          // Map Django password validation errors to user-friendly messages
+          for (const passwordError of passwordErrors) {
+            const lowerError = passwordError.toLowerCase();
+            if (lowerError.includes("too short")) {
+              errorMessage = "Password must be at least 8 characters long";
+              break;
+            } else if (lowerError.includes("too common")) {
+              errorMessage =
+                "This password is too common. Please choose a stronger password";
+              break;
+            } else if (lowerError.includes("entirely numeric")) {
+              errorMessage = "Password cannot be entirely numeric";
+              break;
+            } else if (
+              lowerError.includes("similar") ||
+              lowerError.includes("attribute")
+            ) {
+              errorMessage =
+                "Password is too similar to your personal information";
+              break;
+            } else {
+              errorMessage = passwordError;
+              break;
+            }
+          }
+        } else if (error.details.code) {
+          errorMessage = "Invalid or expired verification code";
+        } else if (error.details.email) {
+          errorMessage = "Invalid email address";
+        } else if (error.details.confirm_password) {
+          errorMessage = "Password confirmation doesn't match";
+        } else if (error.details.non_field_errors) {
+          errorMessage = error.details.non_field_errors[0];
+        } else if (error.details.error) {
+          errorMessage = error.details.error;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      // Handle specific status codes
+      if (error.status === 400 && errorMessage.includes("Invalid or expired")) {
+        errorMessage =
+          "The verification code has expired or is invalid. Please request a new one.";
+      }
+
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }

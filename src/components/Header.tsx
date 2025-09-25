@@ -182,7 +182,7 @@ const Header: React.FC<HeaderProps> = ({
                 {/* Post Ad Button for non-logged in users */}
                 <Button
                   onClick={onPostAd}
-                  variant="outline"
+                  variant="primary"
                   className="hidden sm:flex items-center space-x-2"
                 >
                   <Plus className="h-4 w-4" />
@@ -192,7 +192,7 @@ const Header: React.FC<HeaderProps> = ({
                 {/* Sign In Button - Hidden on mobile when not logged in */}
                 <Button
                   onClick={onSignIn}
-                  variant="primary"
+                  variant="outline"
                   className="hidden md:block"
                 >
                   Sign In

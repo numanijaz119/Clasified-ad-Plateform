@@ -1,4 +1,4 @@
-// src/components/auth/PasswordHelper.tsx - Simplified version matching Django backend validation
+// src/components/auth/PasswordHelper.tsx
 import React from "react";
 import { Check, X } from "lucide-react";
 
@@ -17,7 +17,6 @@ export const PasswordHelper: React.FC<PasswordHelperProps> = ({
 }) => {
   if (!password) return null;
 
-  // Only Django AUTH_PASSWORD_VALIDATORS checks
   const checks = [
     {
       label: "At least 8 characters",
@@ -27,20 +26,8 @@ export const PasswordHelper: React.FC<PasswordHelperProps> = ({
       label: "Not entirely numeric",
       passed: !/^\d+$/.test(password),
     },
-    {
-      label: "Not a common password",
-      passed: ![
-        "password",
-        "password123",
-        "123456",
-        "123456789",
-        "qwerty",
-        "abc123",
-      ].includes(password.toLowerCase()),
-    },
   ];
 
-  // Add email similarity check if email provided
   if (userEmail) {
     const emailPart = userEmail.split("@")[0];
     checks.push({
@@ -49,7 +36,6 @@ export const PasswordHelper: React.FC<PasswordHelperProps> = ({
     });
   }
 
-  // Add confirm password check
   if (showConfirmCheck && confirmPassword !== undefined) {
     checks.push({
       label: "Passwords match",
@@ -82,12 +68,6 @@ export const PasswordHelper: React.FC<PasswordHelperProps> = ({
           </div>
         ))}
       </div>
-
-      {allPassed && (
-        <div className="mt-2 text-sm text-green-600 font-medium">
-          ✓ Password meets all requirements
-        </div>
-      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React from "react";
 import { Shield, Eye, EyeOff } from "lucide-react";
+import { PasswordHelper } from "../auth/PasswordHelper";
 import { User } from "./types";
-import Badge from "../ui/Badge";
 import Button from "../ui/Button";
 
 interface PasswordChangeData {
@@ -131,6 +131,16 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
             </div>
             {errors.new_password && (
               <p className="text-red-500 text-sm mt-1">{errors.new_password}</p>
+            )}
+
+            {/* 🔥 ONLY NEW ADDITION - Password validation */}
+            {passwordData.new_password && (
+              <PasswordHelper
+                password={passwordData.new_password}
+                confirmPassword={passwordData.confirm_password}
+                userEmail={user.email}
+                showConfirmCheck={true}
+              />
             )}
           </div>
 

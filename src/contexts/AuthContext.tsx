@@ -269,23 +269,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Forgot password function
-  // const forgotPassword = async (
-  //   data: ForgotPasswordRequest
-  // ): Promise<ForgotPasswordResponse> => {
-  //   try {
-  //     dispatch({ type: "AUTH_START" });
-  //     const response = await authService.forgotPassword(data);
-  //     dispatch({ type: "SET_LOADING", payload: false });
-  //     return response;
-  //   } catch (error: any) {
-  //     const errorMessage =
-  //       error.message ||
-  //       "Failed to send password reset email. Please try again.";
-  //     dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
-  //     throw error;
-  //   }
-  // };
-
   const forgotPassword = async (
     data: ForgotPasswordRequest
   ): Promise<ForgotPasswordResponse> => {
@@ -358,21 +341,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Reset password function
-  // const resetPassword = async (
-  //   data: ResetPasswordRequest
-  // ): Promise<ResetPasswordResponse> => {
-  //   try {
-  //     dispatch({ type: "AUTH_START" });
-  //     const response = await authService.resetPassword(data);
-  //     dispatch({ type: "SET_LOADING", payload: false });
-  //     return response;
-  //   } catch (error: any) {
-  //     const errorMessage =
-  //       error.message || "Password reset failed. Please try again.";
-  //     dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
-  //     throw error;
-  //   }
-  // };
 
   const resetPassword = async (
     data: ResetPasswordRequest
@@ -392,7 +360,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         ) {
           const passwordErrors = error.details.new_password;
 
-          // Map Django password validation errors to user-friendly messages
           for (const passwordError of passwordErrors) {
             const lowerError = passwordError.toLowerCase();
             if (lowerError.includes("too short")) {
@@ -453,8 +420,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       dispatch({ type: "SET_LOADING", payload: false });
       return response;
     } catch (error: any) {
-      const errorMessage =
-        error.message || "Password change failed. Please try again.";
+      let errorMessage = "Password change failed. Please try again.";
+
+      if (error.details) {
+        if (
+          error.details.new_password &&
+          Array.isArray(error.details.new_password)
+        ) {
+          const passwordErrors = error.details.new_password;
+          errorMessage = passwordErrors[0];
+        } else if (
+          error.details.old_password &&
+          Array.isArray(error.details.old_password)
+        ) {
+          errorMessage = error.details.old_password[0];
+        } else if (
+          error.details.confirm_password &&
+          Array.isArray(error.details.confirm_password)
+        ) {
+          errorMessage = error.details.confirm_password[0];
+        } else if (
+          error.details.non_field_errors &&
+          Array.isArray(error.details.non_field_errors)
+        ) {
+          errorMessage = error.details.non_field_errors[0];
+        } else if (typeof error.details === "string") {
+          errorMessage = error.details;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }

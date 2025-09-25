@@ -89,7 +89,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           </div>
 
           {/* Edit Button */}
-          {!isEditing && !isChangingPassword && (
+          {!isEditing && (
             <Button onClick={onEditClick} variant="primary">
               <Edit3 className="w-4 h-4" />
               <span>Edit Profile</span>

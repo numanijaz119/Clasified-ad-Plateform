@@ -169,6 +169,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.login(credentials);
 
       dispatch({ type: "AUTH_SUCCESS", payload: response.user });
+
+      try {
+        const fullProfile = await authService.getProfile();
+        dispatch({ type: "AUTH_SUCCESS", payload: fullProfile });
+      } catch (profileError) {
+        console.warn("Failed to fetch full profile after login:", profileError);
+        // Don't throw error, user is still logged in
+      }
     } catch (error: any) {
       const errorMessage = error.message || "Login failed. Please try again.";
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });

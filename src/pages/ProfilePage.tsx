@@ -6,6 +6,7 @@ import { PasswordChangeForm } from "../components/profile";
 import { AccountInfo } from "../components/profile";
 import { LoadingSpinner } from "../components/profile";
 import { useToast } from "../contexts/ToastContext";
+import { useAuth } from "../contexts/AuthContext";
 
 interface User {
   id: number;
@@ -40,6 +41,11 @@ const ProfilePage: React.FC = () => {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+
+  const [profileUpdating, setProfileUpdating] = useState(false);
+  const [passwordUpdating, setPasswordUpdating] = useState(false);
+
+  const { updateUser } = useAuth();
 
   const [showPassword, setShowPassword] = useState({
     old: false,
@@ -146,14 +152,12 @@ const ProfilePage: React.FC = () => {
       if (errors.avatar) {
         setErrors((prev) => ({ ...prev, avatar: "" }));
       }
-
-      // Success message for file selection
-      toast.info("Avatar image selected successfully");
     }
   };
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setProfileUpdating(true);
     setUpdating(true);
     setErrors({});
 
@@ -170,6 +174,7 @@ const ProfilePage: React.FC = () => {
 
       const updatedUser = await authService.updateProfile(updateData);
       setUser(updatedUser);
+      updateUser(updatedUser);
       setIsEditing(false);
 
       // Success toast notification
@@ -190,12 +195,14 @@ const ProfilePage: React.FC = () => {
         toast.error(errorMsg);
       }
     } finally {
-      setUpdating(false);
+      // setUpdating(false);
+      setProfileUpdating(false);
     }
   };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPasswordUpdating(true);
     setUpdating(true);
     setErrors({});
 
@@ -240,7 +247,8 @@ const ProfilePage: React.FC = () => {
         toast.error(errorMsg);
       }
     } finally {
-      setUpdating(false);
+      // setUpdating(false);
+      setPasswordUpdating(false);
     }
   };
 
@@ -305,7 +313,7 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="!min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
         <ProfileHeader
@@ -339,7 +347,7 @@ const ProfilePage: React.FC = () => {
             isEditing={isEditing}
             formData={formData}
             errors={errors}
-            updating={updating}
+            updating={profileUpdating}
             onInputChange={handleInputChange}
             onSubmit={handleProfileUpdate}
             onCancel={handleCancelEdit}
@@ -352,7 +360,7 @@ const ProfilePage: React.FC = () => {
             passwordData={passwordData}
             showPassword={showPassword}
             errors={errors}
-            updating={updating}
+            updating={passwordUpdating}
             onPasswordChange={handlePasswordChange}
             onTogglePassword={togglePasswordVisibility}
             onSubmit={handlePasswordSubmit}

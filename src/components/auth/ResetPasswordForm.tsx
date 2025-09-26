@@ -8,6 +8,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import { PasswordHelper } from "./PasswordHelper";
 
 interface ResetPasswordFormProps {
   email: string;
@@ -135,6 +136,13 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             )}
           </button>
         </div>
+
+        <PasswordHelper
+          password={newPassword}
+          confirmPassword={confirmPassword}
+          userEmail={email}
+          showConfirmCheck={true}
+        />
 
         <div className="relative">
           <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -169,6 +169,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.login(credentials);
 
       dispatch({ type: "AUTH_SUCCESS", payload: response.user });
+
+      try {
+        const fullProfile = await authService.getProfile();
+        dispatch({ type: "AUTH_SUCCESS", payload: fullProfile });
+      } catch (profileError) {
+        console.warn("Failed to fetch full profile after login:", profileError);
+        // Don't throw error, user is still logged in
+      }
     } catch (error: any) {
       const errorMessage = error.message || "Login failed. Please try again.";
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
@@ -177,7 +185,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Register function
-  const register = async (userData: RegisterRequest): Promise<RegisterResponse> => {
+  const register = async (
+    userData: RegisterRequest
+  ): Promise<RegisterResponse> => {
     try {
       dispatch({ type: "AUTH_START" });
 
@@ -232,70 +242,223 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Email verification function
-  const verifyEmail = async (data: EmailVerificationRequest): Promise<EmailVerificationResponse> => {
+  const verifyEmail = async (
+    data: EmailVerificationRequest
+  ): Promise<EmailVerificationResponse> => {
     try {
       dispatch({ type: "AUTH_START" });
       const response = await authService.verifyEmail(data);
       dispatch({ type: "SET_LOADING", payload: false });
       return response;
     } catch (error: any) {
-      const errorMessage = error.message || "Email verification failed. Please try again.";
+      const errorMessage =
+        error.message || "Email verification failed. Please try again.";
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }
   };
 
   // Resend verification function
-  const resendVerification = async (data: ResendVerificationRequest): Promise<EmailVerificationResponse> => {
+  const resendVerification = async (
+    data: ResendVerificationRequest
+  ): Promise<EmailVerificationResponse> => {
     try {
       dispatch({ type: "AUTH_START" });
       const response = await authService.resendVerificationEmail(data);
       dispatch({ type: "SET_LOADING", payload: false });
       return response;
     } catch (error: any) {
-      const errorMessage = error.message || "Failed to resend verification email. Please try again.";
+      const errorMessage =
+        error.message ||
+        "Failed to resend verification email. Please try again.";
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }
   };
 
   // Forgot password function
-  const forgotPassword = async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
+  const forgotPassword = async (
+    data: ForgotPasswordRequest
+  ): Promise<ForgotPasswordResponse> => {
     try {
       dispatch({ type: "AUTH_START" });
       const response = await authService.forgotPassword(data);
       dispatch({ type: "SET_LOADING", payload: false });
       return response;
     } catch (error: any) {
-      const errorMessage = error.message || "Failed to send password reset email. Please try again.";
+      // Enhanced error handling for forgot password
+      let errorMessage = "Failed to send reset code. Please try again.";
+
+      if (error.details) {
+        // Handle Django field-specific errors
+        if (error.details.email && Array.isArray(error.details.email)) {
+          const emailErrors = error.details.email;
+
+          // Map common Django email validation errors
+          for (const emailError of emailErrors) {
+            const lowerError = emailError.toLowerCase();
+            if (lowerError.includes("valid email")) {
+              errorMessage = "Please enter a valid email address";
+              break;
+            } else if (lowerError.includes("required")) {
+              errorMessage = "Email address is required";
+              break;
+            } else {
+              errorMessage = emailError;
+              break;
+            }
+          }
+        } else if (
+          error.details.non_field_errors &&
+          Array.isArray(error.details.non_field_errors)
+        ) {
+          errorMessage = error.details.non_field_errors[0];
+        } else if (error.details.error) {
+          // Single error message from backend
+          errorMessage = error.details.error;
+        } else if (typeof error.details === "string") {
+          errorMessage = error.details;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      // Handle specific HTTP status codes
+      if (error.status) {
+        switch (error.status) {
+          case 404:
+            errorMessage =
+              "We couldn't find an account with this email address.";
+            break;
+          case 400:
+            // Keep the detailed message from backend for 400 errors
+            break;
+          case 429:
+            errorMessage =
+              "Too many requests. Please wait before trying again.";
+            break;
+          case 500:
+            errorMessage = "Server error. Please try again later.";
+            break;
+        }
+      }
+
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }
   };
 
   // Reset password function
-  const resetPassword = async (data: ResetPasswordRequest): Promise<ResetPasswordResponse> => {
+
+  const resetPassword = async (
+    data: ResetPasswordRequest
+  ): Promise<ResetPasswordResponse> => {
     try {
       dispatch({ type: "AUTH_START" });
       const response = await authService.resetPassword(data);
       dispatch({ type: "SET_LOADING", payload: false });
       return response;
     } catch (error: any) {
-      const errorMessage = error.message || "Password reset failed. Please try again.";
+      let errorMessage = "Password reset failed. Please try again.";
+
+      if (error.details) {
+        if (
+          error.details.new_password &&
+          Array.isArray(error.details.new_password)
+        ) {
+          const passwordErrors = error.details.new_password;
+
+          for (const passwordError of passwordErrors) {
+            const lowerError = passwordError.toLowerCase();
+            if (lowerError.includes("too short")) {
+              errorMessage = "Password must be at least 8 characters long";
+              break;
+            } else if (lowerError.includes("too common")) {
+              errorMessage =
+                "This password is too common. Please choose a stronger password";
+              break;
+            } else if (lowerError.includes("entirely numeric")) {
+              errorMessage = "Password cannot be entirely numeric";
+              break;
+            } else if (
+              lowerError.includes("similar") ||
+              lowerError.includes("attribute")
+            ) {
+              errorMessage =
+                "Password is too similar to your personal information";
+              break;
+            } else {
+              errorMessage = passwordError;
+              break;
+            }
+          }
+        } else if (error.details.code) {
+          errorMessage = "Invalid or expired verification code";
+        } else if (error.details.email) {
+          errorMessage = "Invalid email address";
+        } else if (error.details.confirm_password) {
+          errorMessage = "Password confirmation doesn't match";
+        } else if (error.details.non_field_errors) {
+          errorMessage = error.details.non_field_errors[0];
+        } else if (error.details.error) {
+          errorMessage = error.details.error;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      // Handle specific status codes
+      if (error.status === 400 && errorMessage.includes("Invalid or expired")) {
+        errorMessage =
+          "The verification code has expired or is invalid. Please request a new one.";
+      }
+
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }
   };
 
   // Change password function
-  const changePassword = async (data: ChangePasswordRequest): Promise<ChangePasswordResponse> => {
+  const changePassword = async (
+    data: ChangePasswordRequest
+  ): Promise<ChangePasswordResponse> => {
     try {
       dispatch({ type: "AUTH_START" });
       const response = await authService.changePassword(data);
       dispatch({ type: "SET_LOADING", payload: false });
       return response;
     } catch (error: any) {
-      const errorMessage = error.message || "Password change failed. Please try again.";
+      let errorMessage = "Password change failed. Please try again.";
+
+      if (error.details) {
+        if (
+          error.details.new_password &&
+          Array.isArray(error.details.new_password)
+        ) {
+          const passwordErrors = error.details.new_password;
+          errorMessage = passwordErrors[0];
+        } else if (
+          error.details.old_password &&
+          Array.isArray(error.details.old_password)
+        ) {
+          errorMessage = error.details.old_password[0];
+        } else if (
+          error.details.confirm_password &&
+          Array.isArray(error.details.confirm_password)
+        ) {
+          errorMessage = error.details.confirm_password[0];
+        } else if (
+          error.details.non_field_errors &&
+          Array.isArray(error.details.non_field_errors)
+        ) {
+          errorMessage = error.details.non_field_errors[0];
+        } else if (typeof error.details === "string") {
+          errorMessage = error.details;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }

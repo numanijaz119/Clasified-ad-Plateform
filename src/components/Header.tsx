@@ -1,7 +1,19 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, Plus } from "lucide-react";
+import {
+  Menu,
+  X,
+  User,
+  Plus,
+  Bell,
+  MessageCircle,
+  ChevronDown,
+  LogOut,
+  UserCircle,
+  Settings,
+} from "lucide-react";
 import { Button } from "./";
+import { useAuth } from "../contexts/AuthContext";
 
 interface HeaderProps {
   onPostAd: () => void;
@@ -18,6 +30,17 @@ const Header: React.FC<HeaderProps> = ({
   onSignOut,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const { user } = useAuth();
+
+  const handleProfileClick = () => {
+    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  };
+
+  const handleSignOut = () => {
+    setIsProfileDropdownOpen(false);
+    onSignOut();
+  };
 
   return (
     <header className="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
@@ -30,11 +53,7 @@ const Header: React.FC<HeaderProps> = ({
                 <img
                   src="/DesiloginILlogo.webp"
                   className="h-16 w-auto object-contain hover:opacity-90 transition-opacity"
-                  // onError={(e) => {
-                  //   console.log('Logo failed to load, falling back to text logo');
-                  //   e.currentTarget.style.display = 'none';
-                  //   e.currentTarget.nextElementSibling.style.display = 'flex';
-                  // }}
+                  alt="DesiLogin Logo"
                 />
                 <div
                   className="w-24 h-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center mr-3"
@@ -47,100 +66,265 @@ const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Global Search Bar - Desktop */}
-          {/* <div className="hidden md:flex flex-1 max-w-2xl mx-8">
-            <form onSubmit={handleSearch} className="w-full">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search for jobs, homes, cars, services..."
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-1.5 rounded-md hover:from-orange-600 hover:to-red-600 transition-all duration-200 text-sm font-medium"
-                >
-                  Search
-                </button>
-              </div>
-            </form>
-          </div> */}
-
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-4">
-            <Button variant="primary" onClick={onPostAd}>
-              <Plus className="h-4 w-4" />
-              <span>Post Ad</span>
-            </Button>
-
-            <Button variant="ghost" onClick={isLoggedIn ? onSignOut : onSignIn}>
-              <User className="h-5 w-5" />
-              <span className="text-sm">
-                {isLoggedIn ? "Sign Out" : "Sign In"}
-              </span>
-            </Button>
+          <div className="hidden md:flex flex-1 max-w-2xl mx-8">
+            {/* Your existing search implementation can go here */}
           </div>
 
-          {/* Mobile menu button */}
-          <div className="lg:hidden">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-700 hover:text-orange-500 transition-colors"
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
+          {/* Right section */}
+          <div className="flex items-center space-x-4">
+            {isLoggedIn ? (
+              <>
+                {/* Post Ad Button - Desktop only */}
+                <Button
+                  onClick={onPostAd}
+                  variant="primary"
+                  className="hidden sm:flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Post Ad</span>
+                </Button>
+
+                {/* Notification & Chat Icons - Always visible when logged in */}
+                <div className="flex items-center space-x-2">
+                  {/* Notifications */}
+                  <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+                    <Bell className="h-6 w-6" />
+                    {/* Notification badge - you can add logic for unread count */}
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      3
+                    </span>
+                  </button>
+
+                  {/* Chat/Messages */}
+                  <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+                    <MessageCircle className="h-6 w-6" />
+                    {/* Message badge - you can add logic for unread count */}
+                    <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      2
+                    </span>
+                  </button>
+                </div>
+
+                {/* Profile Section - Desktop only */}
+                <div className="relative hidden md:block">
+                  <button
+                    onClick={handleProfileClick}
+                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    {/* Profile Avatar */}
+                    <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden">
+                      {user?.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt={user.full_name || user.first_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-orange-500 to-red-500">
+                          <User className="w-6 h-6 text-white" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* User Name */}
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {user?.full_name ||
+                          `${user?.first_name} ${user?.last_name}` ||
+                          "User"}
+                      </p>
+                    </div>
+
+                    {/* Dropdown Arrow */}
+                    <ChevronDown
+                      className={`h-4 w-4 text-gray-500 transition-transform ${
+                        isProfileDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {/* Profile Dropdown */}
+                  {isProfileDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border">
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <UserCircle className="h-4 w-4 mr-3" />
+                        My Profile
+                      </Link>
+
+                      <Link
+                        to="/settings"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <Settings className="h-4 w-4 mr-3" />
+                        Settings
+                      </Link>
+
+                      <div className="border-t border-gray-100"></div>
+
+                      <button
+                        onClick={handleSignOut}
+                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <LogOut className="h-4 w-4 mr-3" />
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Post Ad Button for non-logged in users */}
+                <Button
+                  onClick={onPostAd}
+                  variant="primary"
+                  className="hidden sm:flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Post Ad</span>
+                </Button>
+
+                {/* Sign In Button - Hidden on mobile when not logged in */}
+                <Button
+                  onClick={onSignIn}
+                  variant="outline"
+                  className="hidden md:block"
+                >
+                  Sign In
+                </Button>
+              </>
+            )}
+
+            {/* Mobile Menu Toggle */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="block h-6 w-6" />
+                ) : (
+                  <Menu className="block h-6 w-6" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Mobile Search Bar */}
-        {/* <div className="md:hidden pb-4">
-          <form onSubmit={handleSearch}>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search listings..."
-                className="w-full pl-10 pr-20 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
-              />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-1.5 rounded-md hover:from-orange-600 hover:to-red-600 transition-all duration-200 text-xs font-medium"
-              >
-                Search
-              </button>
-            </div>
-          </form>
-        </div> */}
-
-        {/* Mobile Navigation Menu */}
+        {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200 py-3">
-            {/* Mobile Action Buttons */}
-            <div className="space-y-2 flex flex-col items-center">
-              <Button onClick={onPostAd}>
-                <Plus className="h-4 w-4" />
-                <span>Post Ad</span>
-              </Button>
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
+              {isLoggedIn ? (
+                <>
+                  {/* Mobile Profile Section */}
+                  <div className="flex items-center space-x-3 px-3 py-3 bg-gray-50 rounded-lg mb-3">
+                    <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden">
+                      {user?.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt={user.full_name || user.first_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-orange-500 to-red-500">
+                          <User className="w-7 h-7 text-white" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">
+                        {user?.full_name ||
+                          `${user?.first_name} ${user?.last_name}` ||
+                          "User"}
+                      </p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
+                    </div>
+                  </div>
 
-              <Button
-                variant="ghost"
-                onClick={isLoggedIn ? onSignOut : onSignIn}
-              >
-                <User className="h-5 w-5" />
-                <span className="text-sm">
-                  {isLoggedIn ? "Sign Out" : "Sign In"}
-                </span>
-              </Button>
+                  {/* Mobile Navigation Links */}
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                  >
+                    <UserCircle className="h-5 w-5 mr-3" />
+                    My Profile
+                  </Link>
+
+                  <Link
+                    to="/settings"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                  >
+                    <Settings className="h-5 w-5 mr-3" />
+                    Settings
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      onPostAd();
+                    }}
+                    className="flex items-center w-full px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                  >
+                    <Plus className="h-5 w-5 mr-3" />
+                    Post Ad
+                  </button>
+
+                  <div className="border-t border-gray-200 my-2"></div>
+
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleSignOut();
+                    }}
+                    className="flex items-center w-full px-3 py-2 text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md"
+                  >
+                    <LogOut className="h-5 w-5 mr-3" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      onPostAd();
+                    }}
+                    className="flex items-center w-full px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                  >
+                    <Plus className="h-5 w-5 mr-3" />
+                    Post Ad
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      onSignIn();
+                    }}
+                    className="flex items-center w-full px-3 py-2 text-base font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-md"
+                  >
+                    <User className="h-5 w-5 mr-3" />
+                    Sign In
+                  </button>
+                </>
+              )}
             </div>
           </div>
+        )}
+
+        {/* Click outside to close dropdown */}
+        {isProfileDropdownOpen && (
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsProfileDropdownOpen(false)}
+          />
         )}
       </div>
     </header>

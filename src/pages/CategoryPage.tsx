@@ -10,8 +10,9 @@ import {
   BottomBanner,
 } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
-import { useAds } from "../hooks/";
+import { useAds } from "../hooks/useAds";
 import { useCities } from "../hooks/useCities";
+import { useCategoryBySlug } from "../hooks/";
 
 interface Listing {
   id: number;
@@ -41,9 +42,12 @@ const CategoryPage: React.FC = () => {
   // Fetch cities dynamically
   const { cities: citiesData, loading: citiesLoading } = useCities();
 
-  // Fetch ads based on filters
+  // Get category by slug to get the ID
+  const { category } = useCategoryBySlug(categoryName);
+
+  // Fetch ads based on filters using category ID
   const { ads, loading, error, refetch } = useAds({
-    category: categoryName,
+    category: category?.id,
     city: selectedCity !== "all" ? parseInt(selectedCity) : undefined,
     search: searchQuery || undefined,
     sort_by: sortBy as any,
@@ -51,13 +55,15 @@ const CategoryPage: React.FC = () => {
 
   // Refetch when filters change
   useEffect(() => {
+    if (!category?.id) return;
+
     refetch({
-      category: categoryName,
+      category: category.id,
       city: selectedCity !== "all" ? parseInt(selectedCity) : undefined,
       search: searchQuery || undefined,
       sort_by: sortBy as any,
     });
-  }, [categoryName, selectedCity, searchQuery, sortBy]);
+  }, [category?.id, selectedCity, searchQuery, sortBy]);
 
   // Build cities array for dropdown
   const cities = useMemo(() => {

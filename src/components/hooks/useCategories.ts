@@ -1,6 +1,6 @@
 // src/hooks/useCategories.ts
 import { useState, useEffect, useCallback } from "react";
-import { contentService } from "../services";
+import { contentService } from "../../services";
 
 interface Category {
   id: number;
@@ -34,6 +34,7 @@ export const useCategories = (
       setLoading(true);
       setError(null);
 
+      // Service now handles pagination extraction
       const data = await contentService.getCategories();
 
       // Filter active categories if needed

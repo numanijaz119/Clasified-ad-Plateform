@@ -104,7 +104,13 @@ export interface AdListParams {
   price_max?: number;
   plan?: "free" | "featured";
   status?: "pending" | "approved" | "rejected" | "expired" | "deleted";
-  sort_by?: "newest" | "oldest" | "alphabetical" | "price_low" | "price_high" | "relevance";
+  sort_by?:
+    | "newest"
+    | "oldest"
+    | "alphabetical"
+    | "price_low"
+    | "price_high"
+    | "relevance";
   has_images?: boolean;
   has_phone?: boolean;
   is_featured?: boolean;

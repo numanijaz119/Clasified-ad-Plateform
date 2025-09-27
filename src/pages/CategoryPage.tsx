@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+// src/pages/CategoryPage.tsx
+import React, { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Eye, Clock, Star, Search } from "lucide-react";
 import {
@@ -9,6 +10,8 @@ import {
   BottomBanner,
 } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
+import { useAds } from "../hooks/";
+import { useCities } from "../hooks/useCities";
 
 interface Listing {
   id: number;
@@ -35,369 +38,54 @@ const CategoryPage: React.FC = () => {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const cities = [
-    "all",
-    "Chicago",
-    "Aurora",
-    "Naperville",
-    "Bloomington-Normal",
-    "Peoria",
-    "Springfield",
-    "Urbana-Champaign",
-    "Rockford",
-  ];
+  // Fetch cities dynamically
+  const { cities: citiesData, loading: citiesLoading } = useCities();
 
-  // Mock listings data for the category
-  const getAllMockListings = (): Listing[] => [
-    {
-      id: 1,
-      title: "Senior Software Engineer - React/Node.js",
-      category: "Jobs",
-      price: "$95,000 - $130,000",
-      location: "Chicago, IL",
-      image:
-        "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 345,
-      timeAgo: "1 hour ago",
-      postedDate: new Date("2025-01-12"),
-      featured: true,
-      description:
-        "Join our innovative team building next-generation web applications. We are looking for a senior developer with 5+ years of experience in React and Node.js.",
-      phone: "(312) 555-0101",
-      email: "hr@techcompany.com",
-    },
-    {
-      id: 2,
-      title: "Marketing Manager - Digital Agency",
-      category: "Jobs",
-      price: "$70,000 - $90,000",
-      location: "Naperville, IL",
-      image:
-        "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 189,
-      timeAgo: "3 hours ago",
-      postedDate: new Date("2025-01-12"),
-      featured: false,
-      description:
-        "Lead marketing campaigns for diverse client portfolio. Experience in digital marketing and team management required.",
-      phone: "(630) 555-0102",
-      email: "careers@digitalagency.com",
-    },
-    {
-      id: 3,
-      title: "Data Scientist - Healthcare Analytics",
-      category: "Jobs",
-      price: "$85,000 - $115,000",
-      location: "Aurora, IL",
-      image:
-        "https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 267,
-      timeAgo: "6 hours ago",
-      postedDate: new Date("2025-01-11"),
-      featured: true,
-      description:
-        "Apply machine learning to improve patient outcomes. PhD in Data Science or related field preferred.",
-      phone: "(630) 555-0103",
-      email: "jobs@healthtech.com",
-    },
-    {
-      id: 4,
-      title: "UX/UI Designer - Fintech Startup",
-      category: "Jobs",
-      price: "$75,000 - $95,000",
-      location: "Chicago, IL",
-      image:
-        "https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 156,
-      timeAgo: "12 hours ago",
-      postedDate: new Date("2025-01-11"),
-      featured: false,
-      description:
-        "Design intuitive financial applications for mobile and web. Portfolio showcasing fintech experience required.",
-      phone: "(312) 555-0104",
-      email: "design@fintech.com",
-    },
-    {
-      id: 5,
-      title: "Project Manager - Construction",
-      category: "Jobs",
-      price: "$80,000 - $100,000",
-      location: "Peoria, IL",
-      image:
-        "https://images.pexels.com/photos/416405/pexels-photo-416405.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 98,
-      timeAgo: "1 day ago",
-      postedDate: new Date("2025-01-10"),
-      featured: false,
-      description:
-        "Oversee commercial construction projects from start to finish. PMP certification preferred.",
-      phone: "(309) 555-0105",
-      email: "pm@construction.com",
-    },
-    {
-      id: 6,
-      title: "Sales Representative - Medical Devices",
-      category: "Jobs",
-      price: "$60,000 + Commission",
-      location: "Springfield, IL",
-      image:
-        "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 234,
-      timeAgo: "2 days ago",
-      postedDate: new Date("2025-01-09"),
-      featured: false,
-      description:
-        "Sell cutting-edge medical equipment to healthcare facilities. Medical sales experience required.",
-      phone: "(217) 555-0106",
-      email: "sales@meddevice.com",
-    },
-    {
-      id: 7,
-      title: "DevOps Engineer - Cloud Infrastructure",
-      category: "Jobs",
-      price: "$90,000 - $120,000",
-      location: "Chicago, IL",
-      image:
-        "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 178,
-      timeAgo: "3 days ago",
-      postedDate: new Date("2025-01-08"),
-      featured: true,
-      description:
-        "Build and maintain scalable cloud infrastructure on AWS. Kubernetes and Docker experience required.",
-      phone: "(312) 555-0107",
-      email: "devops@cloudtech.com",
-    },
-    {
-      id: 8,
-      title: "Registered Nurse - ICU",
-      category: "Jobs",
-      price: "$65,000 - $85,000",
-      location: "Rockford, IL",
-      image:
-        "https://images.pexels.com/photos/4173251/pexels-photo-4173251.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 145,
-      timeAgo: "4 days ago",
-      postedDate: new Date("2025-01-07"),
-      featured: false,
-      description:
-        "Provide critical care in our state-of-the-art ICU facility. BSN and ICU experience required.",
-      phone: "(815) 555-0108",
-      email: "nursing@hospital.com",
-    },
-    {
-      id: 9,
-      title: "Accountant - CPA Firm",
-      category: "Jobs",
-      price: "$55,000 - $70,000",
-      location: "Naperville, IL",
-      image:
-        "https://images.pexels.com/photos/6863183/pexels-photo-6863183.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 123,
-      timeAgo: "5 days ago",
-      postedDate: new Date("2025-01-06"),
-      featured: false,
-      description:
-        "Handle tax preparation and financial audits. CPA certification preferred.",
-      phone: "(630) 555-0109",
-      email: "careers@cpafirm.com",
-    },
-    {
-      id: 10,
-      title: "Elementary School Teacher",
-      category: "Jobs",
-      price: "$45,000 - $60,000",
-      location: "Aurora, IL",
-      image:
-        "https://images.pexels.com/photos/8471831/pexels-photo-8471831.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 89,
-      timeAgo: "1 week ago",
-      postedDate: new Date("2025-01-05"),
-      featured: false,
-      description:
-        "Teach elementary students in a supportive environment. Teaching license required.",
-      phone: "(630) 555-0110",
-      email: "hr@schooldistrict.edu",
-    },
-    // Real Estate listings
-    {
-      id: 11,
-      title: "Beautiful 3BR Downtown Condo",
-      category: "Real Estate",
-      price: "$2,500/month",
-      location: "Chicago, IL",
-      image:
-        "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 234,
-      timeAgo: "2 hours ago",
-      postedDate: new Date("2025-01-12"),
-      featured: true,
-      description: "Modern condo with city views and premium amenities.",
-    },
-    {
-      id: 12,
-      title: "4BR Family Home with Garage",
-      category: "Real Estate",
-      price: "$450,000",
-      location: "Naperville, IL",
-      image:
-        "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 189,
-      timeAgo: "5 hours ago",
-      postedDate: new Date("2025-01-11"),
-      featured: false,
-      description: "Spacious family home in quiet neighborhood.",
-    },
-    // Vehicle listings
-    {
-      id: 13,
-      title: "2020 Honda Civic - Excellent Condition",
-      category: "Vehicles",
-      price: "$22,500",
-      location: "Aurora, IL",
-      image:
-        "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 156,
-      timeAgo: "3 hours ago",
-      postedDate: new Date("2025-01-12"),
-      featured: false,
-      description: "Well-maintained Honda Civic with low mileage.",
-    },
-    {
-      id: 14,
-      title: "2018 Toyota Camry - One Owner",
-      category: "Vehicles",
-      price: "$19,800",
-      location: "Peoria, IL",
-      image:
-        "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 123,
-      timeAgo: "1 day ago",
-      postedDate: new Date("2025-01-11"),
-      featured: true,
-      description: "Reliable Toyota Camry with complete service history.",
-    },
-    // Buy & Sell listings
-    {
-      id: 15,
-      title: "MacBook Pro 2021 - Like New",
-      category: "Buy & Sell",
-      price: "$1,800",
-      location: "Chicago, IL",
-      image:
-        "https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 267,
-      timeAgo: "4 hours ago",
-      postedDate: new Date("2025-01-12"),
-      featured: false,
-      description: 'MacBook Pro 14" with M1 Pro chip. Barely used.',
-    },
-    {
-      id: 16,
-      title: "iPhone 14 Pro Max - Unlocked",
-      category: "Buy & Sell",
-      price: "$950",
-      location: "Naperville, IL",
-      image:
-        "https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 198,
-      timeAgo: "6 hours ago",
-      postedDate: new Date("2025-01-11"),
-      featured: true,
-      description: "iPhone 14 Pro Max in excellent condition, unlocked.",
-    },
-    // Services listings
-    {
-      id: 17,
-      title: "Professional House Cleaning Service",
-      category: "Services",
-      price: "$80/visit",
-      location: "Springfield, IL",
-      image:
-        "https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 145,
-      timeAgo: "2 hours ago",
-      postedDate: new Date("2025-01-12"),
-      featured: false,
-      description: "Reliable house cleaning service with excellent reviews.",
-    },
-    {
-      id: 18,
-      title: "Wedding Photography Services",
-      category: "Services",
-      price: "Starting $1,200",
-      location: "Chicago, IL",
-      image:
-        "https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 234,
-      timeAgo: "1 day ago",
-      postedDate: new Date("2025-01-11"),
-      featured: true,
-      description:
-        "Professional wedding photography with Indian cultural expertise.",
-    },
-    // Education listings
-    {
-      id: 19,
-      title: "Math Tutoring - All Levels",
-      category: "Education",
-      price: "$40/hour",
-      location: "Urbana-Champaign, IL",
-      image:
-        "https://images.pexels.com/photos/1701194/pexels-photo-1701194.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 89,
-      timeAgo: "3 hours ago",
-      postedDate: new Date("2025-01-12"),
-      featured: false,
-      description: "Experienced math tutor for students of all ages.",
-    },
-    {
-      id: 20,
-      title: "Indian Classical Dance Classes",
-      category: "Education",
-      price: "$60/month",
-      location: "Chicago, IL",
-      image:
-        "https://images.pexels.com/photos/1701194/pexels-photo-1701194.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 156,
-      timeAgo: "5 hours ago",
-      postedDate: new Date("2025-01-11"),
-      featured: true,
-      description: "Learn Bharatanatyam from certified instructor.",
-    },
-  ];
+  // Fetch ads based on filters
+  const { ads, loading, error, refetch } = useAds({
+    category: categoryName,
+    city: selectedCity !== "all" ? parseInt(selectedCity) : undefined,
+    search: searchQuery || undefined,
+    sort_by: sortBy as any,
+  });
 
-  const mockListings = getAllMockListings().filter(
-    (listing) => listing.category === categoryName
-  );
+  // Refetch when filters change
+  useEffect(() => {
+    refetch({
+      category: categoryName,
+      city: selectedCity !== "all" ? parseInt(selectedCity) : undefined,
+      search: searchQuery || undefined,
+      sort_by: sortBy as any,
+    });
+  }, [categoryName, selectedCity, searchQuery, sortBy]);
+
+  // Build cities array for dropdown
+  const cities = useMemo(() => {
+    return ["all", ...citiesData.map((city) => city.name)];
+  }, [citiesData]);
+
+  // Transform backend ads to Listing interface
+  const mockListings: Listing[] = useMemo(() => {
+    return ads.map((ad) => ({
+      id: ad.id,
+      title: ad.title,
+      category: ad.category.name,
+      price: ad.display_price,
+      location: `${ad.city.name}, ${ad.state.code}`,
+      image: ad.primary_image?.image || "",
+      views: ad.view_count,
+      timeAgo: ad.time_since_posted,
+      postedDate: new Date(ad.created_at),
+      featured: ad.plan === "featured",
+      description: ad.description,
+      phone: "",
+      email: "",
+    }));
+  }, [ads]);
 
   const filteredListings = useMemo(() => {
-    let filtered = mockListings.filter((listing) => {
-      // Search query filter
-      const matchesSearch =
-        searchQuery === "" ||
-        listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        listing.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        listing.location.toLowerCase().includes(searchQuery.toLowerCase());
-
-      // City filter
-      const matchesCity =
-        selectedCity === "all" || listing.location.includes(selectedCity);
-
-      return matchesSearch && matchesCity;
-    });
-
-    // Sort listings by date posted (newest first by default)
-    if (sortBy === "newest") {
-      filtered.sort((a, b) => b.postedDate.getTime() - a.postedDate.getTime());
-    } else if (sortBy === "oldest") {
-      filtered.sort((a, b) => a.postedDate.getTime() - b.postedDate.getTime());
-    } else if (sortBy === "alphabetical") {
-      filtered.sort((a, b) => a.title.localeCompare(b.title));
-    }
-
-    return filtered;
-  }, [searchQuery, selectedCity, sortBy]);
+    return mockListings;
+  }, [mockListings]);
 
   const getCategoryIcon = (category: string) => {
     const icons: { [key: string]: string } = {
@@ -435,13 +123,6 @@ const CategoryPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Tablet Ad Banner */}
-      {/* <div className="hidden md:block lg:hidden bg-white border-b border-gray-200">
-        <div className="px-4 py-2">
-          <FlippingAd size="medium" />
-        </div>
-      </div> */}
-
       {/* Mobile FlippingAd */}
       <div className=" md:hidden m-4 mb-0">
         <FlippingAd size="medium" />
@@ -452,16 +133,10 @@ const CategoryPage: React.FC = () => {
           {/* Left Sidebar with Ads */}
           <div className="md:w-48 hidden md:block  xl:w-72 lg:w-64 flex-shrink-0">
             <div className="sticky top-24 space-y-4 z-10">
-              {/* <div className="block lg:hidden">
-                <FlippingAd size="small" />
-              </div> */}
               <div className="block">
                 <SideBanner />
               </div>
               <FlippingAd size="medium" />
-              {/* <div className="hidden md:block">
-                <FlippingAd size="medium" />
-              </div> */}
             </div>
           </div>
 
@@ -488,11 +163,15 @@ const CategoryPage: React.FC = () => {
                 </h1>
               </div>
               <p className="text-sm text-gray-600">
-                {filteredListings.length} listings found • Sorted by date posted
+                {loading
+                  ? "Loading..."
+                  : `${filteredListings.length} listings found`}{" "}
+                • Sorted by date posted
               </p>
               {selectedCity !== "all" && (
                 <p className="text-sm text-orange-600">
-                  Filtered by: {selectedCity}
+                  Filtered by:{" "}
+                  {cities.find((c) => c === selectedCity) || selectedCity}
                 </p>
               )}
             </div>
@@ -536,6 +215,7 @@ const CategoryPage: React.FC = () => {
                     value={selectedCity}
                     onChange={(e) => setSelectedCity(e.target.value)}
                     className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                    disabled={citiesLoading}
                   >
                     {cities.map((city) => (
                       <option key={city} value={city}>
@@ -575,58 +255,74 @@ const CategoryPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
+
             {/* Listings List - Single Line Titles */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[80vh] overflow-y-auto">
               <div className="divide-y divide-gray-200">
-                {filteredListings.map((listing, index) => (
-                  <div key={listing.id}>
-                    <div
-                      className="p-3 hover:bg-gray-50 cursor-pointer transition-colors group"
-                      onClick={() => handleListingClick(listing)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-3">
-                            {listing.featured && (
-                              <Star className="h-4 w-4 text-orange-500 fill-current flex-shrink-0" />
-                            )}
-                            <h3 className="text-sm font-medium text-gray-900 group-hover:text-orange-600 transition-colors truncate">
-                              {listing.title}
-                            </h3>
+                {loading ? (
+                  <div className="p-8 text-center">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+                    <p className="mt-2 text-sm text-gray-600">
+                      Loading listings...
+                    </p>
+                  </div>
+                ) : (
+                  filteredListings.map((listing, index) => (
+                    <div key={listing.id}>
+                      <div
+                        className="p-3 hover:bg-gray-50 cursor-pointer transition-colors group"
+                        onClick={() => handleListingClick(listing)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-3">
+                              {listing.featured && (
+                                <Star className="h-4 w-4 text-orange-500 fill-current flex-shrink-0" />
+                              )}
+                              <h3 className="text-sm font-medium text-gray-900 group-hover:text-orange-600 transition-colors truncate">
+                                {listing.title}
+                              </h3>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center space-x-4 text-xs text-gray-500 ml-4">
-                          <span className="font-semibold text-orange-600">
-                            {listing.price}
-                          </span>
-                          <span className="bg-gray-100 px-2 py-1 rounded text-xs">
-                            {listing.location}
-                          </span>
-                          <div className="flex items-center space-x-1">
-                            <Eye className="h-3 w-3" />
-                            <span>{listing.views}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-3 w-3" />
-                            <span>{listing.timeAgo}</span>
+                          <div className="flex items-center space-x-4 text-xs text-gray-500 ml-4">
+                            <span className="font-semibold text-orange-600">
+                              {listing.price}
+                            </span>
+                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">
+                              {listing.location}
+                            </span>
+                            <div className="flex items-center space-x-1">
+                              <Eye className="h-3 w-3" />
+                              <span>{listing.views}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Clock className="h-3 w-3" />
+                              <span>{listing.timeAgo}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Inline Ad every 5 listings */}
-                    {(index + 1) % 5 === 0 &&
-                      index < filteredListings.length - 1 && (
-                        <div className="p-2 bg-gray-50 border-t border-b border-gray-200">
-                          <InlineBanner />
-                        </div>
-                      )}
-                  </div>
-                ))}
+                      {/* Inline Ad every 5 listings */}
+                      {(index + 1) % 5 === 0 &&
+                        index < filteredListings.length - 1 && (
+                          <div className="p-2 bg-gray-50 border-t border-b border-gray-200">
+                            <InlineBanner />
+                          </div>
+                        )}
+                    </div>
+                  ))
+                )}
               </div>
 
               {/* No Results */}
-              {filteredListings.length === 0 && (
+              {!loading && filteredListings.length === 0 && (
                 <div className="text-center py-8">
                   <div className="text-gray-400 mb-4">
                     <span className="text-3xl">

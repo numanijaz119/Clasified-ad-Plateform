@@ -1,6 +1,6 @@
 // src/hooks/useStates.ts
-import { useState, useEffect, useCallback } from 'react';
-import { contentService } from '../services';
+import { useState, useEffect, useCallback } from "react";
+import { contentService } from "../../services";
 
 interface State {
   id: number;
@@ -32,24 +32,24 @@ export const useStates = (useCache: boolean = true): UseStatesReturn => {
     try {
       setLoading(true);
       setError(null);
-      
+
+      // Service now handles pagination extraction
       const data = await contentService.getStates(useCache);
-      
+
       // Filter only active states
       const activeStates = data.filter((state: State) => state.is_active);
-      
+
       // Sort alphabetically by name
-      const sortedStates = activeStates.sort((a, b) => 
+      const sortedStates = activeStates.sort((a, b) =>
         a.name.localeCompare(b.name)
       );
-      
+
       setStates(sortedStates);
     } catch (err) {
-      const errorMessage = err instanceof Error 
-        ? err.message 
-        : 'Failed to load states';
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load states";
       setError(errorMessage);
-      console.error('Error fetching states:', err);
+      console.error("Error fetching states:", err);
     } finally {
       setLoading(false);
     }

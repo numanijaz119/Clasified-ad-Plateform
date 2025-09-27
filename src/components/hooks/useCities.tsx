@@ -1,6 +1,6 @@
 // src/hooks/useCities.ts
 import { useState, useEffect, useCallback } from "react";
-import { contentService } from "../services";
+import { contentService } from "../../services";
 
 interface City {
   id: number;
@@ -36,13 +36,14 @@ export const useCities = (
         setLoading(true);
         setError(null);
 
+        // Service now handles pagination extraction
         const data = await contentService.getCities(
           filterStateCode || stateCode,
           useCache
         );
 
         // Sort: major cities first, then alphabetically
-        const sortedCities = data.sort((a, b) => {
+        const sortedCities = [...data].sort((a, b) => {
           if (a.is_major !== b.is_major) {
             return a.is_major ? -1 : 1;
           }

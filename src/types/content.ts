@@ -1,18 +1,14 @@
-// src/types/content.ts
-
 export interface Category {
   id: number;
   name: string;
   slug: string;
-  description?: string;
-  icon?: string;
-  parent?: Category;
-  children?: Category[];
-  ad_count?: number;
-  is_active: boolean;
+  icon: string;
+  description: string;
   sort_order: number;
+  is_active: boolean;
+  ads_count: number;
+  state_ads_count?: number;
   created_at: string;
-  updated_at: string;
 }
 
 export interface City {

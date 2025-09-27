@@ -2,3 +2,4 @@
 export { useCategories } from "./useCategories";
 export { useCities } from "./useCities";
 export { useStates } from "./useStates";
+export { useFeaturedAds } from "./useFeaturedAds";

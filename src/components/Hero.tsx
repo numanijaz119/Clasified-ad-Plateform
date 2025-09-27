@@ -1,5 +1,5 @@
 // src/components/Hero.tsx
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Cloud, MapPin } from "lucide-react";
 import SearchBar from "./SearchBar";
@@ -17,18 +17,6 @@ const Hero: React.FC = () => {
     loading: categoriesLoading,
     error: categoriesError,
   } = useCategories(true);
-
-  // DEBUG: Log what we get from backend
-  useEffect(() => {
-    console.log("=== CITIES DEBUG ===");
-    console.log("Loading:", citiesLoading);
-    console.log("Error:", citiesError);
-    console.log("Cities Data:", citiesData);
-    if (citiesData && citiesData.length > 0) {
-      console.log("First City:", citiesData[0]);
-      console.log("First City Image:", citiesData[0].image);
-    }
-  }, [citiesData, citiesLoading, citiesError]);
 
   // FALLBACK IMAGE - Used only if backend image is missing or fails to load
   const FALLBACK_CITY_IMAGE =
@@ -85,25 +73,20 @@ const Hero: React.FC = () => {
   const getCityImageUrl = (city: any): string => {
     // Backend uses 'photo' or 'photo_url' field, not 'image'
     const imageUrl = city.photo_url || city.photo || city.image;
-    console.log("getCityImageUrl called for:", city.name, "photo:", imageUrl);
 
     if (!imageUrl) {
-      console.log("No image field, using fallback");
       return FALLBACK_CITY_IMAGE;
     }
 
     // If image is already a full URL (starts with http)
     if (imageUrl.startsWith("http")) {
-      console.log("Full URL detected:", imageUrl);
       return imageUrl;
     }
 
     // If it's a relative path, prepend the API base URL
     const API_BASE_URL =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-    const fullUrl = `${API_BASE_URL}${imageUrl}`;
-    console.log("Building full URL:", fullUrl);
-    return fullUrl;
+    return `${API_BASE_URL}${imageUrl}`;
   };
 
   // Process cities: major first, limit to 8, use backend images
@@ -115,7 +98,9 @@ const Hero: React.FC = () => {
     if (majorCities.length >= 8) {
       return majorCities.map((city) => ({
         name: city.name,
-        count: "Loading...",
+        count: (city as any).ads_count
+          ? `${(city as any).ads_count} ads`
+          : "0 ads",
         image: getCityImageUrl(city),
       }));
     }
@@ -126,7 +111,9 @@ const Hero: React.FC = () => {
 
     return [...majorCities, ...otherCities].map((city) => ({
       name: city.name,
-      count: "Loading...",
+      count: (city as any).ads_count
+        ? `${(city as any).ads_count} ads`
+        : "0 ads",
       image: getCityImageUrl(city),
     }));
   }, [citiesData]);
@@ -219,20 +206,8 @@ const Hero: React.FC = () => {
                       loading="lazy"
                       className="w-full h-24 object-cover group-hover:scale-125 transition-transform duration-500"
                       onError={(e) => {
-                        console.log(
-                          "Image failed to load for:",
-                          city.name,
-                          "URL:",
-                          city.image
-                        );
                         const target = e.target as HTMLImageElement;
                         target.src = FALLBACK_CITY_IMAGE;
-                      }}
-                      onLoad={() => {
-                        console.log(
-                          "Image loaded successfully for:",
-                          city.name
-                        );
                       }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent group-hover:from-black/60" />

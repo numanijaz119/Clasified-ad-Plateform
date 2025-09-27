@@ -15,7 +15,7 @@ import {
   Gamepad2,
   Grid3x3,
 } from "lucide-react";
-import { useCategories } from "../hooks/useCategories";
+import { useCategories } from "../hooks";
 import CategorySkeleton from "./skeletons/CategorySkeleton";
 
 // Icon mapping
@@ -47,6 +47,7 @@ const colorMap: Record<string, string> = {
   community: "from-yellow-500 to-yellow-600",
   food: "from-rose-500 to-rose-600",
   entertainment: "from-violet-500 to-violet-600",
+  matrimonial: "from-rose-500 to-rose-600",
   other: "from-gray-500 to-gray-600",
 };
 
@@ -56,18 +57,17 @@ const Categories: React.FC = () => {
 
   const handleCategoryClick = (slug: string) => {
     navigate(`/category/${slug}`);
-    console.log("Categories: ", categories);
   };
 
   // Get icon component
   const getIcon = (iconName: string) => {
-    const IconComponent = iconMap[iconName] || Grid3x3;
+    const IconComponent = iconMap[iconName.toLowerCase()] || Grid3x3;
     return IconComponent;
   };
 
   // Get color gradient
   const getColor = (slug: string) => {
-    return colorMap[slug] || "from-gray-500 to-gray-600";
+    return colorMap[slug.toLowerCase()] || "from-gray-500 to-gray-600";
   };
 
   if (error) {
@@ -80,7 +80,7 @@ const Categories: React.FC = () => {
             </p>
             <button
               onClick={refetch}
-              className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
               aria-label="Retry loading categories"
             >
               Try Again
@@ -112,6 +112,10 @@ const Categories: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {loading ? (
             <CategorySkeleton count={8} />
+          ) : categories.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-500 text-lg">No categories available</p>
+            </div>
           ) : (
             categories.map((category) => {
               const IconComponent = getIcon(category.icon);

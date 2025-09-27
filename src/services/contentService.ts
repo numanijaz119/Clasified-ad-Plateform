@@ -1,3 +1,4 @@
+// src/services/contentService.ts
 import BaseApiService from "./baseApiService";
 import { API_CONFIG } from "../config/api";
 import type {
@@ -15,6 +16,22 @@ class ContentService extends BaseApiService {
   private statesCache: State[] | null = null;
 
   /**
+   * Extract array from response (handles pagination)
+   */
+  private extractArray<T>(data: any): T[] {
+    // If it's already an array
+    if (Array.isArray(data)) {
+      return data;
+    }
+    // If it's paginated response with results
+    if (data && typeof data === "object" && Array.isArray(data.results)) {
+      return data.results;
+    }
+    // Empty array fallback
+    return [];
+  }
+
+  /**
    * Get all categories
    */
   async getCategories(useCache: boolean = true): Promise<Category[]> {
@@ -23,17 +40,19 @@ class ContentService extends BaseApiService {
         return this.categoriesCache;
       }
 
-      const response = await this.get<Category[]>(
+      const response = await this.get<any>(
         API_CONFIG.ENDPOINTS.CONTENT.CATEGORIES,
         false
       );
 
-      if (response.data) {
-        this.categoriesCache = response.data;
-        return response.data;
+      const categories = this.extractArray<Category>(response.data);
+
+      if (!useCache) {
+        return categories;
       }
 
-      throw new Error("Failed to fetch categories");
+      this.categoriesCache = categories;
+      return categories;
     } catch (error: any) {
       console.error("Get categories error:", error);
       throw error;
@@ -78,16 +97,15 @@ class ContentService extends BaseApiService {
         url += `?state=${stateCode}`;
       }
 
-      const response = await this.get<City[]>(url, false);
+      const response = await this.get<any>(url, false);
 
-      if (response.data) {
-        if (!stateCode) {
-          this.citiesCache = response.data;
-        }
-        return response.data;
+      const cities = this.extractArray<City>(response.data);
+
+      if (!stateCode && useCache) {
+        this.citiesCache = cities;
       }
 
-      throw new Error("Failed to fetch cities");
+      return cities;
     } catch (error: any) {
       console.error("Get cities error:", error);
       throw error;
@@ -124,17 +142,18 @@ class ContentService extends BaseApiService {
         return this.statesCache;
       }
 
-      const response = await this.get<State[]>(
+      const response = await this.get<any>(
         API_CONFIG.ENDPOINTS.CONTENT.STATES,
         false
       );
 
-      if (response.data) {
-        this.statesCache = response.data;
-        return response.data;
+      const states = this.extractArray<State>(response.data);
+
+      if (useCache) {
+        this.statesCache = states;
       }
 
-      throw new Error("Failed to fetch states");
+      return states;
     } catch (error: any) {
       console.error("Get states error:", error);
       throw error;
@@ -172,9 +191,7 @@ class ContentService extends BaseApiService {
   /**
    * Search locations (cities and states)
    */
-  async searchLocations(
-    query: string
-  ): Promise<LocationSearchResult> {
+  async searchLocations(query: string): Promise<LocationSearchResult> {
     try {
       const [cities, states] = await Promise.all([
         this.getCities(),
@@ -186,7 +203,7 @@ class ContentService extends BaseApiService {
       const filteredCities = cities.filter(
         (city) =>
           city.name.toLowerCase().includes(searchQuery) ||
-          city.slug.toLowerCase().includes(searchQuery)
+          (city.slug && city.slug.toLowerCase().includes(searchQuery))
       );
 
       const filteredStates = states.filter(
@@ -219,7 +236,10 @@ class ContentService extends BaseApiService {
    */
   async getContentStats(): Promise<ContentStats> {
     try {
-      const response = await this.get<ContentStats>(`${API_CONFIG.ENDPOINTS.CONTENT.CATEGORIES}stats/`, false);
+      const response = await this.get<ContentStats>(
+        `${API_CONFIG.ENDPOINTS.CONTENT.CATEGORIES}stats/`,
+        false
+      );
 
       if (response.data) {
         return response.data;

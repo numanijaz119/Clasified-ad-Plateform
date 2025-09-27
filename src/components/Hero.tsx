@@ -1,8 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Cloud } from "lucide-react";
+import { Cloud } from "lucide-react";
 import SearchBar from "./SearchBar";
-import { SideBanner } from "./banners";
 
 const Hero: React.FC = () => {
   const cities = [

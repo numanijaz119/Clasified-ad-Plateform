@@ -1,19 +1,6 @@
-// src/hooks/useCities.ts
 import { useState, useEffect, useCallback } from "react";
 import { contentService } from "../services";
-
-interface City {
-  id: number;
-  name: string;
-  state: number;
-  state_name?: string;
-  state_code?: string;
-  latitude?: number;
-  longitude?: number;
-  is_major: boolean;
-  is_active: boolean;
-  created_at: string;
-}
+import type { City } from "../types/content";
 
 interface UseCitiesReturn {
   cities: City[];
@@ -42,7 +29,7 @@ export const useCities = (
         );
 
         // Sort: major cities first, then alphabetically
-        const sortedCities = data.sort((a, b) => {
+        const sortedCities = [...data].sort((a, b) => {
           if (a.is_major !== b.is_major) {
             return a.is_major ? -1 : 1;
           }

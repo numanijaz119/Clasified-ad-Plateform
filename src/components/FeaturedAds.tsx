@@ -6,6 +6,7 @@ import { useFeaturedAds } from "../hooks/useFeaturedAds";
 import { useListingModal } from "../hooks/useListingModal";
 import ListingModal from "./ListingModal";
 import Button from "./ui/Button";
+import Badge from "./ui/Badge";
 
 const FeaturedAds: React.FC = () => {
   const { ads, loading, error, refetch } = useFeaturedAds({ page_size: 3 });
@@ -92,8 +93,9 @@ const FeaturedAds: React.FC = () => {
                   </button>
 
                   {/* Category Tag */}
-                  <div className="absolute bottom-1 left-1 bg-black/70 text-white px-1.5 py-0.5 rounded text-xs">
-                    {ad.category.name}
+
+                  <div className="absolute bottom-1 left-1">
+                    <Badge variant="info">{ad.category.name}</Badge>
                   </div>
                 </div>
 

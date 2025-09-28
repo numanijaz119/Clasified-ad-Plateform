@@ -25,7 +25,8 @@ const Badge: React.FC<BadgeProps> = ({
 
   const variants = {
     default: "bg-slate-100 text-slate-700 border-slate-200",
-    primary: "bg-blue-500 text-white border-blue-500",
+    primary:
+      "bg-gradient-to-r from-orange-500 to-red-500 text-white border-none",
     success: "bg-emerald-500 text-white border-emerald-500",
     warning: "bg-amber-500 text-white border-amber-500",
     error: "bg-red-500 text-white border-red-500",

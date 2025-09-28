@@ -193,7 +193,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const response = await authService.register(userData);
 
-      dispatch({ type: "AUTH_SUCCESS", payload: response.user });
+      // Don't auto-login after registration - wait for email verification
+      dispatch({ type: "SET_LOADING", payload: false });
       return response;
     } catch (error: any) {
       const errorMessage =
@@ -248,7 +249,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       dispatch({ type: "AUTH_START" });
       const response = await authService.verifyEmail(data);
+      
+      // After successful verification, don't auto-login
+      // Let user manually sign in after seeing success message
       dispatch({ type: "SET_LOADING", payload: false });
+      
       return response;
     } catch (error: any) {
       const errorMessage =

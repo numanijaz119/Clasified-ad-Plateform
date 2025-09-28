@@ -31,8 +31,8 @@ class AuthService extends BaseApiService {
       );
 
       if (response.data) {
-        // Store tokens and user data
-        this.storeAuthData(response.data.tokens, response.data.user);
+        // Don't store tokens during registration - wait for email verification
+        // Just return the response data
         return response.data;
       }
 

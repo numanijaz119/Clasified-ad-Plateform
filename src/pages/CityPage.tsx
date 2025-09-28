@@ -1,6 +1,16 @@
-import React, { useState, useMemo } from "react";
+// src/pages/CityPage.tsx
+import React, { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Eye, Clock, Star, MapPin, Search } from "lucide-react";
+import {
+  ArrowLeft,
+  Eye,
+  Clock,
+  Star,
+  MapPin,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import {
   MobileBanner,
   FlippingAd,
@@ -9,6 +19,9 @@ import {
   BottomBanner,
 } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
+import { useAds } from "../hooks/useAds";
+import { useCategories } from "../hooks/useCategories";
+import { useCities } from "../hooks/useCities";
 
 interface Listing {
   id: number;
@@ -31,208 +44,79 @@ const CityPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const categories = [
-    "all",
-    "Jobs",
-    "Real Estate",
-    "Vehicles",
-    "Buy & Sell",
-    "Services",
-    "Education",
-    "Community Events",
-    "Health & Wellness",
-    "Matrimonial",
-    "Food & Dining",
-    "Entertainment",
-  ];
+  // Fetch cities to get the city ID
+  const { cities: citiesData } = useCities();
 
-  // Mock listings data for the city
-  const mockListings: Listing[] = [
-    {
-      id: 1,
-      title: "Senior Software Engineer - React/Node.js",
-      category: "Jobs",
-      price: "$95,000 - $130,000",
-      location: cityName || "Chicago",
-      image:
-        "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 345,
-      timeAgo: "1 hour ago",
-      postedDate: new Date("2025-01-12"),
-      featured: true,
-      description:
-        "Join our innovative team building next-generation web applications. We are looking for a senior developer with 5+ years of experience in React and Node.js.",
-      phone: "(312) 555-0101",
-      email: "hr@techcompany.com",
-    },
-    {
-      id: 2,
-      title: "Beautiful 2BR Condo Downtown",
-      category: "Real Estate",
-      price: "$2,200/month",
-      location: cityName || "Chicago",
-      image:
-        "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 289,
-      timeAgo: "3 hours ago",
-      postedDate: new Date("2025-01-12"),
-      featured: true,
-      description:
-        "Modern condo with city views and amenities. Recently renovated with high-end finishes.",
-    },
-    {
-      id: 3,
-      title: "Catering Services for Events",
-      category: "Services",
-      price: "Starting $15/person",
-      location: cityName || "Chicago",
-      image:
-        "https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 167,
-      timeAgo: "6 hours ago",
-      postedDate: new Date("2025-01-11"),
-      featured: false,
-      description:
-        "Professional catering for all occasions. Specializing in Indian cuisine and fusion dishes.",
-    },
-    {
-      id: 4,
-      title: "Honda Civic 2020 - Excellent Condition",
-      category: "Vehicles",
-      price: "$22,500",
-      location: cityName || "Chicago",
-      image:
-        "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 234,
-      timeAgo: "12 hours ago",
-      postedDate: new Date("2025-01-11"),
-      featured: false,
-      description:
-        "Well-maintained Honda Civic with low mileage. Single owner, all service records available.",
-    },
-    {
-      id: 5,
-      title: "MacBook Pro 2021 - Like New",
-      category: "Buy & Sell",
-      price: "$1,800",
-      location: cityName || "Chicago",
-      image:
-        "https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 156,
-      timeAgo: "1 day ago",
-      postedDate: new Date("2025-01-10"),
-      featured: false,
-      description:
-        'MacBook Pro 14" with M1 Pro chip. Barely used, includes original box and accessories.',
-    },
-    {
-      id: 6,
-      title: "Indian Classical Dance Classes",
-      category: "Education",
-      price: "$60/month",
-      location: cityName || "Chicago",
-      image:
-        "https://images.pexels.com/photos/1701194/pexels-photo-1701194.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 98,
-      timeAgo: "2 days ago",
-      postedDate: new Date("2025-01-09"),
-      featured: false,
-      description:
-        "Learn Bharatanatyam from certified instructor. All ages welcome, flexible scheduling.",
-    },
-    {
-      id: 7,
-      title: "Wedding Photography Services",
-      category: "Services",
-      price: "Starting $1,200",
-      location: cityName || "Chicago",
-      image:
-        "https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 134,
-      timeAgo: "3 days ago",
-      postedDate: new Date("2025-01-08"),
-      featured: true,
-      description:
-        "Professional wedding photography with Indian cultural expertise. Portfolio available.",
-    },
-    {
-      id: 8,
-      title: "Diwali Community Celebration",
-      category: "Community Events",
-      price: "Free Entry",
-      location: cityName || "Chicago",
-      image:
-        "https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 445,
-      timeAgo: "4 days ago",
-      postedDate: new Date("2025-01-07"),
-      featured: true,
-      description:
-        "Join us for a grand Diwali celebration with cultural performances, food, and fireworks.",
-    },
-    {
-      id: 9,
-      title: "Ayurvedic Wellness Consultation",
-      category: "Health & Wellness",
-      price: "$80/session",
-      location: cityName || "Chicago",
-      image:
-        "https://images.pexels.com/photos/4173251/pexels-photo-4173251.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 89,
-      timeAgo: "5 days ago",
-      postedDate: new Date("2025-01-06"),
-      featured: false,
-      description:
-        "Certified Ayurvedic practitioner offering personalized wellness consultations and treatments.",
-    },
-    {
-      id: 10,
-      title: "Indian Restaurant for Sale",
-      category: "Buy & Sell",
-      price: "$150,000",
-      location: cityName || "Chicago",
-      image:
-        "https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=400",
-      views: 267,
-      timeAgo: "1 week ago",
-      postedDate: new Date("2025-01-05"),
-      featured: false,
-      description:
-        "Established Indian restaurant in prime location. Fully equipped kitchen and loyal customer base.",
-    },
-  ];
+  // Find current city by name
+  const currentCity = useMemo(() => {
+    if (!citiesData || !cityName) return null;
+    return citiesData.find(
+      (c) => c.name.toLowerCase() === cityName.toLowerCase().replace(/-/g, " ")
+    );
+  }, [citiesData, cityName]);
 
-  const filteredListings = useMemo(() => {
-    let filtered = mockListings.filter((listing) => {
-      // Search query filter
-      const matchesSearch =
-        searchQuery === "" ||
-        listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        listing.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        listing.category.toLowerCase().includes(searchQuery.toLowerCase());
+  // Fetch categories for dropdown
+  const { categories: categoriesData } = useCategories(true);
 
-      // Category filter
-      const matchesCategory =
-        selectedCategory === "all" || listing.category === selectedCategory;
-
-      return matchesSearch && matchesCategory;
+  // Fetch ads filtered by city with pagination
+  const { ads, loading, error, totalCount, hasNext, hasPrevious, refetch } =
+    useAds({
+      city: currentCity?.id,
+      category:
+        selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
+      search: searchQuery || undefined,
+      sort_by: sortBy as any,
+      page: currentPage,
     });
 
-    // Sort listings by date posted (newest first by default)
-    if (sortBy === "newest") {
-      filtered.sort((a, b) => b.postedDate.getTime() - a.postedDate.getTime());
-    } else if (sortBy === "oldest") {
-      filtered.sort((a, b) => a.postedDate.getTime() - b.postedDate.getTime());
-    } else if (sortBy === "alphabetical") {
-      filtered.sort((a, b) => a.title.localeCompare(b.title));
-    }
+  // Transform backend ads to Listing format
+  const mockListings: Listing[] = useMemo(() => {
+    return ads.map((ad) => ({
+      id: ad.id,
+      title: ad.title,
+      category: ad.category.name,
+      price: ad.display_price,
+      location: `${ad.city.name}, ${ad.state.code}`,
+      image:
+        ad.primary_image?.image ||
+        "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=400",
+      views: ad.view_count,
+      timeAgo: ad.time_since_posted,
+      postedDate: new Date(ad.created_at),
+      featured: ad.plan === "featured",
+      description: ad.description,
+      phone: "",
+      email: "",
+    }));
+  }, [ads]);
 
-    return filtered;
-  }, [searchQuery, selectedCategory, sortBy]);
+  // Build categories array for dropdown
+  const categories = useMemo(() => {
+    return ["all", ...categoriesData.map((cat) => cat.name)];
+  }, [categoriesData]);
+
+  // Refetch when filters or page change
+  useEffect(() => {
+    if (!currentCity?.id) return;
+
+    refetch({
+      city: currentCity.id,
+      category:
+        selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
+      search: searchQuery || undefined,
+      sort_by: sortBy as any,
+      page: currentPage,
+    });
+  }, [currentCity?.id, selectedCategory, searchQuery, sortBy, currentPage]);
+
+  const filteredListings = useMemo(() => {
+    // Backend already filters, so we just use the results
+    return mockListings;
+  }, [mockListings]);
 
   const handleListingClick = (listing: Listing) => {
     setSelectedListing(listing);
@@ -244,6 +128,21 @@ const CityPage: React.FC = () => {
     setSelectedListing(null);
   };
 
+  const handlePreviousPage = () => {
+    if (hasPrevious && currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (hasNext) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalCount / 20); // 20 is default page size
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Ad Banner */}
@@ -252,13 +151,6 @@ const CityPage: React.FC = () => {
           <MobileBanner />
         </div>
       </div>
-
-      {/* Tablet Ad Banner */}
-      {/* <div className="hidden md:block lg:hidden bg-white border-b border-gray-200">
-        <div className="px-4 py-2">
-          <FlippingAd size="medium" />
-        </div>
-      </div> */}
 
       {/* Mobile Ad */}
       <div className="md:hidden m-4 mb-0">
@@ -270,17 +162,8 @@ const CityPage: React.FC = () => {
           {/* Left Sidebar with Ads */}
           <div className=" md:w-48   xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
             <div className="sticky top-24 space-y-4 z-10">
-              {/* <div className="block lg:hidden">
-                <FlippingAd size="small" />
-              </div> */}
-
-              {/* <div className="hidden lg:block"> */}
               <SideBanner />
-              {/* </div> */}
               <FlippingAd size="medium" />
-              {/* <div className="hidden md:block">
-                <FlippingAd size="medium" />
-              </div> */}
             </div>
           </div>
 
@@ -305,7 +188,7 @@ const CityPage: React.FC = () => {
                 </h1>
               </div>
               <p className="text-sm text-gray-600">
-                {filteredListings.length} listings found • Sorted by date posted
+                {totalCount} listings found • Sorted by date posted
               </p>
               {selectedCategory !== "all" && (
                 <p className="text-sm text-orange-600">
@@ -323,7 +206,10 @@ const CityPage: React.FC = () => {
                   <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setCurrentPage(1); // Reset to first page on search
+                    }}
                     placeholder="Search listings..."
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
                   />
@@ -351,7 +237,10 @@ const CityPage: React.FC = () => {
                   </label>
                   <select
                     value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedCategory(e.target.value);
+                      setCurrentPage(1); // Reset to first page on category change
+                    }}
                     className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
                   >
                     {categories.map((category) => (
@@ -368,7 +257,10 @@ const CityPage: React.FC = () => {
                   </label>
                   <select
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                    onChange={(e) => {
+                      setSortBy(e.target.value);
+                      setCurrentPage(1); // Reset to first page on sort change
+                    }}
                     className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
                   >
                     <option value="newest">Newest First</option>
@@ -383,6 +275,7 @@ const CityPage: React.FC = () => {
                       setSearchQuery("");
                       setSelectedCategory("all");
                       setSortBy("newest");
+                      setCurrentPage(1);
                     }}
                     className="px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                   >
@@ -401,18 +294,18 @@ const CityPage: React.FC = () => {
                       className="p-3 hover:bg-gray-50 cursor-pointer transition-colors group"
                       onClick={() => handleListingClick(listing)}
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col lg:flex-row items-start gap-y-2 lg:gap-y-0 lg:items-center lg:justify-between">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center space-x-3">
                             {listing.featured && (
                               <Star className="h-4 w-4 text-orange-500 fill-current flex-shrink-0" />
                             )}
-                            <h3 className="text-sm font-medium text-gray-900 group-hover:text-orange-600 transition-colors truncate">
+                            <h3 className="text-sm line-clamp-1 font-medium text-gray-900 group-hover:text-orange-600 transition-colors">
                               {listing.title}
                             </h3>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-4 text-xs text-gray-500 ml-4">
+                        <div className="flex items-center self-end lg:self-auto space-x-4 text-xs text-gray-500 ml-4">
                           <span className="font-semibold text-orange-600">
                             {listing.price}
                           </span>
@@ -443,7 +336,7 @@ const CityPage: React.FC = () => {
               </div>
 
               {/* No Results */}
-              {filteredListings.length === 0 && (
+              {filteredListings.length === 0 && !loading && (
                 <div className="text-center py-8">
                   <div className="text-gray-400 mb-4">
                     <MapPin className="h-12 w-12 mx-auto" />
@@ -456,14 +349,57 @@ const CityPage: React.FC = () => {
                   </p>
                 </div>
               )}
+
+              {/* Loading State */}
+              {loading && (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+                  <p className="text-sm text-gray-600 mt-2">Loading...</p>
+                </div>
+              )}
             </div>
+
+            {/* Pagination - Only show if there are multiple pages */}
+            {totalPages > 1 && !loading && (
+              <div className="mt-4 flex items-center justify-between bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
+                <div className="text-sm text-gray-600">
+                  Page {currentPage} of {totalPages} • {totalCount} total
+                  listings
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handlePreviousPage}
+                    disabled={!hasPrevious || currentPage === 1}
+                    className={`px-3 py-1.5 text-sm border border-gray-300 rounded-md flex items-center space-x-1 transition-colors ${
+                      hasPrevious && currentPage > 1
+                        ? "hover:bg-gray-50 text-gray-700"
+                        : "text-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span>Previous</span>
+                  </button>
+                  <button
+                    onClick={handleNextPage}
+                    disabled={!hasNext}
+                    className={`px-3 py-1.5 text-sm border border-gray-300 rounded-md flex items-center space-x-1 transition-colors ${
+                      hasNext
+                        ? "hover:bg-gray-50 text-gray-700"
+                        : "text-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Sidebar with Ads */}
           <div className="md:w-48  hidden md:block  xl:w-72 lg:w-60 flex-shrink-0">
             <div className="sticky top-24 space-y-4">
               <FlippingAd size="medium" />
-              {/* <FlippingAd size="small" /> */}
             </div>
           </div>
         </div>

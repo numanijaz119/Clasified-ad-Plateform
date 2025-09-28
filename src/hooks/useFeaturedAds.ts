@@ -45,7 +45,7 @@ interface UseFeaturedAdsReturn {
 }
 
 interface FeaturedAdsParams {
-  limit?: number;
+  page_size?: number;
   categorySlug?: string;
   cityId?: number;
   stateCode?: string;
@@ -87,7 +87,7 @@ export const useFeaturedAds = (
     } finally {
       setLoading(false);
     }
-  }, [params?.limit, params?.categorySlug, params?.cityId, params?.stateCode]);
+  }, [params?.page_size, params?.categorySlug, params?.cityId, params?.stateCode]);
 
   useEffect(() => {
     fetchFeaturedAds();

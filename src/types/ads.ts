@@ -48,19 +48,57 @@ export interface AdUser {
   avatar?: string;
 }
 
+// export interface Ad {
+//   id: number;
+//   title: string;
+//   slug: string;
+//   description: string;
+//   price?: number;
+//   currency: string;
+//   contact_phone: string;
+//   contact_email: string;
+//   plan: "free" | "featured";
+//   status: "pending" | "approved" | "rejected" | "expired" | "deleted";
+//   view_count: number;
+//   contact_views: number;
+//   created_at: string;
+//   updated_at: string;
+//   expires_at: string;
+//   approved_at?: string;
+//   category: AdCategory;
+//   city: AdCity;
+//   state: AdState;
+//   user: AdUser;
+//   images: AdImage[];
+//   primary_image?: AdImage;
+//   is_favorite?: boolean;
+//   is_owner?: boolean;
+// }
+
+// Request/Response types
+
 export interface Ad {
   id: number;
   title: string;
   slug: string;
   description: string;
   price?: number;
-  currency: string;
+  currency?: string;
+  display_price?: string; // Add this
+  price_type?: "fixed" | "negotiable" | "contact" | "free" | "swap"; // Add this
+  condition?: "new" | "used" | "like_new"; // Add this
   contact_phone: string;
   contact_email: string;
+  hide_phone?: boolean; // Add this
   plan: "free" | "featured";
   status: "pending" | "approved" | "rejected" | "expired" | "deleted";
   view_count: number;
+  unique_view_count?: number; // Add this
   contact_views: number;
+  favorite_count?: number; // Add this
+  keywords?: string; // Add this
+  time_since_posted?: string; // Add this
+  is_featured_active?: boolean; // Add this
   created_at: string;
   updated_at: string;
   expires_at: string;
@@ -73,9 +111,10 @@ export interface Ad {
   primary_image?: AdImage;
   is_favorite?: boolean;
   is_owner?: boolean;
+  rejection_reason?: string; // Add this
+  admin_notes?: string; // Add this
 }
 
-// Request/Response types
 export interface CreateAdRequest {
   title: string;
   description: string;

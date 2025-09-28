@@ -31,8 +31,8 @@ class AuthService extends BaseApiService {
       );
 
       if (response.data) {
-        // Store tokens and user data
-        this.storeAuthData(response.data.tokens, response.data.user);
+        // Don't store tokens during registration - wait for email verification
+        // Just return the response data
         return response.data;
       }
 
@@ -215,9 +215,16 @@ class AuthService extends BaseApiService {
    */
   async changePassword(data: ChangePasswordRequest): Promise<ChangePasswordResponse> {
     try {
-      const response = await this.post<ChangePasswordResponse>(
+      // Transform field names to match backend expectations
+      const requestData = {
+        current_password: data.old_password,
+        new_password: data.new_password,
+        confirm_password: data.confirm_password,
+      };
+
+      const response = await this.put<ChangePasswordResponse>(
         API_CONFIG.ENDPOINTS.AUTH.CHANGE_PASSWORD,
-        data,
+        requestData,
         true
       );
 

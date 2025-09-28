@@ -26,7 +26,11 @@ interface Listing {
   description: string;
   phone?: string;
   email?: string;
-  images?: string[];
+  images: string[];
+  user?: {
+    full_name: string;
+    avatar: string | null;
+  };
 }
 
 interface ListingModalProps {
@@ -46,20 +50,21 @@ const ListingModal: React.FC<ListingModalProps> = ({
 
   if (!listing) return null;
 
-  const additionalImages = [
-    listing.image,
-    "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=600",
-    "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600",
-    "https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg?auto=compress&cs=tinysrgb&w=600",
-  ];
+  // Use dynamic images from API, fallback to placeholder if none
+  const displayImages =
+    listing.images && listing.images.length > 0
+      ? listing.images
+      : ["/placeholder.svg"];
+
+  const hasMultipleImages = displayImages.length > 1;
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % additionalImages.length);
+    setCurrentImageIndex((prev) => (prev + 1) % displayImages.length);
   };
 
   const prevImage = () => {
     setCurrentImageIndex(
-      (prev) => (prev - 1 + additionalImages.length) % additionalImages.length
+      (prev) => (prev - 1 + displayImages.length) % displayImages.length
     );
   };
 
@@ -140,47 +145,53 @@ const ListingModal: React.FC<ListingModalProps> = ({
             {/* Main Image with Navigation */}
             <div className="relative mb-4">
               <img
-                src={additionalImages[currentImageIndex]}
+                src={displayImages[currentImageIndex]}
                 alt={listing.title}
                 className="w-full h-64 md:h-96 object-cover rounded-lg"
               />
 
-              {/* Navigation Arrows */}
-              <button
-                onClick={prevImage}
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
-              >
-                ←
-              </button>
-              <button
-                onClick={nextImage}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
-              >
-                →
-              </button>
+              {/* Navigation Arrows - only show if multiple images */}
+              {hasMultipleImages && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                  >
+                    ←
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                  >
+                    →
+                  </button>
 
-              {/* Image Counter */}
-              <div className="absolute bottom-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-sm">
-                {currentImageIndex + 1} / {additionalImages.length}
+                  {/* Image Counter */}
+                  <div className="absolute bottom-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                    {currentImageIndex + 1} / {displayImages.length}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Thumbnail Images - only show if multiple images */}
+            {hasMultipleImages && (
+              <div className="grid grid-cols-4 gap-2">
+                {displayImages.map((image: string, index: number) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`${listing.title} ${index + 1}`}
+                    className={`w-full h-16 object-cover rounded cursor-pointer transition-opacity ${
+                      index === currentImageIndex
+                        ? "opacity-100 ring-2 ring-orange-500"
+                        : "opacity-70 hover:opacity-100"
+                    }`}
+                    onClick={() => setCurrentImageIndex(index)}
+                  />
+                ))}
               </div>
-            </div>
-
-            {/* Thumbnail Images */}
-            <div className="grid grid-cols-4 gap-2">
-              {additionalImages.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`${listing.title} ${index + 1}`}
-                  className={`w-full h-16 object-cover rounded cursor-pointer transition-opacity ${
-                    index === currentImageIndex
-                      ? "opacity-100 ring-2 ring-orange-500"
-                      : "opacity-70 hover:opacity-100"
-                  }`}
-                  onClick={() => setCurrentImageIndex(index)}
-                />
-              ))}
-            </div>
+            )}
           </div>
         </div>
 
@@ -190,19 +201,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
             Description
           </h2>
           <div className="prose prose-sm max-w-none text-gray-700">
-            <p className="mb-4">{listing.description}</p>
-            <p className="mb-4">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
-            </p>
-            <p>
-              Duis aute irure dolor in reprehenderit in voluptate velit esse
-              cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-              cupidatat non proident, sunt in culpa qui officia deserunt mollit
-              anim id est laborum.
-            </p>
+            <p className="whitespace-pre-wrap">{listing.description}</p>
           </div>
         </div>
 
@@ -220,21 +219,36 @@ const ListingModal: React.FC<ListingModalProps> = ({
                 <div>
                   <div className="text-sm text-gray-600">Phone</div>
                   <div className="font-semibold text-gray-900">
-                    {listing.phone || "(312) 555-0123"}
+                    {listing.phone || "Not provided"}
                   </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                  <Mail className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600">Email</div>
-                  <div className="font-semibold text-gray-900">
-                    {listing.email || "contact@example.com"}
+              {listing.email && (
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600">Email</div>
+                    <div className="font-semibold text-gray-900">
+                      {listing.email}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+              {listing.user && (
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center">
+                    <User className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600">Seller</div>
+                    <div className="font-semibold text-gray-900">
+                      {listing.user.full_name}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-8">

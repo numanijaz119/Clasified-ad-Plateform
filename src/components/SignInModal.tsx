@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAuthRedirect } from "../hooks/useAuthRedirect";
 import BaseModal from "./modals/BaseModal";
 import SignInForm from "./auth/SignInForm";
 import SignUpForm from "./auth/SignUpForm";
@@ -28,26 +28,29 @@ const SignInModal: React.FC<SignInModalProps> = ({
   onClose,
   onSignInSuccess,
 }) => {
-  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<ModalStep>("signin");
   const [verificationEmail, setVerificationEmail] = useState("");
   const [verificationMessage, setVerificationMessage] = useState("");
-  const [autoSendOtp, setAutoSendOtp] = useState(false);
+
+  // Handle redirect after successful authentication
+  useAuthRedirect();
 
   const handleSignInSuccess = () => {
     resetModal();
     onSignInSuccess();
-    navigate("/dashboard");
+    // Navigation will be handled by useAuthRedirect hook
+    // which checks for redirect parameter in URL
   };
 
   const handleSignUpSuccess = (email: string, message?: string) => {
     setVerificationEmail(email);
     setVerificationMessage(message || "");
-    setAutoSendOtp(false);
     setCurrentStep("verify");
   };
 
   const handleVerificationSuccess = () => {
+    // After successful verification, show success modal
+    // Don't auto-login, let user manually sign in
     setCurrentStep("success");
   };
 
@@ -60,7 +63,6 @@ const SignInModal: React.FC<SignInModalProps> = ({
     setVerificationMessage(
       "Please verify your email address before logging in."
     );
-    setAutoSendOtp(true);
     setCurrentStep("verify");
   };
 
@@ -80,7 +82,6 @@ const SignInModal: React.FC<SignInModalProps> = ({
     setCurrentStep("signin");
     setVerificationEmail("");
     setVerificationMessage("");
-    setAutoSendOtp(false);
   };
 
   const handleClose = () => {
@@ -137,6 +138,7 @@ const SignInModal: React.FC<SignInModalProps> = ({
             <SignUpForm
               onSuccess={handleSignUpSuccess}
               onSwitchToSignIn={() => setCurrentStep("signin")}
+              onGoogleSuccess={handleSignInSuccess}
             />
           </div>
         );

@@ -211,12 +211,29 @@ class AdsService extends BaseApiService {
   /**
    * Get featured ads
    */
-  async getFeaturedAds(): Promise<Ad[]> {
+  async getFeaturedAds(params?: {
+    page_size?: number;
+    categorySlug?: string;
+    cityId?: number;
+    stateCode?: string;
+    sort_by?: string;
+  }): Promise<Ad[]> {
     try {
-      const response = await this.get<Ad[]>(
-        API_CONFIG.ENDPOINTS.ADS.FEATURED,
-        false
-      );
+      const queryParams = new URLSearchParams();
+
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            queryParams.append(key, value.toString());
+          }
+        });
+      }
+
+      const url = `${API_CONFIG.ENDPOINTS.ADS.FEATURED}${
+        queryParams.toString() ? "?" + queryParams.toString() : ""
+      }`;
+
+      const response = await this.get<Ad[]>(url, false);
 
       if (response.data) {
         return response.data;
@@ -307,7 +324,11 @@ class AdsService extends BaseApiService {
    */
   async removeFromFavorites(adId: number): Promise<void> {
     try {
-      await this.post(API_CONFIG.ENDPOINTS.ADS.REMOVE_FAVORITE, { ad: adId }, true);
+      await this.post(
+        API_CONFIG.ENDPOINTS.ADS.REMOVE_FAVORITE,
+        { ad: adId },
+        true
+      );
       console.log("Ad removed from favorites");
     } catch (error: any) {
       console.error("Remove from favorites error:", error);
@@ -320,8 +341,11 @@ class AdsService extends BaseApiService {
    */
   async getFavorites(): Promise<Ad[]> {
     try {
-      const response = await this.get<Ad[]>(API_CONFIG.ENDPOINTS.ADS.FAVORITES, true);
-      
+      const response = await this.get<Ad[]>(
+        API_CONFIG.ENDPOINTS.ADS.FAVORITES,
+        true
+      );
+
       if (response.data) {
         return response.data;
       }
@@ -338,7 +362,6 @@ class AdsService extends BaseApiService {
    */
   async reportAd(reportData: CreateReportRequest): Promise<void> {
     try {
-
       await this.post(API_CONFIG.ENDPOINTS.ADS.REPORTS, reportData, true);
       console.log("Ad reported successfully");
     } catch (error: any) {
@@ -352,8 +375,11 @@ class AdsService extends BaseApiService {
    */
   async getDashboardAnalytics(): Promise<DashboardAnalytics> {
     try {
-      const response = await this.get<DashboardAnalytics>(API_CONFIG.ENDPOINTS.ADS.DASHBOARD_ANALYTICS, true);
-      
+      const response = await this.get<DashboardAnalytics>(
+        API_CONFIG.ENDPOINTS.ADS.DASHBOARD_ANALYTICS,
+        true
+      );
+
       if (response.data) {
         return response.data;
       }
@@ -372,7 +398,7 @@ class AdsService extends BaseApiService {
     try {
       const url = API_CONFIG.ENDPOINTS.ADS.ANALYTICS.replace(":slug", slug);
       const response = await this.get<AdAnalytics>(url, true);
-      
+
       if (response.data) {
         return response.data;
       }

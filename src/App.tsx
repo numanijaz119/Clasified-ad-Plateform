@@ -14,10 +14,13 @@ import Footer from "./components/Footer";
 import PostAdModal from "./components/PostAdModal";
 import SignInModal from "./components/SignInModal";
 import ProfilePage from "./pages/ProfilePage";
+import ScrollToTop from "./components/ScrollToTop";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [shouldOpenPostAdAfterLogin, setShouldOpenPostAdAfterLogin] = useState(false);
 
   // Get auth state from context
   const { isAuthenticated, user, isLoading, logout } = useAuth();
@@ -26,14 +29,18 @@ function App() {
     if (isAuthenticated) {
       setIsPostAdModalOpen(true);
     } else {
+      setShouldOpenPostAdAfterLogin(true);
       setIsSignInModalOpen(true);
     }
   };
 
   const handleSignInSuccess = () => {
     setIsSignInModalOpen(false);
-    // If user was trying to post an ad, open that modal after sign in
-    setIsPostAdModalOpen(true);
+    // Only open post ad modal if user was specifically trying to post an ad
+    if (shouldOpenPostAdAfterLogin) {
+      setIsPostAdModalOpen(true);
+      setShouldOpenPostAdAfterLogin(false);
+    }
   };
 
   const handleSignOut = async () => {
@@ -41,6 +48,7 @@ function App() {
       await logout();
       setIsPostAdModalOpen(false);
       setIsSignInModalOpen(false);
+      setShouldOpenPostAdAfterLogin(false);
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -68,15 +76,39 @@ function App() {
         onSignOut={handleSignOut}
       />
 
+      {/* Auto scroll to top on route change */}
+      <ScrollToTop />
+
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/city/:cityName" element={<CityPage />} />
         <Route path="/category/:categoryName" element={<CategoryPage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/featured-ads" element={<FeaturedAdsPage />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/dashboard" element={<UserDashboard />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requireAdmin={false}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
 
       <Footer />
@@ -91,7 +123,10 @@ function App() {
       {/* Sign In Modal */}
       <SignInModal
         isOpen={isSignInModalOpen}
-        onClose={() => setIsSignInModalOpen(false)}
+        onClose={() => {
+          setIsSignInModalOpen(false);
+          setShouldOpenPostAdAfterLogin(false); // Reset flag if user cancels
+        }}
         onSignInSuccess={handleSignInSuccess}
       />
     </div>

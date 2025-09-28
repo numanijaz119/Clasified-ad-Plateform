@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Mail, ArrowLeft, AlertCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -6,19 +6,16 @@ interface EmailVerificationProps {
   email: string;
   onSuccess: () => void;
   onBack: () => void;
-  initialMessage?: string;
 }
 
 const EmailVerification: React.FC<EmailVerificationProps> = ({
   email,
   onSuccess,
   onBack,
-  initialMessage,
 }) => {
   const { verifyEmail, resendVerification, isLoading, error, clearError } =
     useAuth();
   const [verificationCode, setVerificationCode] = useState("");
-  const [success, setSuccess] = useState(initialMessage || "");
   const [sendingOtp, setSendingOtp] = useState(false);
   const isCodeShort = verificationCode.length < 6 ? true : false;
 
@@ -41,12 +38,11 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
 
   const resendVerificationEmail = async () => {
     clearError();
-    setSuccess("");
     setSendingOtp(true);
 
     try {
       await resendVerification({ email });
-      setSuccess("Verification email sent! Please check your inbox.");
+      // Success message will be shown via the auth context or parent component
     } catch (err: any) {
       // Error is handled by auth context
       console.error("Resend verification error:", err);

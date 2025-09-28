@@ -6,11 +6,13 @@ import GoogleSignInButton from "./GoogleSignInButton";
 interface SignUpFormProps {
   onSuccess: (email: string, message?: string) => void;
   onSwitchToSignIn: () => void;
+  onGoogleSuccess?: () => void;
 }
 
 const SignUpForm: React.FC<SignUpFormProps> = ({
   onSuccess,
   onSwitchToSignIn,
+  onGoogleSuccess,
 }) => {
   const { register, isLoading, error, clearError } = useAuth();
   const [email, setEmail] = useState("umanijaz5@gmail.com");
@@ -97,7 +99,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     <div className="space-y-6">
       {/* Google Sign Up */}
       <GoogleSignInButton
-        onSuccess={() => onSuccess(email)}
+        onSuccess={onGoogleSuccess || (() => onSuccess(email))}
         buttonText="Continue with Google"
       />
 

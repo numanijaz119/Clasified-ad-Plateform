@@ -22,6 +22,7 @@ import ListingModal from "../components/ListingModal";
 import { useAds } from "../hooks/useAds";
 import { useCategories } from "../hooks/useCategories";
 import { useCities } from "../hooks/useCities";
+import { adsService } from "../services";
 
 interface Listing {
   id: number;
@@ -37,6 +38,7 @@ interface Listing {
   description: string;
   phone?: string;
   email?: string;
+  images?: string[];
 }
 
 const CityPage: React.FC = () => {
@@ -81,9 +83,7 @@ const CityPage: React.FC = () => {
       category: ad.category.name,
       price: ad.display_price,
       location: `${ad.city.name}, ${ad.state.code}`,
-      image:
-        ad.primary_image?.image ||
-        "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=400",
+      image: ad.primary_image?.image || "/placeholder.svg",
       views: ad.view_count,
       timeAgo: ad.time_since_posted,
       postedDate: new Date(ad.created_at),
@@ -118,9 +118,38 @@ const CityPage: React.FC = () => {
     return mockListings;
   }, [mockListings]);
 
-  const handleListingClick = (listing: Listing) => {
-    setSelectedListing(listing);
-    setIsModalOpen(true);
+  const handleListingClick = async (listing: Listing) => {
+    try {
+      // Open modal immediately with basic data
+      setSelectedListing(listing);
+      setIsModalOpen(true);
+
+      // Find the original ad data to get the slug
+      const originalAd = ads.find(ad => ad.id === listing.id);
+      if (!originalAd?.slug) return;
+
+      // Fetch detailed ad data
+      const detailedAd = await adsService.getAd(originalAd.slug) as any;
+      
+      // Get all images from detailed response
+      const images = detailedAd.images?.length > 0 
+        ? detailedAd.images.map((img: any) => img.image)
+        : [listing.image];
+
+      // Update modal with enhanced data
+      const enhancedListing: Listing = {
+        ...listing,
+        images,
+        description: detailedAd.description || listing.description,
+        phone: detailedAd.hide_phone ? undefined : detailedAd.contact_phone,
+        email: detailedAd.contact_email_display,
+      };
+
+      setSelectedListing(enhancedListing);
+    } catch (error) {
+      console.error('Error fetching ad details:', error);
+      // Modal already shows basic data, so user still sees something
+    }
   };
 
   const handleCloseModal = () => {

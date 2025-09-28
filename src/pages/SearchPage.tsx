@@ -21,122 +21,12 @@ import ListingModal from "../components/ListingModal";
 import { adsService } from "../services";
 import { useCategories } from "../hooks/useCategories";
 import { useCities } from "../hooks/useCities";
+import { useListingModal } from "../hooks/useListingModal";
+import type { BasicAd } from "../hooks/useAdDetails";
 
-// Ad interface that matches the actual API response
-interface Ad {
-  id: number;
-  slug: string;
-  title: string;
-  description: string;
-  price: number;
-  price_type: "fixed" | "negotiable" | "contact";
-  display_price: string;
-  condition?: "new" | "used" | "like_new";
-  category: {
-    id: number;
-    name: string;
-    icon: string;
-  };
-  city: {
-    id: number;
-    name: string;
-  };
-  state: {
-    id: number;
-    name: string;
-    code: string;
-  };
-  plan: "free" | "featured";
-  primary_image?: {
-    id: number;
-    image: string;
-    caption?: string;
-  };
-  view_count: number;
-  time_since_posted: string;
-  is_featured_active: boolean;
-  created_at: string;
-}
+// Using BasicAd from the reusable hook
 
-// Modal interface (what ListingModal expects)
-interface ModalListing {
-  id: number;
-  title: string;
-  category: string;
-  price: string;
-  location: string;
-  image: string;
-  views: number;
-  timeAgo: string;
-  postedDate: Date;
-  featured: boolean;
-  description: string;
-  phone?: string;
-  email?: string;
-  images?: string[];
-}
-
-// Detailed ad response interface
-interface DetailedAd {
-  id: number;
-  slug: string;
-  title: string;
-  description: string;
-  display_price: string;
-  price: string;
-  price_type: "fixed" | "negotiable" | "contact";
-  condition: string;
-  contact_phone: string;
-  contact_email_display: string;
-  hide_phone: boolean;
-  user: {
-    id: number;
-    full_name: string;
-    avatar: string | null;
-    email: string | null;
-    phone: string;
-    email_verified: boolean;
-  };
-  category: {
-    id: number;
-    name: string;
-    icon: string;
-  };
-  city: {
-    id: number;
-    name: string;
-    photo_url: string;
-  };
-  state: {
-    id: number;
-    name: string;
-    code: string;
-  };
-  plan: "free" | "featured";
-  view_count: number;
-  unique_view_count: number;
-  contact_count: number;
-  favorite_count: number;
-  keywords: string;
-  images: Array<{
-    id: number;
-    image: string;
-    caption: string;
-    is_primary: boolean;
-    sort_order: number;
-    file_size: number;
-    width: number | null;
-    height: number | null;
-    created_at: string;
-  }>;
-  time_since_posted: string;
-  is_featured_active: boolean;
-  created_at: string;
-  updated_at: string;
-  expires_at: string;
-}
-
-// SearchResponse interface removed as it's not used
+// All interfaces are now in the reusable hooks
 
 const SearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -150,14 +40,16 @@ const SearchPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState(categoryFilter);
   const [selectedCity, setSelectedCity] = useState(cityFilter);
   const [sortBy, setSortBy] = useState("newest");
-  const [selectedListing, setSelectedListing] = useState<ModalListing | null>(
-    null
-  );
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loadingDetail, setLoadingDetail] = useState(false);
+  // Use the reusable listing modal hook
+  const {
+    selectedListing,
+    isModalOpen,
+    handleListingClick,
+    handleCloseModal,
+  } = useListingModal();
 
   // API state
-  const [listings, setListings] = useState<Ad[]>([]);
+  const [listings, setListings] = useState<BasicAd[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
@@ -237,7 +129,7 @@ const SearchPage: React.FC = () => {
       const response = await adsService.getAds(params);
 
       if (response && response.results) {
-        setListings(response.results as unknown as Ad[]);
+        setListings(response.results as unknown as BasicAd[]);
         setTotalCount(response.count || 0);
         setTotalPages(response.total_pages || 1);
         setHasNext(!!response.next);
@@ -251,7 +143,7 @@ const SearchPage: React.FC = () => {
       }
     } catch (err) {
       console.error("Error fetching ads:", err);
-      setError("Failed to load search results. Please try again.");
+      setError("Failed to load search results: BasicAd[]; Please try again.");
       setListings([]);
     } finally {
       setLoading(false);
@@ -278,73 +170,7 @@ const SearchPage: React.FC = () => {
   // Since filtering is now done on the server, we just use the listings directly
   const filteredListings = listings;
 
-  const handleListingClick = async (listing: Ad) => {
-    try {
-      setLoadingDetail(true);
-      
-      // Fetch detailed ad data using the slug
-      const detailedAd = await adsService.getAd(listing.slug) as unknown as DetailedAd;
-      
-      // Get primary image or first image from the detailed response
-      const primaryImage = detailedAd.images?.find(img => img.is_primary)?.image || 
-                          detailedAd.images?.[0]?.image || 
-                          "/placeholder.svg"; // Single fallback image
-      
-      // Get all images for the modal
-      const allImages = detailedAd.images?.map(img => img.image) || [];
-      
-      // Transform detailed API data to match modal interface
-      const modalListing: ModalListing = {
-        id: detailedAd.id,
-        title: detailedAd.title,
-        category: detailedAd.category.name,
-        price: detailedAd.display_price,
-        location: `${detailedAd.city.name}, ${detailedAd.state.code}`,
-        image: primaryImage,
-        views: detailedAd.view_count,
-        timeAgo: detailedAd.time_since_posted,
-        postedDate: new Date(detailedAd.created_at),
-        featured: detailedAd.is_featured_active,
-        description: detailedAd.description,
-        phone: detailedAd.hide_phone ? undefined : detailedAd.contact_phone,
-        email: detailedAd.contact_email_display,
-        images: allImages,
-      };
-
-      setSelectedListing(modalListing);
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error('Error fetching ad details:', error);
-      // Fallback to basic listing data if detailed fetch fails
-      const fallbackImage = listing.primary_image?.image || "/placeholder.svg";
-      
-      const modalListing: ModalListing = {
-        id: listing.id,
-        title: listing.title,
-        category: listing.category.name,
-        price: listing.display_price,
-        location: `${listing.city.name}, ${listing.state.code}`,
-        image: fallbackImage,
-        views: listing.view_count,
-        timeAgo: listing.time_since_posted,
-        postedDate: new Date(listing.created_at),
-        featured: listing.is_featured_active,
-        description: listing.description,
-        phone: undefined,
-        email: undefined,
-      };
-
-      setSelectedListing(modalListing);
-      setIsModalOpen(true);
-    } finally {
-      setLoadingDetail(false);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedListing(null);
-  };
+  // handleListingClick and handleCloseModal are now provided by useListingModal hook
 
   // Pagination handlers
   const handlePageChange = (newPage: number) => {

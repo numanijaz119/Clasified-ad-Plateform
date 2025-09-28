@@ -70,24 +70,72 @@ class AdsService extends BaseApiService {
     try {
       const formData = new FormData();
 
-      // Add text fields
-      Object.entries(adData).forEach(([key, value]) => {
-        if (key !== "images" && value !== undefined && value !== null) {
-          formData.append(key, value.toString());
+      // Map and append text fields according to backend serializer
+      const fieldMapping = {
+        // Basic fields
+        title: adData.title,
+        description: adData.description,
+        category: adData.category.toString(),
+        city: adData.city.toString(),
+
+        // Pricing fields
+        price_type: adData.price_type,
+        condition: adData.condition || "not_applicable",
+
+        // Contact fields
+        contact_phone: adData.contact_phone || "",
+        contact_email: adData.contact_email || "",
+        hide_phone: adData.hide_phone ? "true" : "false",
+
+        // Optional fields
+        keywords: adData.keywords || "",
+        plan: adData.plan || "free",
+      };
+
+      // Only add price for fixed/negotiable types
+      if (
+        adData.price &&
+        (adData.price_type === "fixed" || adData.price_type === "negotiable")
+      ) {
+        fieldMapping.price = adData.price.toString();
+      }
+
+      // Append all text fields
+      Object.entries(fieldMapping).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, value);
         }
       });
 
-      // Add images
+      // Handle images - backend expects 'images' field for multiple files
       if (adData.images && adData.images.length > 0) {
-        adData.images.forEach((image) => {
-          formData.append(`images`, image);
+        adData.images.forEach((image, index) => {
+          formData.append("images", image);
+
+          // Set first image as primary
+          if (index === 0) {
+            formData.append("primary_image_index", "0");
+          }
         });
+      }
+
+      // Log FormData for debugging (only in development)
+      if (process.env.NODE_ENV === "development") {
+        console.log("Creating ad with data:");
+        for (let [key, value] of formData.entries()) {
+          if (value instanceof File) {
+            console.log(`${key}: File(${value.name}, ${value.size} bytes)`);
+          } else {
+            console.log(`${key}: ${value}`);
+          }
+        }
       }
 
       const response = await this.post<Ad>(
         API_CONFIG.ENDPOINTS.ADS.CREATE,
         formData,
-        true
+        true, // requireAuth
+        true // isMultipart
       );
 
       if (response.data) {
@@ -97,8 +145,58 @@ class AdsService extends BaseApiService {
       throw new Error("Failed to create ad");
     } catch (error: any) {
       console.error("Create ad error:", error);
+
+      // Enhanced error handling for better debugging
+      if (error.response) {
+        console.error("Backend response:", error.response.data);
+        console.error("Status:", error.response.status);
+      }
+
       throw error;
     }
+  }
+
+  /**
+   * Enhanced validation before sending to backend
+   */
+  private validateAdData(adData: CreateAdRequest): string[] {
+    const errors: string[] = [];
+
+    // Required fields validation
+    if (!adData.title?.trim()) {
+      errors.push("Title is required");
+    }
+
+    if (!adData.description?.trim()) {
+      errors.push("Description is required");
+    }
+
+    if (!adData.category) {
+      errors.push("Category is required");
+    }
+
+    if (!adData.city) {
+      errors.push("City is required");
+    }
+
+    // Price validation based on type
+    if (adData.price_type === "fixed" || adData.price_type === "negotiable") {
+      if (!adData.price || adData.price <= 0) {
+        errors.push("Price is required for fixed and negotiable price types");
+      }
+    }
+
+    // Contact information validation
+    if (!adData.contact_phone && !adData.contact_email) {
+      errors.push("At least one contact method is required");
+    }
+
+    // Images validation
+    if (!adData.images || adData.images.length === 0) {
+      errors.push("At least one image is required");
+    }
+
+    return errors;
   }
 
   /**

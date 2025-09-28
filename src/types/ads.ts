@@ -116,16 +116,83 @@ export interface Ad {
 }
 
 export interface CreateAdRequest {
+  // Required fields
   title: string;
   description: string;
-  price?: number;
-  currency: string;
   category: number;
   city: number;
+
+  // Pricing fields
+  price?: number;
+  price_type: "fixed" | "negotiable" | "contact" | "free" | "swap";
+  condition?: "new" | "used" | "like_new" | "not_applicable";
+
+  // Contact fields
+  contact_phone?: string;
+  contact_email?: string;
+  hide_phone?: boolean;
+
+  // Optional fields
+  keywords?: string;
+  plan?: "free" | "featured";
+
+  // Images (handled separately in FormData)
+  images?: File[];
+}
+
+// Validation helper type
+export interface CreateAdValidation {
+  title: boolean;
+  description: boolean;
+  category: boolean;
+  city: boolean;
+  price: boolean;
+  contact: boolean;
+  images: boolean;
+}
+
+// Form state type for the modal
+export interface PostAdFormState {
+  // Basic info
+  title: string;
+  description: string;
+  category: string;
+  city: string;
+
+  // Pricing
+  price: string;
+  price_type: "fixed" | "negotiable" | "contact" | "free" | "swap";
+  condition: "new" | "used" | "like_new" | "not_applicable";
+
+  // Contact
   contact_phone: string;
   contact_email: string;
-  plan: "free" | "featured";
-  images?: File[];
+  hide_phone: boolean;
+
+  // Additional
+  keywords: string;
+}
+
+// Backend response after creating ad
+export interface CreateAdResponse extends Ad {
+  slug: string;
+  status: "draft" | "pending" | "approved" | "rejected";
+}
+
+// Error type for form validation
+export interface PostAdFormErrors {
+  title?: string;
+  description?: string;
+  category?: string;
+  city?: string;
+  price?: string;
+  price_type?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  contact?: string;
+  images?: string;
+  submit?: string;
+  [key: string]: string | undefined;
 }
 
 export interface UpdateAdRequest extends Partial<CreateAdRequest> {

@@ -405,7 +405,7 @@ const CityPage: React.FC = () => {
         </div>
       </main>
 
-      <div className="md:hidden m-4 mb-0">
+      <div className="md:hidden m-4 mt-0">
         <FlippingAd size="medium" />
       </div>
 

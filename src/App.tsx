@@ -14,6 +14,7 @@ import Footer from "./components/Footer";
 import PostAdModal from "./components/PostAdModal";
 import SignInModal from "./components/SignInModal";
 import ProfilePage from "./pages/ProfilePage";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
@@ -68,6 +69,9 @@ function App() {
         onSignOut={handleSignOut}
       />
 
+      {/* Auto scroll to top on route change */}
+      <ScrollToTop />
+      
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/city/:cityName" element={<CityPage />} />

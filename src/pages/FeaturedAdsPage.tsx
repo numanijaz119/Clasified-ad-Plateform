@@ -337,10 +337,6 @@ const FeaturedAdsPage: React.FC = () => {
                               </div>
 
                               {/* Views */}
-                              {/* <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center space-x-1">
-                                <Eye className="h-3 w-3" />
-                                <span>{ad.view_count}</span>
-                              </div> */}
 
                               <div className="absolute bottom-2 right-2">
                                 <Badge variant="primary">{ad.view_count}</Badge>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthRedirect } from "../hooks/useAuthRedirect";
 import BaseModal from "./modals/BaseModal";
 import SignInForm from "./auth/SignInForm";
 import SignUpForm from "./auth/SignUpForm";
@@ -33,11 +34,15 @@ const SignInModal: React.FC<SignInModalProps> = ({
   const [verificationEmail, setVerificationEmail] = useState("");
   const [verificationMessage, setVerificationMessage] = useState("");
   const [autoSendOtp, setAutoSendOtp] = useState(false);
+  
+  // Handle redirect after successful authentication
+  useAuthRedirect();
 
   const handleSignInSuccess = () => {
     resetModal();
     onSignInSuccess();
-    navigate("/dashboard");
+    // Navigation will be handled by useAuthRedirect hook
+    // which checks for redirect parameter in URL
   };
 
   const handleSignUpSuccess = (email: string, message?: string) => {

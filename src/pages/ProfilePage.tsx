@@ -318,7 +318,10 @@ const ProfilePage: React.FC = () => {
   };
 
   if (loading) {
-    return <LoadingSpinner message="Loading profile..." fullScreen />;
+    return;
+    <div className="min-h-screen">
+      <LoadingSpinner message="Loading profile..." fullScreen />
+    </div>;
   }
 
   if (!user) {

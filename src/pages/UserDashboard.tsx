@@ -564,13 +564,13 @@ const UserDashboard: React.FC = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </button>
-                        <Link
+                        {/* <Link
                           to={`/ads/${ad.slug}/edit`}
                           className="text-gray-600 hover:text-orange-600 p-1 rounded"
                           title="Edit Ad"
                         >
                           <Edit className="h-4 w-4" />
-                        </Link>
+                        </Link> */}
                         <button
                           onClick={() => handleDeleteAd(ad.id, ad.slug)}
                           className="text-red-600 hover:text-red-700 p-1 rounded"

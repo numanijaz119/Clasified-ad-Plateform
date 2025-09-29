@@ -3,6 +3,7 @@ import { Shield, Eye, EyeOff } from "lucide-react";
 import { PasswordHelper } from "../auth/PasswordHelper";
 import { User } from "./types";
 import Button from "../ui/Button";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface PasswordChangeData {
   old_password: string;
@@ -12,6 +13,7 @@ interface PasswordChangeData {
 
 interface PasswordChangeFormProps {
   user: User;
+  google_id: Number;
   isChangingPassword: boolean;
   passwordData: PasswordChangeData;
   showPassword: {
@@ -195,9 +197,22 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
                 Last changed: {getPasswordLastChanged()}
               </p>
             </div>
-            <Button variant="ghost" size="sm" onClick={onStartChanging}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onStartChanging}
+              className={user.google_id ? "hidden" : ""}
+            >
               Change Password
             </Button>
+
+            <span
+              className={
+                !user.google_id ? "hidden" : "" + "text-sm text-orange-500 "
+              }
+            >
+              Google account users cannot change their password here.
+            </span>
           </div>
 
           <div className="border-t pt-4">

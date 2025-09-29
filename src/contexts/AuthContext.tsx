@@ -87,9 +87,21 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       };
 
     case "UPDATE_USER":
+      // Merge updated user data, ensuring we have a clean user object
+      const updatedUser = state.user
+        ? { ...state.user, ...action.payload }
+        : action.payload;
+
+      // Also update localStorage to keep it in sync
+      if (updatedUser) {
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      }
+
+      console.log("User updated in context:", updatedUser);
+
       return {
         ...state,
-        user: state.user ? { ...state.user, ...action.payload } : null,
+        user: updatedUser,
       };
 
     case "SET_LOADING":
@@ -258,7 +270,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Update user function
   const updateUser = (userData: Partial<User>): void => {
-    dispatch({ type: "UPDATE_USER", payload: userData });
+    // Clean the user data - remove any nested 'user' property if it exists
+    const cleanUserData = userData.hasOwnProperty("user")
+      ? (userData as any).user
+      : userData;
+
+    dispatch({ type: "UPDATE_USER", payload: cleanUserData });
   };
 
   // Email verification function

@@ -94,7 +94,9 @@ class AuthService extends BaseApiService {
   /**
    * Verify email with 6-digit code
    */
-  async verifyEmail(data: EmailVerificationRequest): Promise<EmailVerificationResponse> {
+  async verifyEmail(
+    data: EmailVerificationRequest
+  ): Promise<EmailVerificationResponse> {
     try {
       const response = await this.post<EmailVerificationResponse>(
         API_CONFIG.ENDPOINTS.AUTH.VERIFY_EMAIL,
@@ -112,7 +114,9 @@ class AuthService extends BaseApiService {
   /**
    * Resend verification email
    */
-  async resendVerificationEmail(data: ResendVerificationRequest): Promise<EmailVerificationResponse> {
+  async resendVerificationEmail(
+    data: ResendVerificationRequest
+  ): Promise<EmailVerificationResponse> {
     try {
       const response = await this.post<EmailVerificationResponse>(
         API_CONFIG.ENDPOINTS.AUTH.RESEND_VERIFICATION,
@@ -155,16 +159,25 @@ class AuthService extends BaseApiService {
    */
   async updateProfile(userData: Partial<User> | FormData): Promise<User> {
     try {
-      const response = await this.put<User>(
+      const response = await this.put<{ user: User; message: string }>(
         API_CONFIG.ENDPOINTS.AUTH.PROFILE_UPDATE,
         userData,
         true // Include auth header
       );
 
-      if (response.data) {
-        // Update stored user data
-        localStorage.setItem("user", JSON.stringify(response.data));
-        return response.data;
+      if (response.data && response.data.user) {
+        // Extract the user object from the nested response
+        const updatedUser = response.data.user;
+
+        // Update stored user data with the clean user object
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+
+        // Dispatch custom event so auth context can update
+        window.dispatchEvent(
+          new CustomEvent("auth:login", { detail: updatedUser })
+        );
+
+        return updatedUser;
       }
 
       throw new Error("Failed to update user profile");
@@ -177,7 +190,9 @@ class AuthService extends BaseApiService {
   /**
    * Forgot password - send reset code
    */
-  async forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+  async forgotPassword(
+    data: ForgotPasswordRequest
+  ): Promise<ForgotPasswordResponse> {
     try {
       const response = await this.post<ForgotPasswordResponse>(
         API_CONFIG.ENDPOINTS.AUTH.FORGOT_PASSWORD,
@@ -185,7 +200,9 @@ class AuthService extends BaseApiService {
         false
       );
 
-      return response.data || { message: "Password reset code sent to your email" };
+      return (
+        response.data || { message: "Password reset code sent to your email" }
+      );
     } catch (error: any) {
       console.error("Forgot password error:", error);
       throw error;
@@ -195,7 +212,9 @@ class AuthService extends BaseApiService {
   /**
    * Reset password using code
    */
-  async resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+  async resetPassword(
+    data: ResetPasswordRequest
+  ): Promise<ResetPasswordResponse> {
     try {
       const response = await this.post<ResetPasswordResponse>(
         API_CONFIG.ENDPOINTS.AUTH.RESET_PASSWORD,
@@ -213,7 +232,9 @@ class AuthService extends BaseApiService {
   /**
    * Change password for authenticated users
    */
-  async changePassword(data: ChangePasswordRequest): Promise<ChangePasswordResponse> {
+  async changePassword(
+    data: ChangePasswordRequest
+  ): Promise<ChangePasswordResponse> {
     try {
       // Transform field names to match backend expectations
       const requestData = {
@@ -258,7 +279,7 @@ class AuthService extends BaseApiService {
   async logout(): Promise<void> {
     try {
       const refreshToken = localStorage.getItem("refresh_token");
-      
+
       // Call backend logout endpoint if refresh token exists
       if (refreshToken) {
         try {
@@ -269,7 +290,10 @@ class AuthService extends BaseApiService {
           );
         } catch (error) {
           // Continue with logout even if backend call fails
-          console.warn("Backend logout failed, continuing with local logout:", error);
+          console.warn(
+            "Backend logout failed, continuing with local logout:",
+            error
+          );
         }
       }
 

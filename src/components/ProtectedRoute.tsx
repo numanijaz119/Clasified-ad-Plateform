@@ -2,7 +2,7 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import LoadingSpinner from "./LoadingSpinner";
+import LoadingSpinner from "./ui/LoadingSpinner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -38,9 +38,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     // Store the intended destination for redirect after login
     const from = location.pathname + location.search;
     return (
-      <Navigate 
-        to={`${fallbackPath}?redirect=${encodeURIComponent(from)}`} 
-        replace 
+      <Navigate
+        to={`${fallbackPath}?redirect=${encodeURIComponent(from)}`}
+        replace
       />
     );
   }
@@ -48,11 +48,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Check admin requirement (assuming admin check based on email or user properties)
   // You can modify this logic based on your actual admin role implementation
   if (requireAdmin && isAuthenticated) {
-    const isAdmin = user?.email?.includes("admin") || 
-                   user?.email?.endsWith("@admin.com") ||
-                   // Add other admin detection logic here
-                   false;
-    
+    const isAdmin =
+      user?.email?.includes("admin") ||
+      user?.email?.endsWith("@admin.com") ||
+      // Add other admin detection logic here
+      false;
+
     if (!isAdmin) {
       return <Navigate to="/dashboard" replace />;
     }

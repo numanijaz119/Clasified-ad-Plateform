@@ -18,7 +18,7 @@ import { adsService } from "../services";
 import { Ad } from "../types/ads";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
-import LoadingSpinner from "../components/LoadingSpinner";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 import { useAuth } from "../contexts/AuthContext";
 import { PostAdModal } from "../components";
 import { useToast } from "../contexts/ToastContext";

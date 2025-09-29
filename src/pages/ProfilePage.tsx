@@ -4,7 +4,7 @@ import { ProfileHeader } from "../components/profile";
 import { ProfileForm } from "../components/profile";
 import { PasswordChangeForm } from "../components/profile";
 import { AccountInfo } from "../components/profile";
-import { LoadingSpinner } from "../components/profile";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 import { useToast } from "../contexts/ToastContext";
 import { useAuth } from "../contexts/AuthContext";
 

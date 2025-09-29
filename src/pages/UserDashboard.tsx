@@ -9,7 +9,6 @@ import {
   Plus,
   Clock,
   Trash2,
-  ExternalLink,
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
@@ -22,10 +21,12 @@ import LoadingSpinner from "../components/ui/LoadingSpinner";
 import { useAuth } from "../contexts/AuthContext";
 import { PostAdModal } from "../components";
 import { useToast } from "../contexts/ToastContext";
+import { useListingModal } from "../hooks/useListingModal";
+import ListingModal from "../components/ListingModal";
+import type { BasicAd } from "../hooks/useAdDetails";
 
 type TabId = "overview" | "ads" | "stats" | "promote";
 
-// Interface matching your current backend response
 interface DashboardData {
   total_ads: number;
   active_ads: number;
@@ -53,7 +54,30 @@ const UserDashboard: React.FC = () => {
 
   const { toast } = useToast();
 
-  // Fetch dashboard analytics
+  const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } =
+    useListingModal();
+
+  const convertAdToBasicAd = (ad: Ad): BasicAd => {
+    return {
+      id: ad.id,
+      title: ad.title,
+      slug: ad.slug,
+      description: ad.description,
+      display_price: ad.display_price,
+      price: ad.price,
+      price_type: ad.price_type,
+      condition: ad.condition,
+      category: ad.category,
+      city: ad.city,
+      state: ad.state,
+      primary_image: ad.primary_image,
+      view_count: ad.view_count,
+      time_since_posted: ad.time_since_posted,
+      is_featured_active: ad.is_featured_active,
+      created_at: ad.created_at,
+    };
+  };
+
   const fetchDashboardAnalytics = async () => {
     try {
       setError(null);
@@ -65,7 +89,6 @@ const UserDashboard: React.FC = () => {
     }
   };
 
-  // Fetch user's ads
   const fetchUserAds = async () => {
     try {
       setError(null);
@@ -83,7 +106,6 @@ const UserDashboard: React.FC = () => {
     }
   };
 
-  // Initial data load
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
@@ -93,26 +115,17 @@ const UserDashboard: React.FC = () => {
     loadData();
   }, []);
 
-  // Refresh data
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await Promise.all([fetchDashboardAnalytics(), fetchUserAds()]);
     setIsRefreshing(false);
   };
 
-  // Handle successful ad creation
   const handlePostAdSuccess = () => {
-    console.log("Ad created successfully!");
-    // toast.success("Ad created successfully!");
-
-    // Auto-refresh dashboard data to show the new ad
     handleRefresh();
-
-    // Close the modal
     setShowPostAdModal(false);
   };
 
-  // Delete ad
   const handleDeleteAd = async (adId: number, slug: string) => {
     if (!window.confirm("Are you sure you want to delete this ad?")) {
       return;
@@ -121,25 +134,24 @@ const UserDashboard: React.FC = () => {
       await adsService.deleteAd(slug);
       setUserAds((ads) => ads.filter((ad) => ad.id !== adId));
       await fetchDashboardAnalytics();
+      toast.success("Ad deleted successfully!");
     } catch (error: any) {
       console.error("Failed to delete ad:", error);
-      alert("Failed to delete ad. Please try again.");
+      toast.error("Failed to delete ad. Please try again.");
     }
   };
 
-  // Promote ad
   const handlePromoteAd = async (slug: string) => {
     try {
-      await adsService.promoteAd(slug);
+      await adsService.promoteAd(slug, { payment_method: "stripe" });
       await Promise.all([fetchDashboardAnalytics(), fetchUserAds()]);
-      alert("Ad promoted to featured successfully!");
+      toast.success("Ad promoted to featured successfully!");
     } catch (error: any) {
       console.error("Failed to promote ad:", error);
-      alert("Failed to promote ad. Please try again.");
+      toast.error("Failed to promote ad. Please try again.");
     }
   };
 
-  // Status color helper
   const getStatusColor = (status: string) => {
     switch (status) {
       case "approved":
@@ -154,7 +166,6 @@ const UserDashboard: React.FC = () => {
     }
   };
 
-  // Status text helper
   const getStatusText = (status: string) => {
     switch (status) {
       case "approved":
@@ -170,7 +181,6 @@ const UserDashboard: React.FC = () => {
     }
   };
 
-  // Calculate stats
   const stats = useMemo(() => {
     if (!dashboardData) {
       return {
@@ -202,21 +212,18 @@ const UserDashboard: React.FC = () => {
     };
   }, [dashboardData, userAds]);
 
-  // Top performing ads
   const topPerformingAds = useMemo(() => {
     return [...userAds]
       .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
       .slice(0, 5);
   }, [userAds]);
 
-  // Promotable ads
   const promotableAds = useMemo(() => {
     return userAds.filter(
       (ad) => ad.plan !== "featured" && ad.status === "approved"
     );
   }, [userAds]);
 
-  // Simulated recent activity
   const recentActivity = useMemo(() => {
     const activities: Array<{
       type: string;
@@ -272,9 +279,7 @@ const UserDashboard: React.FC = () => {
 
   const renderOverview = () => (
     <div className="space-y-6">
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Ads */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
@@ -292,7 +297,6 @@ const UserDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Total Views */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
@@ -311,7 +315,6 @@ const UserDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Total Contacts */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
@@ -329,7 +332,6 @@ const UserDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Featured Ads */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center">
@@ -348,9 +350,7 @@ const UserDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Performance Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Performing Ads */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Top Performing Ads
@@ -360,7 +360,8 @@ const UserDashboard: React.FC = () => {
               topPerformingAds.map((ad) => (
                 <div
                   key={ad.id}
-                  className="flex items-center justify-between py-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between py-3 px-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleListingClick(convertAdToBasicAd(ad))}
                 >
                   <div className="flex items-center space-x-3">
                     {ad.primary_image?.image && (
@@ -412,7 +413,6 @@ const UserDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Recent Activity */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Recent Activity
@@ -447,7 +447,6 @@ const UserDashboard: React.FC = () => {
 
   const renderMyAds = () => (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between md:items-center flex-col md:flex-row gap-y-4 md:gap-y-0">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">My Ads</h3>
@@ -478,7 +477,6 @@ const UserDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Ads Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {isLoadingAds ? (
           <div className="p-8 text-center">
@@ -557,13 +555,15 @@ const UserDashboard: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
-                        <Link
-                          to={`/ads/${ad.slug}`}
+                        <button
+                          onClick={() =>
+                            handleListingClick(convertAdToBasicAd(ad))
+                          }
                           className="text-gray-600 hover:text-orange-600 p-1 rounded"
                           title="View Ad"
                         >
-                          <ExternalLink className="h-4 w-4" />
-                        </Link>
+                          <Eye className="h-4 w-4" />
+                        </button>
                         <Link
                           to={`/ads/${ad.slug}/edit`}
                           className="text-gray-600 hover:text-orange-600 p-1 rounded"
@@ -613,8 +613,6 @@ const UserDashboard: React.FC = () => {
       <h3 className="text-lg font-semibold text-gray-900">
         Detailed Statistics
       </h3>
-
-      {/* Performance Metrics */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h4 className="text-md font-semibold text-gray-900 mb-4">
           Performance Overview
@@ -636,7 +634,6 @@ const UserDashboard: React.FC = () => {
               </span>
             </div>
           </div>
-
           <div className="text-center">
             <div className="text-3xl font-bold text-green-600 mb-2">
               {stats.totalViews > 0
@@ -645,7 +642,6 @@ const UserDashboard: React.FC = () => {
             </div>
             <div className="text-sm text-gray-600">Avg Views per Ad</div>
           </div>
-
           <div className="text-center">
             <div className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent mb-2">
               {stats.totalContacts > 0
@@ -656,8 +652,6 @@ const UserDashboard: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Individual Ad Performance */}
       {userAds.length > 0 ? (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="px-6 py-4 border-b border-gray-200">
@@ -692,7 +686,6 @@ const UserDashboard: React.FC = () => {
                     (ad.view_count || 0) > 0
                       ? ((ad.contact_views || 0) / (ad.view_count || 0)) * 100
                       : 0;
-
                   return (
                     <tr key={ad.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
@@ -769,8 +762,6 @@ const UserDashboard: React.FC = () => {
           faster.
         </p>
       </div>
-
-      {/* Promotion Benefits */}
       <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-6">
         <div className="flex items-center mb-4">
           <Star className="h-6 w-6 text-orange-600 mr-2" />
@@ -796,8 +787,6 @@ const UserDashboard: React.FC = () => {
           Only $9.99 per ad for 30 days
         </div>
       </div>
-
-      {/* Promotable Ads */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
           <h4 className="text-md font-semibold text-gray-900">
@@ -807,12 +796,11 @@ const UserDashboard: React.FC = () => {
             {promotableAds.length} ads can be promoted to featured status
           </p>
         </div>
-
         {promotableAds.length > 0 ? (
           <div className="divide-y divide-gray-200">
             {promotableAds.map((ad) => (
               <div key={ad.id} className="p-6">
-                <div className="flex md:items-center justify-between flex-col md:flex-row gap-y-4 md:gap-y-0 ">
+                <div className="flex md:items-center justify-between flex-col md:flex-row gap-y-4 md:gap-y-0">
                   <div className="flex items-center space-x-4">
                     {ad.primary_image?.image && (
                       <img
@@ -840,7 +828,6 @@ const UserDashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
-
                   <Button
                     variant="primary"
                     size="sm"
@@ -878,8 +865,6 @@ const UserDashboard: React.FC = () => {
           </div>
         )}
       </div>
-
-      {/* Featured Ads Summary */}
       {stats.featuredAds > 0 && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h4 className="text-md font-semibold text-gray-900 mb-4">
@@ -923,7 +908,6 @@ const UserDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
@@ -946,8 +930,6 @@ const UserDashboard: React.FC = () => {
               Refresh
             </Button>
           </div>
-
-          {/* Error Display */}
           {error && (
             <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4 flex items-center">
               <AlertCircle className="h-5 w-5 text-red-600 mr-2 flex-shrink-0" />
@@ -963,8 +945,6 @@ const UserDashboard: React.FC = () => {
             </div>
           )}
         </div>
-
-        {/* Navigation Tabs */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
           <div className="border-b border-gray-200">
             <nav
@@ -988,8 +968,6 @@ const UserDashboard: React.FC = () => {
             </nav>
           </div>
         </div>
-
-        {/* Tab Content */}
         <main className="tab-content">
           {activeTab === "overview" && renderOverview()}
           {activeTab === "ads" && renderMyAds()}
@@ -998,46 +976,19 @@ const UserDashboard: React.FC = () => {
         </main>
       </div>
 
-      {/* Post Ad Modal Integration */}
-      {/* {showPostAdModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Create New Ad
-            </h3>
-            <p className="text-gray-600 mb-6">
-              This will open the post ad modal. Click the "Post Ad" button in
-              the header to create a new advertisement.
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setShowPostAdModal(false)}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                onClick={() => {
-                  setShowPostAdModal(false);
-                  // This would trigger the actual PostAdModal from App.tsx
-                  window.dispatchEvent(new CustomEvent("openPostAdModal"));
-                }}
-                className="flex-1"
-              >
-                Continue
-              </Button>
-            </div>
-          </div>
-        </div>
-      )} */}
-
       {showPostAdModal && (
         <PostAdModal
           onClose={() => setShowPostAdModal(false)}
           onSuccess={handlePostAdSuccess}
           isOpen={showPostAdModal}
+        />
+      )}
+
+      {isModalOpen && selectedListing && (
+        <ListingModal
+          listing={selectedListing}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
         />
       )}
     </div>

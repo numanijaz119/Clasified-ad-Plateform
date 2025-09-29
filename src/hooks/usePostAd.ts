@@ -1,13 +1,40 @@
-// src/hooks/usePostAd.ts
+// src/hooks/usePostAd.ts - FIXED VERSION
 import { useState, useEffect, useCallback } from "react";
 import { adsService, contentService } from "../services";
 import { useAuth } from "../contexts/AuthContext";
-import type {
-  CreateAdRequest,
-  PostAdFormState,
-  PostAdFormErrors,
-} from "../types/ads";
 import type { Category, City } from "../types/content";
+import type { CreateAdRequest } from "../types/ads";
+
+// Fixed types to match backend exactly
+export interface PostAdFormState {
+  title: string;
+  description: string;
+  category: string;
+  city: string;
+  price: string;
+  price_type: "fixed" | "negotiable" | "contact" | "free" | "swap";
+  condition: "new" | "like_new" | "good" | "fair" | "poor" | "not_applicable";
+  contact_phone: string;
+  contact_email: string;
+  hide_phone: boolean;
+  keywords: string;
+}
+
+export interface PostAdFormErrors {
+  title?: string;
+  description?: string;
+  category?: string;
+  city?: string;
+  price?: string;
+  price_type?: string;
+  condition?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  contact?: string;
+  images?: string;
+  submit?: string;
+  [key: string]: string | undefined;
+}
 
 export const usePostAd = () => {
   const { user } = useAuth();
@@ -227,7 +254,7 @@ export const usePostAd = () => {
     return Object.keys(newErrors).length === 0;
   }, [formData, images.length]);
 
-  // Submit form
+  // Submit form - FIXED VERSION
   const submitAd = useCallback(async (): Promise<boolean> => {
     if (!validateForm()) {
       return false;
@@ -237,37 +264,55 @@ export const usePostAd = () => {
       setLoading(true);
       setErrors({});
 
-      // Prepare data for API
-      const adData: CreateAdRequest = {
+      // Debug logging in development
+      if (process.env.NODE_ENV === "development") {
+        console.log("Submitting ad with data:", {
+          title: formData.title,
+          category: formData.category,
+          city: formData.city,
+          price_type: formData.price_type,
+          condition: formData.condition,
+          images: images.length,
+        });
+      }
+
+      // Use adsService instead of direct fetch
+      const createAdRequest: CreateAdRequest = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        price:
-          formData.price_type === "fixed" ||
-          formData.price_type === "negotiable"
-            ? parseFloat(formData.price)
-            : undefined,
-        price_type: formData.price_type,
-        condition: formData.condition,
         category: parseInt(formData.category),
         city: parseInt(formData.city),
-        contact_phone: formData.contact_phone.replace(/\D/g, ""),
-        contact_email: formData.contact_email,
+        price_type: formData.price_type,
+        condition: formData.condition,
+        contact_phone: formData.contact_phone || undefined,
+        contact_email: formData.contact_email || undefined,
         hide_phone: formData.hide_phone,
         keywords: formData.keywords.trim() || undefined,
         plan: selectedPlan,
         images: images,
       };
 
-      // Submit to API
-      await adsService.createAd(adData);
+      // Add price only for fixed/negotiable types
+      if (
+        formData.price_type === "fixed" ||
+        formData.price_type === "negotiable"
+      ) {
+        createAdRequest.price = parseFloat(formData.price);
+      }
+
+      const adData = await adsService.createAd(createAdRequest);
+      console.log("Ad created successfully:", adData);
+      console.log("Ad images in response:", adData.images?.length || 0);
       return true;
     } catch (error: any) {
       console.error("Error creating ad:", error);
+      console.error("Full error object:", JSON.stringify(error, null, 2));
 
       // Handle backend validation errors
-      if (error.response?.data) {
+      if (error.details) {
+        console.error("Backend validation errors:", error.details);
         const backendErrors: PostAdFormErrors = {};
-        Object.entries(error.response.data).forEach(([key, value]) => {
+        Object.entries(error.details).forEach(([key, value]) => {
           if (Array.isArray(value)) {
             backendErrors[key] = value[0];
           } else {
@@ -275,8 +320,16 @@ export const usePostAd = () => {
           }
         });
         setErrors(backendErrors);
+
+        // Show first error in a user-friendly way
+        const firstError = Object.values(backendErrors)[0];
+        if (firstError) {
+          setErrors({ submit: firstError });
+        }
       } else {
-        setErrors({ submit: "Failed to create ad. Please try again." });
+        const errorMessage =
+          error.message || "Failed to create ad. Please try again.";
+        setErrors({ submit: errorMessage });
       }
       return false;
     } finally {

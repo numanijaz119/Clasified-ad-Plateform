@@ -19,6 +19,7 @@ import {
 import BaseModal from "./modals/BaseModal";
 import { useAuth } from "../contexts/AuthContext";
 import { usePostAd } from "../hooks/usePostAd";
+import { useToast } from "../contexts/ToastContext";
 
 interface PostAdModalProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
   onSuccess,
 }) => {
   const { isAuthenticated } = useAuth();
+  const toast = useToast();
   const {
     // State
     formData,
@@ -70,9 +72,17 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
 
     const success = await submitAd();
     if (success) {
+      toast.success("Ad created successfully!");
       onSuccess?.();
       onClose();
       resetForm();
+    } else {
+      // Error handling - check if there are specific errors
+      if (errors.submit) {
+        toast.error(errors.submit);
+      } else {
+        toast.error("Failed to create ad. Please check the form and try again.");
+      }
     }
   };
 
@@ -486,7 +496,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                     </div>
                   )}
 
-                  {/* Condition */}
+                  {/* Condition - FIXED VALUES */}
                   <div
                     className={
                       formData.price_type === "contact" ||
@@ -511,7 +521,9 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                       <option value="not_applicable">Not Applicable</option>
                       <option value="new">New</option>
                       <option value="like_new">Like New</option>
-                      <option value="used">Used</option>
+                      <option value="good">Good</option>
+                      <option value="fair">Fair</option>
+                      <option value="poor">Poor</option>
                     </select>
                   </div>
                 </div>

@@ -68,90 +68,158 @@ class AdsService extends BaseApiService {
    */
   async createAd(adData: CreateAdRequest): Promise<Ad> {
     try {
+      // Validate condition value before sending
+      const validConditions = [
+        "new",
+        "like_new",
+        "good",
+        "fair",
+        "poor",
+        "not_applicable",
+      ];
+      if (!validConditions.includes(adData.condition)) {
+        throw new Error(
+          `Invalid condition: ${
+            adData.condition
+          }. Must be one of: ${validConditions.join(", ")}`
+        );
+      }
+
       const formData = new FormData();
 
-      // Map and append text fields according to backend serializer
-      const fieldMapping = {
-        // Basic fields
-        title: adData.title,
-        description: adData.description,
-        category: adData.category.toString(),
-        city: adData.city.toString(),
+      // Basic required fields
+      formData.append("title", adData.title.trim());
+      formData.append("description", adData.description.trim());
+      formData.append("category", adData.category.toString());
+      formData.append("city", adData.city.toString());
+      formData.append("price_type", adData.price_type);
+      formData.append("condition", adData.condition);
 
-        // Pricing fields
-        price_type: adData.price_type,
-        condition: adData.condition || "not_applicable",
-
-        // Contact fields
-        contact_phone: adData.contact_phone || "",
-        contact_email: adData.contact_email || "",
-        hide_phone: adData.hide_phone ? "true" : "false",
-
-        // Optional fields
-        keywords: adData.keywords || "",
-        plan: adData.plan || "free",
-      };
-
-      // Only add price for fixed/negotiable types
+      // Price (only for fixed/negotiable)
       if (
         adData.price &&
         (adData.price_type === "fixed" || adData.price_type === "negotiable")
       ) {
-        fieldMapping.price = adData.price.toString();
+        formData.append("price", adData.price.toString());
       }
 
-      // Append all text fields
-      Object.entries(fieldMapping).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, value);
-        }
-      });
+      // Contact information
+      if (adData.contact_phone) {
+        // Clean phone number (remove formatting)
+        const cleanPhone = adData.contact_phone.replace(/\D/g, "");
+        formData.append("contact_phone", cleanPhone);
+      }
 
-      // Handle images - backend expects 'images' field for multiple files
+      if (adData.contact_email) {
+        formData.append("contact_email", adData.contact_email);
+      }
+
+      // Boolean fields (convert to string for FormData)
+      formData.append("hide_phone", (adData.hide_phone || false).toString());
+
+      // Optional fields
+      if (adData.keywords?.trim()) {
+        formData.append("keywords", adData.keywords.trim());
+      }
+
+      if (adData.plan) {
+        formData.append("plan", adData.plan);
+      }
+
+      // Handle images properly
       if (adData.images && adData.images.length > 0) {
+        console.log("Processing images for upload:");
         adData.images.forEach((image, index) => {
-          formData.append("images", image);
+          console.log(`Image ${index}:`, {
+            name: image.name,
+            size: image.size,
+            type: image.type,
+            lastModified: image.lastModified,
+          });
 
-          // Set first image as primary
+          // Ensure we're appending actual File objects
+          if (image instanceof File) {
+            // Try "image" field name (singular) - some Django backends expect this
+            formData.append("image", image, image.name);
+            console.log(
+              `✓ Added image ${index} to FormData with field name 'image'`
+            );
+          } else {
+            console.error(
+              `✗ Image ${index} is not a File object:`,
+              typeof image
+            );
+          }
+
+          // Mark the first image as primary
           if (index === 0) {
             formData.append("primary_image_index", "0");
           }
         });
+      } else {
+        console.log("No images to upload");
       }
 
-      // Log FormData for debugging (only in development)
-      if (process.env.NODE_ENV === "development") {
-        console.log("Creating ad with data:");
-        for (let [key, value] of formData.entries()) {
-          if (value instanceof File) {
-            console.log(`${key}: File(${value.name}, ${value.size} bytes)`);
-          } else {
-            console.log(`${key}: ${value}`);
-          }
+      // Debug logging in development
+      console.log("=== Creating Ad with FormData ===");
+      console.log("Total images to upload:", adData.images?.length || 0);
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(
+            `${key}: File(${value.name}, ${value.size} bytes, ${value.type})`
+          );
+        } else {
+          console.log(`${key}: ${value}`);
         }
       }
+      console.log("================================");
 
+      // Use proper multipart headers
       const response = await this.post<Ad>(
         API_CONFIG.ENDPOINTS.ADS.CREATE,
         formData,
-        true, // requireAuth
-        true // isMultipart
+        true // requireAuth
       );
 
       if (response.data) {
+        console.log("Ad created successfully:", response.data);
+        console.log("Images in response:", response.data.images?.length || 0);
+        if (response.data.images && response.data.images.length > 0) {
+          console.log("Image details:", response.data.images);
+        } else {
+          console.warn(
+            "⚠️ No images found in response - image upload may have failed"
+          );
+        }
         return response.data;
       }
 
-      throw new Error("Failed to create ad");
+      throw new Error("Failed to create ad: No data returned");
     } catch (error: any) {
       console.error("Create ad error:", error);
+      console.error("Full error details:", JSON.stringify(error, null, 2));
 
-      // Enhanced error handling for better debugging
+      // Enhanced error handling
       if (error.response) {
         console.error("Backend response:", error.response.data);
         console.error("Status:", error.response.status);
+        console.error("Headers:", error.response.headers);
+
+        // Check for image-specific errors
+        if (error.response.data && error.response.data.images) {
+          console.error("Image upload errors:", error.response.data.images);
+        }
+
+        // Re-throw with backend error details
+        const backendError = {
+          message: "Request failed",
+          status: error.response.status,
+          details: error.response.data,
+        };
+        throw backendError;
       }
 
+      // Re-throw original error if not from backend
       throw error;
     }
   }

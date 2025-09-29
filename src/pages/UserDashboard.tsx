@@ -20,6 +20,8 @@ import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useAuth } from "../contexts/AuthContext";
+import { PostAdModal } from "../components";
+import { useToast } from "../contexts/ToastContext";
 
 type TabId = "overview" | "ads" | "stats" | "promote";
 
@@ -48,6 +50,8 @@ const UserDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showPostAdModal, setShowPostAdModal] = useState(false);
+
+  const { toast } = useToast();
 
   // Fetch dashboard analytics
   const fetchDashboardAnalytics = async () => {
@@ -94,6 +98,18 @@ const UserDashboard: React.FC = () => {
     setIsRefreshing(true);
     await Promise.all([fetchDashboardAnalytics(), fetchUserAds()]);
     setIsRefreshing(false);
+  };
+
+  // Handle successful ad creation
+  const handlePostAdSuccess = () => {
+    console.log("Ad created successfully!");
+    // toast.success("Ad created successfully!");
+
+    // Auto-refresh dashboard data to show the new ad
+    handleRefresh();
+
+    // Close the modal
+    setShowPostAdModal(false);
   };
 
   // Delete ad
@@ -983,7 +999,7 @@ const UserDashboard: React.FC = () => {
       </div>
 
       {/* Post Ad Modal Integration */}
-      {showPostAdModal && (
+      {/* {showPostAdModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -1015,6 +1031,14 @@ const UserDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+      )} */}
+
+      {showPostAdModal && (
+        <PostAdModal
+          onClose={() => setShowPostAdModal(false)}
+          onSuccess={handlePostAdSuccess}
+          isOpen={showPostAdModal}
+        />
       )}
     </div>
   );

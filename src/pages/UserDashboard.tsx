@@ -70,7 +70,7 @@ const UserDashboard: React.FC = () => {
     try {
       setError(null);
       setIsLoadingAds(true);
-      const response = await adsService.getUserAds({
+      const response = await adsService.getMyAds({
         page_size: 50,
         sort_by: "newest",
       });

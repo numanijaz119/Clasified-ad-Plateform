@@ -11,6 +11,7 @@ export interface User {
   created_at: string;
   updated_at: string;
   avatar?: string;
+  google_id?: number;
 }
 
 export interface AuthTokens {

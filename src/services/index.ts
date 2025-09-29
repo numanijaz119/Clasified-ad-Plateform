@@ -1,6 +1,6 @@
 // Export all services
 export { default as authService } from "./authService";
-export { default as adsService } from "./adsService";
+export { adsService } from "./adsService";
 export { default as contentService } from "./contentService";
 export { default as BaseApiService } from "./baseApiService";
 

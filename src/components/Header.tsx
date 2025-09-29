@@ -11,6 +11,7 @@ import {
   LogOut,
   UserCircle,
   Settings,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "./";
 import { useAuth } from "../contexts/AuthContext";
@@ -156,6 +157,15 @@ const Header: React.FC<HeaderProps> = ({
                       </Link>
 
                       <Link
+                        to="/dashboard"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <BarChart3 className="h-5 w-5 mr-3" />
+                        Dashboard
+                      </Link>
+
+                      <Link
                         to="/settings"
                         onClick={() => setIsProfileDropdownOpen(false)}
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -255,6 +265,15 @@ const Header: React.FC<HeaderProps> = ({
                   >
                     <UserCircle className="h-5 w-5 mr-3" />
                     My Profile
+                  </Link>
+
+                  <Link
+                    to="/dashboard"
+                    className="flex items-center px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <BarChart3 className="h-5 w-5 mr-3" />
+                    Dashboard
                   </Link>
 
                   <Link

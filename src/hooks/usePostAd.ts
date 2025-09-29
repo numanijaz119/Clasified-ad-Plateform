@@ -1,40 +1,11 @@
-// src/hooks/usePostAd.ts - FIXED VERSION
-import { useState, useEffect, useCallback } from "react";
-import { adsService, contentService } from "../services";
+// src/hooks/usePostAd.ts - IMPROVED with better feedback
+
+import { useState, useCallback, useEffect } from "react";
+import { adsService } from "../services/adsService";
+import { contentService } from "../services/contentService";
 import { useAuth } from "../contexts/AuthContext";
 import type { Category, City } from "../types/content";
-import type { CreateAdRequest } from "../types/ads";
-
-// Fixed types to match backend exactly
-export interface PostAdFormState {
-  title: string;
-  description: string;
-  category: string;
-  city: string;
-  price: string;
-  price_type: "fixed" | "negotiable" | "contact" | "free" | "swap";
-  condition: "new" | "like_new" | "good" | "fair" | "poor" | "not_applicable";
-  contact_phone: string;
-  contact_email: string;
-  hide_phone: boolean;
-  keywords: string;
-}
-
-export interface PostAdFormErrors {
-  title?: string;
-  description?: string;
-  category?: string;
-  city?: string;
-  price?: string;
-  price_type?: string;
-  condition?: string;
-  contact_phone?: string;
-  contact_email?: string;
-  contact?: string;
-  images?: string;
-  submit?: string;
-  [key: string]: string | undefined;
-}
+import type { PostAdFormState, PostAdFormErrors } from "../types/ads";
 
 export const usePostAd = () => {
   const { user } = useAuth();
@@ -66,8 +37,9 @@ export const usePostAd = () => {
   const [loadingData, setLoadingData] = useState(false);
   const [errors, setErrors] = useState<PostAdFormErrors>({});
   const [step, setStep] = useState<"plan" | "form">("plan");
+  const [uploadProgress, setUploadProgress] = useState<string>("");
 
-  // Set user email as default when user is available
+  // Set user email as default
   useEffect(() => {
     if (user?.email && !formData.contact_email) {
       setFormData((prev) => ({
@@ -77,7 +49,7 @@ export const usePostAd = () => {
     }
   }, [user, formData.contact_email]);
 
-  // Load categories and cities data
+  // Load categories and cities
   const loadData = useCallback(async () => {
     try {
       setLoadingData(true);
@@ -104,7 +76,7 @@ export const usePostAd = () => {
         [field]: value,
       }));
 
-      // Clear error when user starts typing
+      // Clear error
       if (errors[field]) {
         setErrors((prev) => ({
           ...prev,
@@ -124,94 +96,75 @@ export const usePostAd = () => {
       const maxImages = selectedPlan === "free" ? 3 : 10;
 
       if (images.length + fileArray.length > maxImages) {
-        setErrors((prev) => ({
-          ...prev,
-          images: `You can only upload ${maxImages} images with the ${selectedPlan} plan`,
-        }));
-        return;
-      }
-
-      // Validate files
-      const validFiles: File[] = [];
-      const invalidFiles: string[] = [];
-
-      fileArray.forEach((file) => {
-        const isImage = file.type.startsWith("image/");
-        const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
-
-        if (!isImage) {
-          invalidFiles.push(`${file.name}: Only image files allowed`);
-        } else if (!isValidSize) {
-          invalidFiles.push(`${file.name}: File too large (max 5MB)`);
-        } else {
-          validFiles.push(file);
-        }
-      });
-
-      if (invalidFiles.length > 0) {
-        setErrors((prev) => ({
-          ...prev,
-          images: invalidFiles[0], // Show first error
-        }));
-        return;
-      }
-
-      if (validFiles.length > 0) {
-        // Add valid files
-        setImages((prev) => [...prev, ...validFiles]);
-
-        // Generate previews
-        validFiles.forEach((file) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            setImagePreview((prev) => [...prev, e.target?.result as string]);
-          };
-          reader.readAsDataURL(file);
+        setErrors({
+          ...errors,
+          images: `Maximum ${maxImages} images allowed for ${selectedPlan} plan`,
         });
+        return;
+      }
 
-        // Clear image errors
-        setErrors((prev) => ({ ...prev, images: undefined }));
+      // Validate file sizes (5MB max)
+      const invalidFiles = fileArray.filter(
+        (file) => file.size > 5 * 1024 * 1024
+      );
+      if (invalidFiles.length > 0) {
+        setErrors({
+          ...errors,
+          images: "Each image must be less than 5MB",
+        });
+        return;
+      }
+
+      // Add new images
+      const newImages = [...images, ...fileArray];
+      setImages(newImages);
+
+      // Create previews
+      const newPreviews = fileArray.map((file) => URL.createObjectURL(file));
+      setImagePreview((prev) => [...prev, ...newPreviews]);
+
+      // Clear errors
+      if (errors.images) {
+        setErrors({ ...errors, images: undefined });
       }
     },
-    [images.length, selectedPlan]
+    [images, selectedPlan, errors]
   );
 
   // Remove image
-  const removeImage = useCallback((index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-    setImagePreview((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+  const removeImage = useCallback(
+    (index: number) => {
+      const newImages = images.filter((_, i) => i !== index);
+      const newPreviews = imagePreview.filter((_, i) => i !== index);
+
+      // Revoke URL to prevent memory leaks
+      URL.revokeObjectURL(imagePreview[index]);
+
+      setImages(newImages);
+      setImagePreview(newPreviews);
+    },
+    [images, imagePreview]
+  );
 
   // Validate form
   const validateForm = useCallback((): boolean => {
     const newErrors: PostAdFormErrors = {};
 
-    // Title validation
+    // Required fields
     if (!formData.title.trim()) {
       newErrors.title = "Title is required";
-    } else if (formData.title.length < 5) {
-      newErrors.title = "Title must be at least 5 characters";
-    } else if (formData.title.length > 100) {
-      newErrors.title = "Title must be less than 100 characters";
     }
 
-    // Description validation
     if (!formData.description.trim()) {
       newErrors.description = "Description is required";
-    } else if (formData.description.length < 20) {
-      newErrors.description = "Description must be at least 20 characters";
-    } else if (formData.description.length > 2000) {
-      newErrors.description = "Description must be less than 2000 characters";
     }
 
-    // Category validation
     if (!formData.category) {
-      newErrors.category = "Please select a category";
+      newErrors.category = "Category is required";
     }
 
-    // City validation
     if (!formData.city) {
-      newErrors.city = "Please select a city";
+      newErrors.city = "City is required";
     }
 
     // Price validation
@@ -220,29 +173,13 @@ export const usePostAd = () => {
       formData.price_type === "negotiable"
     ) {
       if (!formData.price || parseFloat(formData.price) <= 0) {
-        newErrors.price = "Price is required for this price type";
-      } else if (parseFloat(formData.price) > 999999) {
-        newErrors.price = "Price must be less than $1,000,000";
+        newErrors.price = "Valid price is required";
       }
     }
 
     // Contact validation
     if (!formData.contact_phone && !formData.contact_email) {
       newErrors.contact = "At least one contact method is required";
-    }
-
-    if (
-      formData.contact_phone &&
-      !/^\d{10}$/.test(formData.contact_phone.replace(/\D/g, ""))
-    ) {
-      newErrors.contact_phone = "Please enter a valid 10-digit phone number";
-    }
-
-    if (
-      formData.contact_email &&
-      !/\S+@\S+\.\S+/.test(formData.contact_email)
-    ) {
-      newErrors.contact_email = "Please enter a valid email address";
     }
 
     // Images validation
@@ -252,32 +189,20 @@ export const usePostAd = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData, images.length]);
+  }, [formData, images]);
 
-  // Submit form - FIXED VERSION
+  // Submit ad
   const submitAd = useCallback(async (): Promise<boolean> => {
     if (!validateForm()) {
       return false;
     }
 
+    setLoading(true);
+    setUploadProgress("Creating ad...");
+    setErrors({});
+
     try {
-      setLoading(true);
-      setErrors({});
-
-      // Debug logging in development
-      if (process.env.NODE_ENV === "development") {
-        console.log("Submitting ad with data:", {
-          title: formData.title,
-          category: formData.category,
-          city: formData.city,
-          price_type: formData.price_type,
-          condition: formData.condition,
-          images: images.length,
-        });
-      }
-
-      // Use adsService instead of direct fetch
-      const createAdRequest: CreateAdRequest = {
+      const createAdRequest: any = {
         title: formData.title.trim(),
         description: formData.description.trim(),
         category: parseInt(formData.category),
@@ -292,7 +217,7 @@ export const usePostAd = () => {
         images: images,
       };
 
-      // Add price only for fixed/negotiable types
+      // Add price for fixed/negotiable
       if (
         formData.price_type === "fixed" ||
         formData.price_type === "negotiable"
@@ -300,17 +225,40 @@ export const usePostAd = () => {
         createAdRequest.price = parseFloat(formData.price);
       }
 
+      console.log("Submitting ad:", createAdRequest);
+
+      // Update progress for images
+      if (images.length > 0) {
+        setUploadProgress(
+          `Creating ad and uploading ${images.length} image(s)...`
+        );
+      }
+
       const adData = await adsService.createAd(createAdRequest);
-      console.log("Ad created successfully:", adData);
-      console.log("Ad images in response:", adData.images?.length || 0);
+
+      console.log("✓ Ad created successfully:", adData);
+
+      // Check if images were uploaded
+      if (images.length > 0) {
+        if (adData.images && adData.images.length === images.length) {
+          setUploadProgress("✓ All images uploaded successfully!");
+        } else if (adData.images && adData.images.length > 0) {
+          setUploadProgress(
+            `⚠ Partial success: ${adData.images.length}/${images.length} images uploaded`
+          );
+        } else {
+          setUploadProgress("⚠ Ad created but images failed to upload");
+        }
+      } else {
+        setUploadProgress("✓ Ad created successfully!");
+      }
+
       return true;
     } catch (error: any) {
       console.error("Error creating ad:", error);
-      console.error("Full error object:", JSON.stringify(error, null, 2));
 
       // Handle backend validation errors
       if (error.details) {
-        console.error("Backend validation errors:", error.details);
         const backendErrors: PostAdFormErrors = {};
         Object.entries(error.details).forEach(([key, value]) => {
           if (Array.isArray(value)) {
@@ -321,16 +269,18 @@ export const usePostAd = () => {
         });
         setErrors(backendErrors);
 
-        // Show first error in a user-friendly way
+        // Show first error
         const firstError = Object.values(backendErrors)[0];
         if (firstError) {
-          setErrors({ submit: firstError });
+          setErrors({ ...backendErrors, submit: firstError });
         }
       } else {
         const errorMessage =
           error.message || "Failed to create ad. Please try again.";
         setErrors({ submit: errorMessage });
       }
+
+      setUploadProgress("");
       return false;
     } finally {
       setLoading(false);
@@ -352,24 +302,26 @@ export const usePostAd = () => {
       hide_phone: false,
       keywords: "",
     });
+
+    // Cleanup image previews
+    imagePreview.forEach((preview) => URL.revokeObjectURL(preview));
     setImages([]);
     setImagePreview([]);
-    setSelectedPlan("free");
-    setStep("plan");
     setErrors({});
-  }, [user?.email]);
+    setStep("plan");
+    setSelectedPlan("free");
+    setUploadProgress("");
+  }, [imagePreview, user]);
 
-  // Format phone number for display
-  const formatPhoneDisplay = useCallback((phone: string) => {
+  // Format phone display
+  const formatPhoneDisplay = useCallback((phone: string): string => {
     const cleaned = phone.replace(/\D/g, "");
-    if (cleaned.length >= 6) {
+    if (cleaned.length === 10) {
       return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(
         6
       )}`;
-    } else if (cleaned.length >= 3) {
-      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
     }
-    return cleaned;
+    return phone;
   }, []);
 
   return {
@@ -384,13 +336,13 @@ export const usePostAd = () => {
     loadingData,
     errors,
     step,
+    uploadProgress, // NEW: Progress message
 
     // Actions
     loadData,
     updateField,
     handleImageUpload,
     removeImage,
-    validateForm,
     submitAd,
     resetForm,
     setSelectedPlan,

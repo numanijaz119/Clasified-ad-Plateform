@@ -139,6 +139,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
+  useEffect(() => {
+    if (state.user) {
+      console.log("User in context state:", state.user);
+    }
+  }, [state.user]);
+
   // Listen for auth events
   useEffect(() => {
     const handleAuthLogin = (event: CustomEvent) => {
@@ -249,11 +255,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       dispatch({ type: "AUTH_START" });
       const response = await authService.verifyEmail(data);
-      
+
       // After successful verification, don't auto-login
       // Let user manually sign in after seeing success message
       dispatch({ type: "SET_LOADING", payload: false });
-      
+
       return response;
     } catch (error: any) {
       const errorMessage =

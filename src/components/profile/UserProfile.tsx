@@ -59,6 +59,22 @@ const UserProfile: React.FC = () => {
     }
   }, [user]);
 
+  const truncateFilename = (file: File): File => {
+    const maxLength = 80; // Safe margin below 100
+    const extension = file.name.split(".").pop() || "";
+
+    if (file.name.length <= maxLength) {
+      return file;
+    }
+
+    // Create shorter name: avatar_ + timestamp + random + extension
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8);
+    const newName = `avatar_${timestamp}_${random}.${extension}`;
+
+    return new File([file], newName, { type: file.type });
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProfileData((prev) => ({
@@ -70,19 +86,20 @@ const UserProfile: React.FC = () => {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
         setError("Avatar image must be less than 5MB");
         return;
       }
 
-      // Check file type
       if (!file.type.startsWith("image/")) {
         setError("Please select a valid image file");
         return;
       }
 
-      setAvatarFile(file);
+      // Truncate filename if too long
+      const processedFile = truncateFilename(file);
+      setAvatarFile(processedFile);
+
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
       setError("");

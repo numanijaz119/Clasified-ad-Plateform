@@ -1,4 +1,4 @@
-// src/types/ads.ts
+// src/types/ads.ts - FIXED VERSION
 
 // Base Ad types
 export interface AdImage {
@@ -7,8 +7,11 @@ export interface AdImage {
   caption?: string;
   is_primary: boolean;
   sort_order: number;
+  file_size?: number;
+  width?: number;
+  height?: number;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
 }
 
 export interface AdCategory {
@@ -20,16 +23,18 @@ export interface AdCategory {
   parent?: number;
   is_active: boolean;
   sort_order: number;
+  ads_count?: number;
 }
 
 export interface AdCity {
   id: number;
   name: string;
-  slug: string;
+  slug?: string;
   state: number;
-  state_name: string;
-  state_code: string;
+  state_name?: string;
+  state_code?: string;
   is_active: boolean;
+  is_major?: boolean;
 }
 
 export interface AdState {
@@ -48,61 +53,55 @@ export interface AdUser {
   avatar?: string;
 }
 
-// export interface Ad {
-//   id: number;
-//   title: string;
-//   slug: string;
-//   description: string;
-//   price?: number;
-//   currency: string;
-//   contact_phone: string;
-//   contact_email: string;
-//   plan: "free" | "featured";
-//   status: "pending" | "approved" | "rejected" | "expired" | "deleted";
-//   view_count: number;
-//   contact_views: number;
-//   created_at: string;
-//   updated_at: string;
-//   expires_at: string;
-//   approved_at?: string;
-//   category: AdCategory;
-//   city: AdCity;
-//   state: AdState;
-//   user: AdUser;
-//   images: AdImage[];
-//   primary_image?: AdImage;
-//   is_favorite?: boolean;
-//   is_owner?: boolean;
-// }
+// FIXED: Updated condition type to match backend exactly
+export type AdCondition =
+  | "new"
+  | "like_new"
+  | "good"
+  | "fair"
+  | "poor"
+  | "not_applicable";
 
-// Request/Response types
+export type AdPriceType = "fixed" | "negotiable" | "contact" | "free" | "swap";
 
+export type AdStatus =
+  | "draft"
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "expired"
+  | "sold";
+
+export type AdPlan = "free" | "featured";
+
+// Main Ad interface
 export interface Ad {
   id: number;
   title: string;
   slug: string;
   description: string;
   price?: number;
-  currency?: string;
-  display_price?: string; // Add this
-  price_type?: "fixed" | "negotiable" | "contact" | "free" | "swap"; // Add this
-  condition?: "new" | "used" | "like_new"; // Add this
-  contact_phone: string;
-  contact_email: string;
-  hide_phone?: boolean; // Add this
-  plan: "free" | "featured";
-  status: "pending" | "approved" | "rejected" | "expired" | "deleted";
+  display_price?: string;
+  price_type: AdPriceType;
+  condition: AdCondition;
+  contact_phone?: string;
+  contact_email?: string;
+  contact_email_display?: string;
+  hide_phone: boolean;
+  plan: AdPlan;
+  status: AdStatus;
   view_count: number;
-  unique_view_count?: number; // Add this
-  contact_views: number;
-  favorite_count?: number; // Add this
-  keywords?: string; // Add this
-  time_since_posted?: string; // Add this
-  is_featured_active?: boolean; // Add this
+  unique_view_count?: number;
+  contact_count?: number;
+  favorite_count?: number;
+  keywords?: string;
+  time_since_posted?: string;
+  is_featured_active?: boolean;
   created_at: string;
   updated_at: string;
-  expires_at: string;
+  expires_at?: string;
   approved_at?: string;
+  rejection_reason?: string;
   category: AdCategory;
   city: AdCity;
   state: AdState;
@@ -111,25 +110,47 @@ export interface Ad {
   primary_image?: AdImage;
   is_favorite?: boolean;
   is_owner?: boolean;
-  rejection_reason?: string; // Add this
-  admin_notes?: string; // Add this
 }
 
+// FIXED: Updated CreateAdRequest to match backend serializer exactly
 export interface CreateAdRequest {
+  // Required fields
   title: string;
   description: string;
-  price?: number;
-  currency: string;
   category: number;
   city: number;
-  contact_phone: string;
-  contact_email: string;
-  plan: "free" | "featured";
+
+  // Pricing fields
+  price?: number;
+  price_type: AdPriceType;
+  condition: AdCondition;
+
+  // Contact fields
+  contact_phone?: string;
+  contact_email?: string;
+  hide_phone?: boolean;
+
+  // Optional fields
+  keywords?: string;
+  plan?: AdPlan;
+
+  // Images (handled separately in FormData)
   images?: File[];
 }
 
-export interface UpdateAdRequest extends Partial<CreateAdRequest> {
+export interface UpdateAdRequest {
   slug: string;
+  title?: string;
+  description?: string;
+  price?: number;
+  price_type?: AdPriceType;
+  condition?: AdCondition;
+  contact_phone?: string;
+  contact_email?: string;
+  hide_phone?: boolean;
+  category?: number;
+  city?: number;
+  keywords?: string;
 }
 
 export interface AdListParams {
@@ -141,8 +162,10 @@ export interface AdListParams {
   search?: string;
   price_min?: number;
   price_max?: number;
-  plan?: "free" | "featured";
-  status?: "pending" | "approved" | "rejected" | "expired" | "deleted";
+  price_type?: AdPriceType;
+  condition?: AdCondition[];
+  plan?: AdPlan;
+  status?: AdStatus;
   sort_by?:
     | "newest"
     | "oldest"
@@ -153,7 +176,9 @@ export interface AdListParams {
   has_images?: boolean;
   has_phone?: boolean;
   is_featured?: boolean;
-  posted_since?: string;
+  posted_since?: number;
+  posted_after?: string;
+  posted_before?: string;
 }
 
 export interface AdListResponse {
@@ -167,6 +192,7 @@ export interface AdListResponse {
 
 export interface AdAnalytics {
   total_views: number;
+  unique_views: number;
   contact_views: number;
   daily_views: Array<{
     date: string;
@@ -225,7 +251,69 @@ export interface CreateReportRequest {
   description?: string;
 }
 
-// Admin types
+// Image upload specific types
+export interface AdImageCreateRequest {
+  image: File;
+  caption?: string;
+  is_primary?: boolean;
+  sort_order?: number;
+}
+
+// Backend response after creating ad
+export interface CreateAdResponse extends Ad {
+  slug: string;
+  status: AdStatus;
+}
+
+// Validation helper types
+export interface AdValidationErrors {
+  title?: string[];
+  description?: string[];
+  price?: string[];
+  price_type?: string[];
+  condition?: string[];
+  category?: string[];
+  city?: string[];
+  contact_phone?: string[];
+  contact_email?: string[];
+  images?: string[];
+  keywords?: string[];
+  non_field_errors?: string[];
+  [key: string]: string[] | undefined;
+}
+
+// Form state types for components
+export interface PostAdFormState {
+  title: string;
+  description: string;
+  category: string;
+  city: string;
+  price: string;
+  price_type: AdPriceType;
+  condition: AdCondition;
+  contact_phone: string;
+  contact_email: string;
+  hide_phone: boolean;
+  keywords: string;
+}
+
+export interface PostAdFormErrors {
+  title?: string;
+  description?: string;
+  category?: string;
+  city?: string;
+  price?: string;
+  price_type?: string;
+  condition?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  contact?: string;
+  images?: string;
+  submit?: string;
+  [key: string]: string | undefined;
+}
+
+// Admin specific types
 export interface AdminAdListParams extends AdListParams {
   user?: number;
   has_reports?: boolean;

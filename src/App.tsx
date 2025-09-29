@@ -1,5 +1,5 @@
 // src/App.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import Header from "./components/Header";
@@ -16,14 +16,17 @@ import SignInModal from "./components/SignInModal";
 import ProfilePage from "./pages/ProfilePage";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useToast } from "./contexts/ToastContext";
 
 function App() {
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
-  const [shouldOpenPostAdAfterLogin, setShouldOpenPostAdAfterLogin] = useState(false);
+  const [shouldOpenPostAdAfterLogin, setShouldOpenPostAdAfterLogin] =
+    useState(false);
+  const toast = useToast();
 
   // Get auth state from context
-  const { isAuthenticated, user, isLoading, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
 
   const handlePostAd = () => {
     if (isAuthenticated) {
@@ -34,6 +37,7 @@ function App() {
     }
   };
 
+  // Handle successful sign-in
   const handleSignInSuccess = () => {
     setIsSignInModalOpen(false);
     // Only open post ad modal if user was specifically trying to post an ad
@@ -41,6 +45,12 @@ function App() {
       setIsPostAdModalOpen(true);
       setShouldOpenPostAdAfterLogin(false);
     }
+  };
+
+  // Handle successful ad creation
+  const handlePostAdSuccess = () => {
+    console.log("Ad created successfully!");
+    toast.success("Ad created successfully!");
   };
 
   const handleSignOut = async () => {
@@ -53,6 +63,20 @@ function App() {
       console.error("Logout error:", error);
     }
   };
+
+  // Listen for custom events from dashboard
+  useEffect(() => {
+    const handleOpenPostAdModal = () => {
+      if (isAuthenticated) {
+        setIsPostAdModalOpen(true);
+      }
+    };
+
+    window.addEventListener("openPostAdModal", handleOpenPostAdModal);
+    return () => {
+      window.removeEventListener("openPostAdModal", handleOpenPostAdModal);
+    };
+  }, [isAuthenticated]);
 
   // Show loading spinner while checking auth status
   // if (isLoading) {
@@ -117,7 +141,7 @@ function App() {
       <PostAdModal
         isOpen={isPostAdModalOpen}
         onClose={() => setIsPostAdModalOpen(false)}
-        isLoggedIn={isAuthenticated}
+        onSuccess={handlePostAdSuccess}
       />
 
       {/* Sign In Modal */}

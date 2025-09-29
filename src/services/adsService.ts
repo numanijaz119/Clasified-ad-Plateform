@@ -68,37 +68,203 @@ class AdsService extends BaseApiService {
    */
   async createAd(adData: CreateAdRequest): Promise<Ad> {
     try {
-      const formData = new FormData();
-
-      // Add text fields
-      Object.entries(adData).forEach(([key, value]) => {
-        if (key !== "images" && value !== undefined && value !== null) {
-          formData.append(key, value.toString());
-        }
-      });
-
-      // Add images
-      if (adData.images && adData.images.length > 0) {
-        adData.images.forEach((image) => {
-          formData.append(`images`, image);
-        });
+      // Validate condition value before sending
+      const validConditions = [
+        "new",
+        "like_new",
+        "good",
+        "fair",
+        "poor",
+        "not_applicable",
+      ];
+      if (!validConditions.includes(adData.condition)) {
+        throw new Error(
+          `Invalid condition: ${
+            adData.condition
+          }. Must be one of: ${validConditions.join(", ")}`
+        );
       }
 
+      const formData = new FormData();
+
+      // Basic required fields
+      formData.append("title", adData.title.trim());
+      formData.append("description", adData.description.trim());
+      formData.append("category", adData.category.toString());
+      formData.append("city", adData.city.toString());
+      formData.append("price_type", adData.price_type);
+      formData.append("condition", adData.condition);
+
+      // Price (only for fixed/negotiable)
+      if (
+        adData.price &&
+        (adData.price_type === "fixed" || adData.price_type === "negotiable")
+      ) {
+        formData.append("price", adData.price.toString());
+      }
+
+      // Contact information
+      if (adData.contact_phone) {
+        // Clean phone number (remove formatting)
+        const cleanPhone = adData.contact_phone.replace(/\D/g, "");
+        formData.append("contact_phone", cleanPhone);
+      }
+
+      if (adData.contact_email) {
+        formData.append("contact_email", adData.contact_email);
+      }
+
+      // Boolean fields (convert to string for FormData)
+      formData.append("hide_phone", (adData.hide_phone || false).toString());
+
+      // Optional fields
+      if (adData.keywords?.trim()) {
+        formData.append("keywords", adData.keywords.trim());
+      }
+
+      if (adData.plan) {
+        formData.append("plan", adData.plan);
+      }
+
+      // Handle images properly
+      if (adData.images && adData.images.length > 0) {
+        console.log("Processing images for upload:");
+        adData.images.forEach((image, index) => {
+          console.log(`Image ${index}:`, {
+            name: image.name,
+            size: image.size,
+            type: image.type,
+            lastModified: image.lastModified,
+          });
+
+          // Ensure we're appending actual File objects
+          if (image instanceof File) {
+            // Try "image" field name (singular) - some Django backends expect this
+            formData.append("image", image, image.name);
+            console.log(
+              `✓ Added image ${index} to FormData with field name 'image'`
+            );
+          } else {
+            console.error(
+              `✗ Image ${index} is not a File object:`,
+              typeof image
+            );
+          }
+
+          // Mark the first image as primary
+          if (index === 0) {
+            formData.append("primary_image_index", "0");
+          }
+        });
+      } else {
+        console.log("No images to upload");
+      }
+
+      // Debug logging in development
+      console.log("=== Creating Ad with FormData ===");
+      console.log("Total images to upload:", adData.images?.length || 0);
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(
+            `${key}: File(${value.name}, ${value.size} bytes, ${value.type})`
+          );
+        } else {
+          console.log(`${key}: ${value}`);
+        }
+      }
+      console.log("================================");
+
+      // Use proper multipart headers
       const response = await this.post<Ad>(
         API_CONFIG.ENDPOINTS.ADS.CREATE,
         formData,
-        true
+        true // requireAuth
       );
 
       if (response.data) {
+        console.log("Ad created successfully:", response.data);
+        console.log("Images in response:", response.data.images?.length || 0);
+        if (response.data.images && response.data.images.length > 0) {
+          console.log("Image details:", response.data.images);
+        } else {
+          console.warn(
+            "⚠️ No images found in response - image upload may have failed"
+          );
+        }
         return response.data;
       }
 
-      throw new Error("Failed to create ad");
+      throw new Error("Failed to create ad: No data returned");
     } catch (error: any) {
       console.error("Create ad error:", error);
+      console.error("Full error details:", JSON.stringify(error, null, 2));
+
+      // Enhanced error handling
+      if (error.response) {
+        console.error("Backend response:", error.response.data);
+        console.error("Status:", error.response.status);
+        console.error("Headers:", error.response.headers);
+
+        // Check for image-specific errors
+        if (error.response.data && error.response.data.images) {
+          console.error("Image upload errors:", error.response.data.images);
+        }
+
+        // Re-throw with backend error details
+        const backendError = {
+          message: "Request failed",
+          status: error.response.status,
+          details: error.response.data,
+        };
+        throw backendError;
+      }
+
+      // Re-throw original error if not from backend
       throw error;
     }
+  }
+
+  /**
+   * Enhanced validation before sending to backend
+   */
+  private validateAdData(adData: CreateAdRequest): string[] {
+    const errors: string[] = [];
+
+    // Required fields validation
+    if (!adData.title?.trim()) {
+      errors.push("Title is required");
+    }
+
+    if (!adData.description?.trim()) {
+      errors.push("Description is required");
+    }
+
+    if (!adData.category) {
+      errors.push("Category is required");
+    }
+
+    if (!adData.city) {
+      errors.push("City is required");
+    }
+
+    // Price validation based on type
+    if (adData.price_type === "fixed" || adData.price_type === "negotiable") {
+      if (!adData.price || adData.price <= 0) {
+        errors.push("Price is required for fixed and negotiable price types");
+      }
+    }
+
+    // Contact information validation
+    if (!adData.contact_phone && !adData.contact_email) {
+      errors.push("At least one contact method is required");
+    }
+
+    // Images validation
+    if (!adData.images || adData.images.length === 0) {
+      errors.push("At least one image is required");
+    }
+
+    return errors;
   }
 
   /**

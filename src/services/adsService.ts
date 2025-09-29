@@ -1,45 +1,253 @@
-// src/services/adsService.ts
-import BaseApiService from "./baseApiService";
+// src/services/adsService.ts - FRONTEND-ONLY FIX
+// Works with existing backend without any changes
+
+import BaseService from "./baseApiService";
 import { API_CONFIG } from "../config/api";
 import type {
   Ad,
-  AdImage,
   CreateAdRequest,
   UpdateAdRequest,
   AdListParams,
   AdListResponse,
   AdAnalytics,
   DashboardAnalytics,
-  CreateReportRequest,
+  AdImage,
 } from "../types/ads";
 
-class AdsService extends BaseApiService {
+class AdsService extends BaseService {
   /**
-   * Get list of ads with filtering
+   * Create new ad - FIXED to work with backend's nested serializer
+   * Backend expects images as nested array, NOT as FormData files
    */
-  async getAds(params: AdListParams = {}): Promise<AdListResponse> {
+  async createAd(adData: CreateAdRequest): Promise<Ad> {
     try {
-      const queryParams = new URLSearchParams();
+      console.log("=== Creating Ad (Frontend-Only Fix) ===");
 
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          queryParams.append(key, value.toString());
+      // Step 1: Create ad WITHOUT images first
+      const adPayload: Record<string, any> = {
+        title: adData.title.trim(),
+        description: adData.description.trim(),
+        category: adData.category,
+        city: adData.city,
+        price_type: adData.price_type,
+        condition: adData.condition,
+        hide_phone: adData.hide_phone || false,
+      };
+
+      // Add price for fixed/negotiable
+      if (
+        adData.price &&
+        (adData.price_type === "fixed" || adData.price_type === "negotiable")
+      ) {
+        adPayload.price = adData.price;
+      }
+
+      // Add contact info
+      if (adData.contact_phone) {
+        adPayload.contact_phone = adData.contact_phone.replace(/\D/g, "");
+      }
+      if (adData.contact_email) {
+        adPayload.contact_email = adData.contact_email;
+      }
+
+      // Add optional fields
+      if (adData.keywords?.trim()) {
+        adPayload.keywords = adData.keywords.trim();
+      }
+      if (adData.plan) {
+        adPayload.plan = adData.plan;
+      }
+
+      console.log("Creating ad with payload:", adPayload);
+
+      // Create ad (JSON, no images yet)
+      const createResponse = await this.post<Ad>(
+        API_CONFIG.ENDPOINTS.ADS.CREATE,
+        adPayload,
+        true
+      );
+
+      if (!createResponse.data) {
+        throw new Error("Failed to create ad");
+      }
+
+      const createdAd = createResponse.data;
+
+      // Log what we actually received
+      console.log("Raw response from backend:", createdAd);
+      console.log("Response keys:", Object.keys(createdAd));
+
+      // Backend may return different response structures
+      // Check for id or slug to identify the ad
+      const adIdentifier = createdAd.id || createdAd.slug;
+
+      if (!adIdentifier) {
+        console.warn("⚠️ Ad created but no ID/slug returned");
+        console.warn("Response data:", JSON.stringify(createdAd));
+        // Ad is created but we can't upload images without ID
+        // Return what we have
+        return createdAd;
+      }
+
+      console.log("✓ Ad created with identifier:", adIdentifier);
+
+      // Step 2: Upload images separately to the dedicated images endpoint
+      if (adData.images && adData.images.length > 0) {
+        console.log(`Uploading ${adData.images.length} images...`);
+
+        // For image upload, we need the numeric ID
+        // If we only have slug, we need to fetch the full ad details
+        let adId: number;
+
+        if (createdAd.id) {
+          adId = createdAd.id;
+        } else if (createdAd.slug) {
+          // Fetch full ad details to get the ID
+          console.log("Fetching ad details to get ID...");
+          const fullAd = await this.getAd(createdAd.slug);
+          adId = fullAd.id;
+          // Update createdAd with full details
+          Object.assign(createdAd, fullAd);
+        } else {
+          console.error("Cannot upload images: no ad ID or slug");
+          return createdAd;
         }
-      });
 
-      const url = `${API_CONFIG.ENDPOINTS.ADS.LIST}${
-        queryParams.toString() ? "?" + queryParams.toString() : ""
-      }`;
+        try {
+          const uploadedImages = await this.uploadImagesToAd(
+            adId,
+            adData.images
+          );
 
-      const response = await this.get<AdListResponse>(url, false);
+          // Merge images into ad object
+          createdAd.images = uploadedImages;
+
+          // Set primary image
+          if (uploadedImages.length > 0) {
+            createdAd.primary_image = uploadedImages[0];
+          }
+
+          console.log(`✓ ${uploadedImages.length} images uploaded`);
+        } catch (imageError: any) {
+          console.warn("Image upload failed:", imageError);
+          // Ad is created, but images failed
+          // Don't throw - let user know ad is created but images failed
+        }
+      }
+
+      return createdAd;
+    } catch (error: any) {
+      console.error("Create ad error:", error);
+
+      if (error.response?.data) {
+        throw {
+          message: "Request failed",
+          status: error.response.status,
+          details: error.response.data,
+        };
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * Upload images to existing ad using the images endpoint
+   * This is a separate API call after ad creation
+   */
+  private async uploadImagesToAd(
+    adId: number,
+    images: File[]
+  ): Promise<AdImage[]> {
+    const uploadedImages: AdImage[] = [];
+
+    // Upload images one by one (or in batches if backend supports)
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
+      const formData = new FormData();
+
+      formData.append("ad", adId.toString());
+      formData.append("image", image, image.name);
+      formData.append("is_primary", (i === 0).toString());
+      formData.append("sort_order", i.toString());
+
+      try {
+        console.log(`Uploading image ${i + 1}/${images.length}...`);
+
+        const response = await this.post<AdImage>(
+          API_CONFIG.ENDPOINTS.ADS.IMAGES,
+          formData,
+          true // requireAuth
+        );
+
+        if (response.data) {
+          uploadedImages.push(response.data);
+          console.log(`✓ Image ${i + 1} uploaded`);
+        }
+      } catch (error: any) {
+        console.error(`✗ Failed to upload image ${i + 1}:`, error);
+        // Continue with other images
+      }
+    }
+
+    return uploadedImages;
+  }
+
+  /**
+   * Update existing ad
+   */
+  async updateAd(adData: UpdateAdRequest): Promise<Ad> {
+    try {
+      const { slug, ...updateData } = adData;
+
+      const payload: Record<string, any> = {};
+
+      if (updateData.title) payload.title = updateData.title.trim();
+      if (updateData.description)
+        payload.description = updateData.description.trim();
+      if (updateData.category) payload.category = updateData.category;
+      if (updateData.city) payload.city = updateData.city;
+      if (updateData.price_type) payload.price_type = updateData.price_type;
+      if (updateData.condition) payload.condition = updateData.condition;
+      if (updateData.keywords) payload.keywords = updateData.keywords.trim();
+      if (updateData.price !== undefined) payload.price = updateData.price;
+      if (updateData.contact_phone)
+        payload.contact_phone = updateData.contact_phone.replace(/\D/g, "");
+      if (updateData.contact_email)
+        payload.contact_email = updateData.contact_email;
+      if (updateData.hide_phone !== undefined)
+        payload.hide_phone = updateData.hide_phone;
+
+      const url = API_CONFIG.ENDPOINTS.ADS.UPDATE.replace(":slug", slug);
+      const response = await this.patch<Ad>(url, payload, true);
 
       if (response.data) {
         return response.data;
       }
 
-      throw new Error("Failed to fetch ads");
+      throw new Error("Failed to update ad");
     } catch (error: any) {
-      console.error("Get ads error:", error);
+      console.error("Update ad error:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Upload additional images to existing ad
+   */
+  async uploadAdImages(adId: number, images: File[]): Promise<AdImage[]> {
+    return this.uploadImagesToAd(adId, images);
+  }
+
+  /**
+   * Delete ad image
+   */
+  async deleteAdImage(imageId: number): Promise<void> {
+    try {
+      const url = `${API_CONFIG.ENDPOINTS.ADS.IMAGES}${imageId}/`;
+      await this.delete(url, true);
+    } catch (error: any) {
+      console.error("Delete image error:", error);
       throw error;
     }
   }
@@ -56,7 +264,7 @@ class AdsService extends BaseApiService {
         return response.data;
       }
 
-      throw new Error("Ad not found");
+      throw new Error("Failed to fetch ad");
     } catch (error: any) {
       console.error("Get ad error:", error);
       throw error;
@@ -64,258 +272,71 @@ class AdsService extends BaseApiService {
   }
 
   /**
-   * Create new ad
+   * Get ads list with filtering
    */
-  async createAd(adData: CreateAdRequest): Promise<Ad> {
+  async getAds(params?: AdListParams): Promise<AdListResponse> {
     try {
-      // Validate condition value before sending
-      const validConditions = [
-        "new",
-        "like_new",
-        "good",
-        "fair",
-        "poor",
-        "not_applicable",
-      ];
-      if (!validConditions.includes(adData.condition)) {
-        throw new Error(
-          `Invalid condition: ${
-            adData.condition
-          }. Must be one of: ${validConditions.join(", ")}`
-        );
-      }
+      const queryParams = new URLSearchParams();
 
-      const formData = new FormData();
-
-      // Basic required fields
-      formData.append("title", adData.title.trim());
-      formData.append("description", adData.description.trim());
-      formData.append("category", adData.category.toString());
-      formData.append("city", adData.city.toString());
-      formData.append("price_type", adData.price_type);
-      formData.append("condition", adData.condition);
-
-      // Price (only for fixed/negotiable)
-      if (
-        adData.price &&
-        (adData.price_type === "fixed" || adData.price_type === "negotiable")
-      ) {
-        formData.append("price", adData.price.toString());
-      }
-
-      // Contact information
-      if (adData.contact_phone) {
-        // Clean phone number (remove formatting)
-        const cleanPhone = adData.contact_phone.replace(/\D/g, "");
-        formData.append("contact_phone", cleanPhone);
-      }
-
-      if (adData.contact_email) {
-        formData.append("contact_email", adData.contact_email);
-      }
-
-      // Boolean fields (convert to string for FormData)
-      formData.append("hide_phone", (adData.hide_phone || false).toString());
-
-      // Optional fields
-      if (adData.keywords?.trim()) {
-        formData.append("keywords", adData.keywords.trim());
-      }
-
-      if (adData.plan) {
-        formData.append("plan", adData.plan);
-      }
-
-      // Handle images properly
-      if (adData.images && adData.images.length > 0) {
-        console.log("Processing images for upload:");
-        adData.images.forEach((image, index) => {
-          console.log(`Image ${index}:`, {
-            name: image.name,
-            size: image.size,
-            type: image.type,
-            lastModified: image.lastModified,
-          });
-
-          // Ensure we're appending actual File objects
-          if (image instanceof File) {
-            // Try "image" field name (singular) - some Django backends expect this
-            formData.append("image", image, image.name);
-            console.log(
-              `✓ Added image ${index} to FormData with field name 'image'`
-            );
-          } else {
-            console.error(
-              `✗ Image ${index} is not a File object:`,
-              typeof image
-            );
-          }
-
-          // Mark the first image as primary
-          if (index === 0) {
-            formData.append("primary_image_index", "0");
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            if (Array.isArray(value)) {
+              value.forEach((v) => queryParams.append(key, v.toString()));
+            } else {
+              queryParams.append(key, value.toString());
+            }
           }
         });
-      } else {
-        console.log("No images to upload");
       }
 
-      // Debug logging in development
-      console.log("=== Creating Ad with FormData ===");
-      console.log("Total images to upload:", adData.images?.length || 0);
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(
-            `${key}: File(${value.name}, ${value.size} bytes, ${value.type})`
-          );
-        } else {
-          console.log(`${key}: ${value}`);
-        }
-      }
-      console.log("================================");
-
-      // Use proper multipart headers
-      const response = await this.post<Ad>(
-        API_CONFIG.ENDPOINTS.ADS.CREATE,
-        formData,
-        true // requireAuth
-      );
-
-      if (response.data) {
-        console.log("Ad created successfully:", response.data);
-        console.log("Images in response:", response.data.images?.length || 0);
-        if (response.data.images && response.data.images.length > 0) {
-          console.log("Image details:", response.data.images);
-        } else {
-          console.warn(
-            "⚠️ No images found in response - image upload may have failed"
-          );
-        }
-        return response.data;
-      }
-
-      throw new Error("Failed to create ad: No data returned");
-    } catch (error: any) {
-      console.error("Create ad error:", error);
-      console.error("Full error details:", JSON.stringify(error, null, 2));
-
-      // Enhanced error handling
-      if (error.response) {
-        console.error("Backend response:", error.response.data);
-        console.error("Status:", error.response.status);
-        console.error("Headers:", error.response.headers);
-
-        // Check for image-specific errors
-        if (error.response.data && error.response.data.images) {
-          console.error("Image upload errors:", error.response.data.images);
-        }
-
-        // Re-throw with backend error details
-        const backendError = {
-          message: "Request failed",
-          status: error.response.status,
-          details: error.response.data,
-        };
-        throw backendError;
-      }
-
-      // Re-throw original error if not from backend
-      throw error;
-    }
-  }
-
-  /**
-   * Enhanced validation before sending to backend
-   */
-  private validateAdData(adData: CreateAdRequest): string[] {
-    const errors: string[] = [];
-
-    // Required fields validation
-    if (!adData.title?.trim()) {
-      errors.push("Title is required");
-    }
-
-    if (!adData.description?.trim()) {
-      errors.push("Description is required");
-    }
-
-    if (!adData.category) {
-      errors.push("Category is required");
-    }
-
-    if (!adData.city) {
-      errors.push("City is required");
-    }
-
-    // Price validation based on type
-    if (adData.price_type === "fixed" || adData.price_type === "negotiable") {
-      if (!adData.price || adData.price <= 0) {
-        errors.push("Price is required for fixed and negotiable price types");
-      }
-    }
-
-    // Contact information validation
-    if (!adData.contact_phone && !adData.contact_email) {
-      errors.push("At least one contact method is required");
-    }
-
-    // Images validation
-    if (!adData.images || adData.images.length === 0) {
-      errors.push("At least one image is required");
-    }
-
-    return errors;
-  }
-
-  /**
-   * Update existing ad
-   */
-  async updateAd(adData: UpdateAdRequest): Promise<Ad> {
-    try {
-      const formData = new FormData();
-      const { slug, ...updateData } = adData;
-
-      // Add text fields
-      Object.entries(updateData).forEach(([key, value]) => {
-        if (key !== "images" && value !== undefined && value !== null) {
-          formData.append(key, value.toString());
-        }
-      });
-
-      // Add images if provided
-      if (updateData.images && updateData.images.length > 0) {
-        updateData.images.forEach((image) => {
-          formData.append(`images`, image);
-        });
-      }
-
-      const url = API_CONFIG.ENDPOINTS.ADS.UPDATE.replace(":slug", slug);
-
-      const response = await this.put<Ad>(url, formData, true);
+      const url = `${API_CONFIG.ENDPOINTS.ADS.LIST}${
+        queryParams.toString() ? "?" + queryParams.toString() : ""
+      }`;
+      const response = await this.get<AdListResponse>(url, false);
 
       if (response.data) {
         return response.data;
       }
 
-      throw new Error("Failed to update ad");
+      throw new Error("Failed to fetch ads");
     } catch (error: any) {
-      console.error("Update ad error:", error);
+      console.error("Get ads error:", error);
       throw error;
     }
   }
 
   /**
-   * Delete ad
+   * Search ads
    */
-  async deleteAd(slug: string): Promise<void> {
+  async searchAds(params?: AdListParams): Promise<AdListResponse> {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADS.DELETE.replace(":slug", slug);
+      const queryParams = new URLSearchParams();
 
-      await this.delete(url, true);
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            if (Array.isArray(value)) {
+              value.forEach((v) => queryParams.append(key, v.toString()));
+            } else {
+              queryParams.append(key, value.toString());
+            }
+          }
+        });
+      }
 
-      console.log("Ad deleted successfully");
+      const url = `${API_CONFIG.ENDPOINTS.ADS.SEARCH}${
+        queryParams.toString() ? "?" + queryParams.toString() : ""
+      }`;
+      const response = await this.get<AdListResponse>(url, false);
+
+      if (response.data) {
+        return response.data;
+      }
+
+      throw new Error("Failed to search ads");
     } catch (error: any) {
-      console.error("Delete ad error:", error);
+      console.error("Search ads error:", error);
       throw error;
     }
   }
@@ -323,11 +344,22 @@ class AdsService extends BaseApiService {
   /**
    * Get user's own ads
    */
-  async getUserAds(ordering: string = "-created_at"): Promise<Ad[]> {
+  async getMyAds(params?: AdListParams): Promise<AdListResponse> {
     try {
-      const url = `${API_CONFIG.ENDPOINTS.ADS.USER_ADS}?ordering=${ordering}`;
+      const queryParams = new URLSearchParams();
 
-      const response = await this.get<Ad[]>(url, true);
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            queryParams.append(key, value.toString());
+          }
+        });
+      }
+
+      const url = `${API_CONFIG.ENDPOINTS.ADS.MY_ADS}${
+        queryParams.toString() ? "?" + queryParams.toString() : ""
+      }`;
+      const response = await this.get<AdListResponse>(url, true);
 
       if (response.data) {
         return response.data;
@@ -341,35 +373,57 @@ class AdsService extends BaseApiService {
   }
 
   /**
-   * Search ads
+   * Delete ad
    */
-  async searchAds(
-    query: string,
-    filters: AdListParams = {}
-  ): Promise<AdListResponse> {
+  async deleteAd(slug: string): Promise<void> {
     try {
-      const params = { ...filters, search: query };
-      const queryParams = new URLSearchParams();
+      const url = API_CONFIG.ENDPOINTS.ADS.DELETE.replace(":slug", slug);
+      await this.delete(url, true);
+    } catch (error: any) {
+      console.error("Delete ad error:", error);
+      throw error;
+    }
+  }
 
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          queryParams.append(key, value.toString());
-        }
-      });
-
-      const url = `${
-        API_CONFIG.ENDPOINTS.ADS.SEARCH
-      }?${queryParams.toString()}`;
-
-      const response = await this.get<AdListResponse>(url, false);
+  /**
+   * Get ad analytics
+   */
+  async getAdAnalytics(slug: string, days: number = 30): Promise<AdAnalytics> {
+    try {
+      const url = `${API_CONFIG.ENDPOINTS.ADS.ANALYTICS.replace(
+        ":slug",
+        slug
+      )}?days=${days}`;
+      const response = await this.get<AdAnalytics>(url, true);
 
       if (response.data) {
         return response.data;
       }
 
-      throw new Error("Search failed");
+      throw new Error("Failed to fetch ad analytics");
     } catch (error: any) {
-      console.error("Search ads error:", error);
+      console.error("Get ad analytics error:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get dashboard analytics
+   */
+  async getDashboardAnalytics(): Promise<DashboardAnalytics> {
+    try {
+      const response = await this.get<DashboardAnalytics>(
+        API_CONFIG.ENDPOINTS.ADS.DASHBOARD_ANALYTICS,
+        true
+      );
+
+      if (response.data) {
+        return response.data;
+      }
+
+      throw new Error("Failed to fetch dashboard analytics");
+    } catch (error: any) {
+      console.error("Get dashboard analytics error:", error);
       throw error;
     }
   }
@@ -398,7 +452,6 @@ class AdsService extends BaseApiService {
       const url = `${API_CONFIG.ENDPOINTS.ADS.FEATURED}${
         queryParams.toString() ? "?" + queryParams.toString() : ""
       }`;
-
       const response = await this.get<Ad[]>(url, false);
 
       if (response.data) {
@@ -413,61 +466,38 @@ class AdsService extends BaseApiService {
   }
 
   /**
-   * Upload additional images to existing ad
+   * Track contact view
    */
-  async uploadAdImages(_slug: string, images: File[]): Promise<AdImage[]> {
+  async trackContactView(slug: string): Promise<void> {
     try {
-      const formData = new FormData();
+      const url = API_CONFIG.ENDPOINTS.ADS.CONTACT_VIEW.replace(":slug", slug);
+      await this.post(url, {}, false);
+    } catch (error: any) {
+      // Don't throw - tracking failures shouldn't break UX
+    }
+  }
 
-      images.forEach((image) => {
-        formData.append(`images`, image);
-      });
-
-      const response = await this.post<AdImage[]>(
-        API_CONFIG.ENDPOINTS.ADS.IMAGES,
-        formData,
-        true
-      );
+  /**
+   * Promote ad to featured
+   */
+  async promoteAd(
+    slug: string,
+    paymentData: { payment_method: string; payment_id?: string }
+  ): Promise<{ message: string; featured_expires_at: string }> {
+    try {
+      const url = API_CONFIG.ENDPOINTS.ADS.PROMOTE.replace(":slug", slug);
+      const response = await this.post<{
+        message: string;
+        featured_expires_at: string;
+      }>(url, paymentData, true);
 
       if (response.data) {
         return response.data;
       }
 
-      throw new Error("Failed to upload images");
+      throw new Error("Failed to promote ad");
     } catch (error: any) {
-      console.error("Upload images error:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Delete ad image
-   */
-  async deleteAdImage(_adSlug: string, imageId: number): Promise<void> {
-    try {
-      const url = `${API_CONFIG.ENDPOINTS.ADS.IMAGES}/${imageId}/`;
-
-      await this.delete(url, true);
-
-      console.log("Image deleted successfully");
-    } catch (error: any) {
-      console.error("Delete image error:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Set primary image for ad
-   */
-  async setPrimaryImage(_adSlug: string, imageId: number): Promise<void> {
-    try {
-      const url = `${API_CONFIG.ENDPOINTS.ADS.IMAGES}/${imageId}/set-primary/`;
-
-      await this.patch(url, {}, true);
-
-      console.log("Primary image set successfully");
-    } catch (error: any) {
-      console.error("Set primary image error:", error);
+      console.error("Promote ad error:", error);
       throw error;
     }
   }
@@ -478,7 +508,6 @@ class AdsService extends BaseApiService {
   async addToFavorites(adId: number): Promise<void> {
     try {
       await this.post(API_CONFIG.ENDPOINTS.ADS.FAVORITES, { ad: adId }, true);
-      console.log("Ad added to favorites");
     } catch (error: any) {
       console.error("Add to favorites error:", error);
       throw error;
@@ -490,12 +519,9 @@ class AdsService extends BaseApiService {
    */
   async removeFromFavorites(adId: number): Promise<void> {
     try {
-      await this.post(
-        API_CONFIG.ENDPOINTS.ADS.REMOVE_FAVORITE,
-        { ad: adId },
-        true
-      );
-      console.log("Ad removed from favorites");
+      await this.delete(`${API_CONFIG.ENDPOINTS.ADS.FAVORITES}remove/`, true, {
+        ad: adId,
+      });
     } catch (error: any) {
       console.error("Remove from favorites error:", error);
       throw error;
@@ -503,108 +529,24 @@ class AdsService extends BaseApiService {
   }
 
   /**
-   * Get user's favorite ads
+   * Report ad
    */
-  async getFavorites(): Promise<Ad[]> {
+  async reportAd(
+    adId: number,
+    reason: string,
+    description?: string
+  ): Promise<void> {
     try {
-      const response = await this.get<Ad[]>(
-        API_CONFIG.ENDPOINTS.ADS.FAVORITES,
+      await this.post(
+        API_CONFIG.ENDPOINTS.ADS.REPORTS,
+        { ad: adId, reason, description },
         true
       );
-
-      if (response.data) {
-        return response.data;
-      }
-
-      throw new Error("Failed to fetch favorites");
-    } catch (error: any) {
-      console.error("Get favorites error:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Report an ad
-   */
-  async reportAd(reportData: CreateReportRequest): Promise<void> {
-    try {
-      await this.post(API_CONFIG.ENDPOINTS.ADS.REPORTS, reportData, true);
-      console.log("Ad reported successfully");
     } catch (error: any) {
       console.error("Report ad error:", error);
       throw error;
     }
   }
-
-  /**
-   * Get dashboard analytics for user
-   */
-  async getDashboardAnalytics(): Promise<DashboardAnalytics> {
-    try {
-      const response = await this.get<DashboardAnalytics>(
-        API_CONFIG.ENDPOINTS.ADS.DASHBOARD_ANALYTICS,
-        true
-      );
-
-      if (response.data) {
-        return response.data;
-      }
-
-      throw new Error("Failed to fetch dashboard analytics");
-    } catch (error: any) {
-      console.error("Get dashboard analytics error:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get ad analytics (for ad owner)
-   */
-  async getAdAnalytics(slug: string): Promise<AdAnalytics> {
-    try {
-      const url = API_CONFIG.ENDPOINTS.ADS.ANALYTICS.replace(":slug", slug);
-      const response = await this.get<AdAnalytics>(url, true);
-
-      if (response.data) {
-        return response.data;
-      }
-
-      throw new Error("Failed to fetch ad analytics");
-    } catch (error: any) {
-      console.error("Get ad analytics error:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Track contact view for an ad
-   */
-  async trackContactView(slug: string): Promise<void> {
-    try {
-      const url = API_CONFIG.ENDPOINTS.ADS.CONTACT_VIEW.replace(":slug", slug);
-      await this.post(url, {}, false);
-      console.log("Contact view tracked");
-    } catch (error: any) {
-      console.error("Track contact view error:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Promote ad to featured
-   */
-  async promoteAd(slug: string): Promise<void> {
-    try {
-      const url = API_CONFIG.ENDPOINTS.ADS.PROMOTE.replace(":slug", slug);
-      await this.post(url, {}, true);
-      console.log("Ad promoted to featured");
-    } catch (error: any) {
-      console.error("Promote ad error:", error);
-      throw error;
-    }
-  }
 }
 
-// Export singleton instance
 export const adsService = new AdsService();
-export default adsService;

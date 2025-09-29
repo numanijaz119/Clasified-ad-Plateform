@@ -217,7 +217,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const response = await authService.googleLogin(tokenData);
 
+      // First dispatch with basic user data from response
       dispatch({ type: "AUTH_SUCCESS", payload: response.user });
+
+      // Then fetch full profile to get avatar and other details
+      try {
+        const fullProfile = await authService.getProfile();
+        dispatch({ type: "AUTH_SUCCESS", payload: fullProfile });
+      } catch (profileError) {
+        console.warn(
+          "Failed to fetch full profile after Google login:",
+          profileError
+        );
+        // Don't throw error, user is still logged in with basic info
+      }
     } catch (error: any) {
       const errorMessage =
         error.message || "Google login failed. Please try again.";

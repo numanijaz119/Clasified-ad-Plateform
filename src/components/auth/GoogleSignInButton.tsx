@@ -19,14 +19,26 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
   // Initialize Google OAuth when component mounts
   useEffect(() => {
     if (!googleInitialized) {
-      initializeGoogleAuth(googleLogin)
+      initializeGoogleAuth(handleGoogleLoginWrapper)
         .then(() => setGoogleInitialized(true))
         .catch((err) => {
           console.error("Google OAuth initialization failed:", err);
           setError("Google sign-in is temporarily unavailable");
         });
     }
-  }, [googleInitialized, googleLogin]);
+  }, [googleInitialized]);
+
+  // Wrapper to handle success callback after googleLogin completes
+  const handleGoogleLoginWrapper = async (tokenData: { id_token: string }) => {
+    try {
+      await googleLogin(tokenData);
+      // Only call onSuccess after googleLogin completes successfully
+      onSuccess();
+    } catch (err) {
+      // Error is already handled by googleLogin, just rethrow
+      throw err;
+    }
+  };
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
@@ -37,16 +49,14 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
         throw new Error("Google OAuth not initialized. Please try again.");
       }
 
-      await signInWithGoogle(googleLogin);
-
-      // Success - auth context handles state updates
-      onSuccess();
+      // The callback in signInWithGoogle will handle calling onSuccess
+      await signInWithGoogle(handleGoogleLoginWrapper);
     } catch (err: any) {
       console.error("Google sign-in error:", err);
       setError(err.message || "Google sign-in failed. Please try again.");
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Reset loading state on error
     }
+    // Don't set loading to false here - let it stay until success callback
   };
 
   if (error) {
@@ -62,8 +72,9 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
       onClick={handleGoogleSignIn}
       disabled={isLoading || !googleInitialized}
       className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      aria-label={buttonText}
     >
-      <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+      <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" aria-hidden="true">
         <path
           fill="#4285F4"
           d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

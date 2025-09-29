@@ -16,6 +16,26 @@ import {
 import { Button } from "./";
 import { useAuth } from "../contexts/AuthContext";
 
+/**
+ * Normalizes avatar URL to ensure it's absolute and includes cache-busting
+ * This fixes the issue where updated avatars don't load due to browser caching
+ */
+const normalizeAvatarUrl = (avatar: string | undefined): string | null => {
+  if (!avatar) return null;
+
+  // If it's already a full URL (http:// or https://)
+  if (avatar.startsWith("http://") || avatar.startsWith("https://")) {
+    // Add timestamp to bust cache
+    return `${avatar}?v=${Date.now()}`;
+  }
+
+  // If it's a relative path (/media/avatars/...)
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  // Remove leading slash if present to avoid double slashes
+  const cleanPath = avatar.startsWith("/") ? avatar : `/${avatar}`;
+  return `${baseUrl}${cleanPath}?v=${Date.now()}`;
+};
+
 interface HeaderProps {
   onPostAd: () => void;
   onSignIn: () => void;
@@ -113,12 +133,17 @@ const Header: React.FC<HeaderProps> = ({
                     className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                   >
                     {/* Profile Avatar */}
-                    <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden">
-                      {user?.avatar ? (
+                    <div className="w-8 h-8 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
+                      {normalizeAvatarUrl(user?.avatar) ? (
                         <img
-                          src={user.avatar}
+                          src={normalizeAvatarUrl(user.avatar)!}
                           alt={user.full_name || user.first_name}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // If image fails to load, hide it and show fallback
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.style.display = "none";
+                          }}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-orange-500 to-red-500">

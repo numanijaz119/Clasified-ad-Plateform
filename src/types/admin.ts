@@ -117,22 +117,22 @@ export interface AdminBulkAdActionRequest {
 export interface AdminUser {
   id: number;
   email: string;
+  full_name: string;
   first_name: string;
   last_name: string;
-  full_name: string;
-  phone?: string;
-  avatar?: string;
+  phone: string;
   is_active: boolean;
   is_suspended: boolean;
-  is_staff: boolean;
+  suspension_reason: string;
   email_verified: boolean;
+  created_at: string;
+  last_login: string | null;
   total_ads: number;
   active_ads: number;
+  pending_ads: number;
   featured_ads: number;
-  total_views: number;
-  total_contacts: number;
-  created_at: string;
-  last_login?: string;
+  days_since_joined: number;
+  status_display: "active" | "suspended" | "banned";
 }
 
 export interface AdminUserListParams {

@@ -433,12 +433,14 @@ export interface AdminCategoryStats {
   total_ads: number;
   active_ads: number;
   pending_ads: number;
-  total_views: number;
-  is_active: boolean;
+  is_active?: boolean;
+  icon?: string;
+  description?: string;
+  sort_order?: number;
 }
 
 export interface AdminCategoryStatsResponse {
-  results: AdminCategoryStats[];
+  categories: AdminCategoryStats[];
 }
 
 export interface AdminCategoryCreateRequest {

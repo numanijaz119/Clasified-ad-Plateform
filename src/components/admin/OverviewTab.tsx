@@ -101,11 +101,11 @@ const OverviewTab: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header with Filters */}
-      <div className="flex items-center justify-between">
+      <div className="flex sm:items-center flex-col sm:flex-row gap-y-2 sm:gap-y-0  justify-between">
         <h2 className="text-xl font-semibold text-gray-900">
           Dashboard Overview
         </h2>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center self-end sm:self-auto space-x-4">
           <div className="flex items-center space-x-2">
             <Filter className="h-4 w-4 text-gray-500" />
             <select

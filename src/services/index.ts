@@ -3,6 +3,7 @@ export { default as authService } from "./authService";
 export { adsService } from "./adsService";
 export { default as contentService } from "./contentService";
 export { default as BaseApiService } from "./baseApiService";
+export { adminService } from "./adminService";
 
 // Re-export types for easy importing
 export type {

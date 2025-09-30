@@ -1,6 +1,6 @@
 // src/components/admin/OverviewTab.tsx
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   FileText,
   Users,
@@ -12,7 +12,7 @@ import {
   RefreshCw,
   Filter,
 } from "lucide-react";
-import { adminService } from "../../services";
+import { adminService, contentService } from "../../services";
 import { AdminDashboardStats } from "../../types/admin";
 
 const OverviewTab: React.FC = () => {
@@ -21,6 +21,7 @@ const OverviewTab: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedState, setSelectedState] = useState<string>("all");
   const [refreshing, setRefreshing] = useState(false);
+  const [states, setStates] = useState<State[]>([]);
 
   const fetchStats = async (showRefreshIndicator = false) => {
     try {
@@ -44,9 +45,23 @@ const OverviewTab: React.FC = () => {
     }
   };
 
+  // Fetch states
+  const fetchStates = useCallback(async () => {
+    try {
+      const statesData = await contentService.getStates();
+      setStates(statesData.filter((s) => s.is_active));
+    } catch (err) {
+      console.error("Failed to fetch states:", err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchStats();
   }, [selectedState]);
+
+  useEffect(() => {
+    fetchStates();
+  }, [states]);
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
@@ -63,34 +78,76 @@ const OverviewTab: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <RefreshCw className="h-8 w-8 text-orange-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading dashboard statistics...</p>
+      <>
+        {/* Header with Filters */}
+        <div className="flex sm:items-center flex-col sm:flex-row gap-y-2 sm:gap-y-0  justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Dashboard Overview
+          </h2>
+          <div className="flex items-center self-end sm:self-auto space-x-4">
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+              />
+              <span>Refresh</span>
+            </button>
+          </div>
         </div>
-      </div>
+
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <RefreshCw className="h-8 w-8 text-orange-500 animate-spin mx-auto mb-4" />
+            <p className="text-gray-600">Loading dashboard statistics...</p>
+          </div>
+        </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <div className="flex items-center">
-          <AlertCircle className="h-5 w-5 text-red-600 mr-3" />
-          <div className="flex-1">
-            <h3 className="text-red-800 font-semibold">
-              Failed to Load Dashboard
-            </h3>
-            <p className="text-red-600 text-sm mt-1">{error}</p>
+      <>
+        {/* Header with Filters */}
+        <div className="flex sm:items-center flex-col sm:flex-row gap-y-2 sm:gap-y-0  justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Dashboard Overview
+          </h2>
+          <div className="flex items-center self-end sm:self-auto space-x-4">
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+              />
+              <span>Refresh</span>
+            </button>
           </div>
-          <button
-            onClick={() => fetchStats()}
-            className="ml-4 text-red-600 hover:text-red-700 underline text-sm"
-          >
-            Retry
-          </button>
         </div>
-      </div>
+
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-600 mr-3" />
+            <div className="flex-1">
+              <h3 className="text-red-800 font-semibold">
+                Failed to Load Dashboard
+              </h3>
+              <p className="text-red-600 text-sm mt-1">{error}</p>
+            </div>
+            <button
+              onClick={() => fetchStats()}
+              className="ml-4 text-red-600 hover:text-red-700 underline text-sm"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -114,10 +171,13 @@ const OverviewTab: React.FC = () => {
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="all">All States</option>
-              <option value="IL">Illinois</option>
-              <option value="TX">Texas</option>
-              <option value="CA">California</option>
-              <option value="FL">Florida</option>
+              {states.map((state) => {
+                return (
+                  <option key={state?.id} value={state.code}>
+                    {state.name}
+                  </option>
+                );
+              })}
             </select>
           </div>
           <button

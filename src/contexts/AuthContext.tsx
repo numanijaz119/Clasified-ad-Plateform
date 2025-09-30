@@ -151,12 +151,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
-  useEffect(() => {
-    if (state.user) {
-      console.log("User in context state:", state.user);
-    }
-  }, [state.user]);
-
   // Listen for auth events
   useEffect(() => {
     const handleAuthLogin = (event: CustomEvent) => {

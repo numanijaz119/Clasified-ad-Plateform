@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Search,
-  Filter,
   RefreshCw,
   Check,
   X,
@@ -18,7 +17,7 @@ import {
   ChevronRight,
   FileText,
 } from "lucide-react";
-import { adminService } from "../../services";
+import { adminService, contentService } from "../../services";
 import {
   AdminAd,
   AdminAdListParams,
@@ -41,6 +40,7 @@ const PostsReviewTab: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedAd, setSelectedAd] = useState<AdminAd | null>(null);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [states, setStates] = useState<State[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -79,9 +79,20 @@ const PostsReviewTab: React.FC = () => {
     }
   }, [filters]);
 
+  // Fetch states
+  const fetchStates = useCallback(async () => {
+    try {
+      const statesData = await contentService.getStates();
+      setStates(statesData.filter((s) => s.is_active));
+    } catch (err) {
+      console.error("Failed to fetch states:", err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchAds();
-  }, [fetchAds]);
+    fetchStates();
+  }, [fetchAds, fetchStates]);
 
   const handleSearch = () => {
     setFilters((prev) => ({
@@ -104,6 +115,11 @@ const PostsReviewTab: React.FC = () => {
     setFilters((prev) => ({ ...prev, page }));
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleRefresh = () => {
+    fetchAds();
+    fetchStates();
   };
 
   const performAction = async (
@@ -222,12 +238,33 @@ const PostsReviewTab: React.FC = () => {
 
   if (loading && ads.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <RefreshCw className="h-8 w-8 text-orange-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading ads...</p>
+      <>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Posts Management
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {totalCount} total ads found
+            </p>
+          </div>
+          <button
+            onClick={() => handleRefresh()}
+            disabled={loading}
+            className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            <span>Refresh</span>
+          </button>
         </div>
-      </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <RefreshCw className="h-8 w-8 text-orange-500 animate-spin mx-auto mb-4" />
+            <p className="text-gray-600">Loading ads...</p>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -244,7 +281,7 @@ const PostsReviewTab: React.FC = () => {
           </p>
         </div>
         <button
-          onClick={() => fetchAds()}
+          onClick={() => handleRefresh()}
           disabled={loading}
           className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
         >
@@ -321,10 +358,11 @@ const PostsReviewTab: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="all">All States</option>
-              <option value="IL">Illinois</option>
-              <option value="TX">Texas</option>
-              <option value="CA">California</option>
-              <option value="FL">Florida</option>
+              {states.map((state) => (
+                <option key={state.id} value={state.code}>
+                  {state.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>

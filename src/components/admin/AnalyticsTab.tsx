@@ -64,30 +64,104 @@ const AnalyticsTab: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <RefreshCw className="h-8 w-8 animate-spin text-orange-500 mx-auto mb-2" />
-        <p className="text-gray-600">Loading analytics...</p>
-      </div>
+      <>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Platform Analytics
+            </h2>
+            <p className="text-gray-600 mt-1">
+              Overview of key metrics and performance indicators
+            </p>
+          </div>
+          <div className="flex items-center space-x-3">
+            <select
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+            >
+              <option value="all">All States</option>
+              {states.map((state) => (
+                <option key={state.id} value={state.code}>
+                  {state.name}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => fetchStates()}
+              disabled={loading}
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+              />
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+        <div className="text-center py-12">
+          <RefreshCw className="h-8 w-8 animate-spin text-orange-500 mx-auto mb-2" />
+          <p className="text-gray-600">Loading analytics...</p>
+        </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <div className="flex items-center">
-          <AlertCircle className="h-5 w-5 text-red-600 mr-3" />
-          <div className="flex-1">
-            <p className="text-red-800 font-semibold">Error</p>
-            <p className="text-red-600 text-sm">{error}</p>
+      <>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Platform Analytics
+            </h2>
+            <p className="text-gray-600 mt-1">
+              Overview of key metrics and performance indicators
+            </p>
           </div>
-          <button
-            onClick={() => fetchStats()}
-            className="ml-4 text-red-600 hover:text-red-700 underline text-sm"
-          >
-            Retry
-          </button>
+          <div className="flex items-center space-x-3">
+            <select
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+            >
+              <option value="all">All States</option>
+              {states.map((state) => (
+                <option key={state.id} value={state.code}>
+                  {state.name}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => fetchStates()}
+              disabled={loading}
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+              />
+              <span>Refresh</span>
+            </button>
+          </div>
         </div>
-      </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-600 mr-3" />
+            <div className="flex-1">
+              <p className="text-red-800 font-semibold">Error</p>
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+            <button
+              onClick={() => fetchStats()}
+              className="ml-4 text-red-600 hover:text-red-700 underline text-sm"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -145,9 +219,9 @@ const AnalyticsTab: React.FC = () => {
             ))}
           </select>
           <button
-            onClick={() => fetchStats()}
+            onClick={() => fetchStates()}
             disabled={loading}
-            className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg text-sm font-medium text-gray-700 transition-colors flex items-center space-x-2"
+            className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>Refresh</span>

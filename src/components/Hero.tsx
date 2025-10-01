@@ -5,6 +5,7 @@ import { Cloud, MapPin } from "lucide-react";
 import SearchBar from "./SearchBar";
 import { useCities } from "../hooks/useCities";
 import { useCategories } from "../hooks/useCategories";
+import { HeaderBanner } from "./common/BannerLayouts";
 
 const Hero: React.FC = () => {
   const {

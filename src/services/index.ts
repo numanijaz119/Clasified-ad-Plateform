@@ -95,3 +95,12 @@ export const buildQueryParams = (params: Record<string, any>): string => {
 
   return queryParams.toString();
 };
+
+export { bannerService } from "./bannerService";
+
+// Also export types if needed
+export type {
+  PublicBanner,
+  BannerPosition,
+  BannerType,
+} from "../types/banners";

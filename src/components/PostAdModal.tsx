@@ -72,7 +72,6 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
 
     const success = await submitAd();
     if (success) {
-      toast.success("Ad created successfully!");
       onSuccess?.();
       onClose();
       resetForm();

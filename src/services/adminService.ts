@@ -356,14 +356,46 @@ class AdminService extends BaseApiService {
   async createBanner(data: AdminBannerCreateRequest) {
     try {
       const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("image", data.image);
-      formData.append("target_url", data.target_url);
-      formData.append("placement", data.placement);
 
-      if (data.state) formData.append("state", data.state.toString());
+      // Required fields
+      formData.append("title", data.title);
+      formData.append("banner_type", data.banner_type);
+      formData.append("position", data.position);
+
+      // Conditional required fields based on banner_type
+      if (data.banner_type === "image" && data.image) {
+        formData.append("image", data.image);
+      }
+      if (data.banner_type === "html" && data.html_content) {
+        formData.append("html_content", data.html_content);
+      }
+      if (data.banner_type === "text" && data.text_content) {
+        formData.append("text_content", data.text_content);
+      }
+
+      // Optional fields
+      if (data.description) formData.append("description", data.description);
+      if (data.click_url) formData.append("click_url", data.click_url);
+      if (data.open_new_tab !== undefined) {
+        formData.append("open_new_tab", data.open_new_tab.toString());
+      }
       if (data.start_date) formData.append("start_date", data.start_date);
       if (data.end_date) formData.append("end_date", data.end_date);
+      if (data.priority !== undefined) {
+        formData.append("priority", data.priority.toString());
+      }
+
+      // ManyToMany fields - append each ID separately
+      if (data.target_states && data.target_states.length > 0) {
+        data.target_states.forEach((stateId) => {
+          formData.append("target_states", stateId.toString());
+        });
+      }
+      if (data.target_categories && data.target_categories.length > 0) {
+        data.target_categories.forEach((catId) => {
+          formData.append("target_categories", catId.toString());
+        });
+      }
 
       const response = await this.post(
         API_CONFIG.ENDPOINTS.ADMIN.BANNER_CREATE,
@@ -384,15 +416,58 @@ class AdminService extends BaseApiService {
       );
 
       const formData = new FormData();
+
+      // Only append fields that are provided
       if (data.title) formData.append("title", data.title);
+      if (data.description !== undefined)
+        formData.append("description", data.description);
+      if (data.banner_type) formData.append("banner_type", data.banner_type);
+      if (data.position) formData.append("position", data.position);
+
+      // Content fields
       if (data.image) formData.append("image", data.image);
-      if (data.target_url) formData.append("target_url", data.target_url);
-      if (data.placement) formData.append("placement", data.placement);
-      if (data.state) formData.append("state", data.state.toString());
-      if (data.is_active !== undefined)
+      if (data.html_content !== undefined)
+        formData.append("html_content", data.html_content);
+      if (data.text_content !== undefined)
+        formData.append("text_content", data.text_content);
+
+      // Optional fields
+      if (data.click_url !== undefined)
+        formData.append("click_url", data.click_url);
+      if (data.open_new_tab !== undefined) {
+        formData.append("open_new_tab", data.open_new_tab.toString());
+      }
+      if (data.is_active !== undefined) {
         formData.append("is_active", data.is_active.toString());
-      if (data.start_date) formData.append("start_date", data.start_date);
-      if (data.end_date) formData.append("end_date", data.end_date);
+      }
+      if (data.start_date !== undefined)
+        formData.append("start_date", data.start_date);
+      if (data.end_date !== undefined)
+        formData.append("end_date", data.end_date);
+      if (data.priority !== undefined) {
+        formData.append("priority", data.priority.toString());
+      }
+
+      // ManyToMany fields
+      if (data.target_states !== undefined) {
+        if (data.target_states.length > 0) {
+          data.target_states.forEach((stateId) => {
+            formData.append("target_states", stateId.toString());
+          });
+        } else {
+          // Send empty array to clear
+          formData.append("target_states", "");
+        }
+      }
+      if (data.target_categories !== undefined) {
+        if (data.target_categories.length > 0) {
+          data.target_categories.forEach((catId) => {
+            formData.append("target_categories", catId.toString());
+          });
+        } else {
+          formData.append("target_categories", "");
+        }
+      }
 
       const response = await this.put(url, formData);
       return response.data;

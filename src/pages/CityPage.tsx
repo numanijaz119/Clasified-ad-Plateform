@@ -24,6 +24,7 @@ import { useCategories } from "../hooks/useCategories";
 import { useCities } from "../hooks/useCities";
 import { adsService } from "../services";
 import { useAuth } from "../contexts/AuthContext";
+import { BetweenAdsBanner } from "../components/common/BannerLayouts";
 
 interface Listing {
   id: number;
@@ -360,7 +361,8 @@ const CityPage: React.FC = () => {
                     {(index + 1) % 5 === 0 &&
                       index < filteredListings.length - 1 && (
                         <div className="p-2 bg-gray-50 border-t border-b border-gray-200">
-                          <InlineBanner />
+                          {/* <InlineBanner </> */}
+                          <BetweenAdsBanner />
                         </div>
                       )}
                   </div>

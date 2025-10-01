@@ -9,6 +9,7 @@ import {
   BottomBanner,
 } from "../components/AdBanners";
 import {
+  AdDetailBanner,
   FooterBanner,
   HeaderBanner,
   SidebarBanner,
@@ -39,7 +40,8 @@ const HomePage: React.FC = () => {
             {/* Mobile Ad */}
             <div className="md:hidden my-4">
               {/* <SideBanner size="small" /> */}
-              <SideBanner />
+              {/* <SideBanner /> */}
+              <HeaderBanner />
             </div>
 
             <FeaturedAds />
@@ -65,7 +67,9 @@ const HomePage: React.FC = () => {
         </div>
 
         {/* Bottom Banner Ad */}
-        <BottomBanner />
+        <div className="overflow-hidden">
+          <AdDetailBanner />
+        </div>
       </main>
     </>
   );

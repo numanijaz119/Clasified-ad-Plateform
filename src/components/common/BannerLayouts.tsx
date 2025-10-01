@@ -20,7 +20,7 @@ export const HeaderBanner: React.FC<BannerLayoutProps> = ({
           position="header"
           stateCode={stateCode}
           categoryId={categoryId}
-          className="max-h-24 sm:max-h-28"
+          className=""
         />
       </div>
     </div>
@@ -33,7 +33,7 @@ export const SidebarBanner: React.FC<BannerLayoutProps> = ({
   categoryId,
 }) => {
   return (
-    <aside className="hidden lg:block w-72 flex-shrink-0">
+    <aside className="hidden lg:block flex-shrink-0">
       <div className="sticky top-20 space-y-4">
         <BannerDisplay
           position="sidebar"

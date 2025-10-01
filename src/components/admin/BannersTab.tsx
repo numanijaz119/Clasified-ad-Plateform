@@ -32,6 +32,7 @@ import {
 import { State, Category } from "../../types/content";
 import BaseModal from "../modals/BaseModal";
 import ConfirmModal from "./ConfirmModal";
+import { truncateFilename } from "../../utils/truncateFilename";
 
 const BannersTab: React.FC = () => {
   const toast = useToast();
@@ -260,7 +261,8 @@ const BannersTab: React.FC = () => {
       return;
     }
 
-    setFormData((prev) => ({ ...prev, image: file }));
+    const processedFile = truncateFilename(file);
+    setFormData((prev) => ({ ...prev, image: processedFile }));
     setFormErrors((prev) => ({ ...prev, image: "" }));
 
     const reader = new FileReader();

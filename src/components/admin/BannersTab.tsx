@@ -794,7 +794,7 @@ const BannersTab: React.FC = () => {
         maxWidth="max-w-3xl"
         title={showEditModal ? "Edit Banner" : "Create New Banner"}
       >
-        <form onSubmit={handleSubmit} className="p-6">
+        {/* <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1139,6 +1139,493 @@ const BannersTab: React.FC = () => {
             </div>
           </div>
 
+          <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={() => {
+                setShowCreateModal(false);
+                setShowEditModal(false);
+                resetForm();
+              }}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting
+                ? "Saving..."
+                : showEditModal
+                ? "Update Banner"
+                : "Create Banner"}
+            </button>
+          </div>
+        </form> */}
+
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="space-y-4">
+            {/* Title */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Title <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, title: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Enter banner title"
+              />
+              {formErrors.title && (
+                <p className="text-red-600 text-sm mt-1">{formErrors.title}</p>
+              )}
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Optional description"
+              />
+            </div>
+
+            {/* Banner Type and Position */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Banner Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.banner_type}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      banner_type: e.target.value as BannerType,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="image">Image Banner</option>
+                  <option value="html">HTML Banner (Custom Code)</option>
+                  <option value="text">Text Banner (Plain Text)</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  {formData.banner_type === "image" && "Upload an image file"}
+                  {formData.banner_type === "html" &&
+                    "Write custom HTML/CSS code (e.g., Google Ads)"}
+                  {formData.banner_type === "text" && "Simple text message"}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Position <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.position}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      position: e.target.value as BannerPosition,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="header">Header</option>
+                  <option value="sidebar">Sidebar</option>
+                  <option value="footer">Footer</option>
+                  <option value="between_ads">Between Ads</option>
+                  <option value="category_page">Category Page</option>
+                  <option value="ad_detail">Ad Detail</option>
+                </select>
+                {formErrors.position && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {formErrors.position}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Content based on type */}
+            {formData.banner_type === "image" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Banner Image{" "}
+                  {!showEditModal && <span className="text-red-500">*</span>}
+                </label>
+                <div className="mt-1 flex items-center space-x-4">
+                  <label className="flex-1 cursor-pointer">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-orange-500 transition-colors">
+                      <div className="flex flex-col items-center">
+                        <ImageIcon className="h-8 w-8 text-gray-400 mb-2" />
+                        <span className="text-sm text-gray-600">
+                          Click to upload image
+                        </span>
+                        <span className="text-xs text-gray-500 mt-1">
+                          PNG, JPG up to 5MB
+                        </span>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                    </div>
+                  </label>
+                  {imagePreview && (
+                    <div className="flex-shrink-0">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="h-24 w-32 object-cover rounded-lg border border-gray-200"
+                      />
+                    </div>
+                  )}
+                </div>
+                {formErrors.image && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {formErrors.image}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {formData.banner_type === "html" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  HTML Content <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={formData.html_content}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      html_content: e.target.value,
+                    }))
+                  }
+                  rows={8}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono text-sm"
+                  placeholder="<div>Your custom HTML here</div>"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Use for Google AdSense, custom styled ads, or embedded content
+                </p>
+                {formErrors.html_content && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {formErrors.html_content}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {formData.banner_type === "text" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Text Content <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={formData.text_content}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      text_content: e.target.value,
+                    }))
+                  }
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Enter your text message, e.g., 'Special Offer: 50% Off!'"
+                />
+                {formErrors.text_content && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {formErrors.text_content}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Click URL */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Click URL (Optional)
+              </label>
+              <input
+                type="url"
+                value={formData.click_url}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    click_url: e.target.value,
+                  }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="https://example.com"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Where users go when they click the banner
+              </p>
+              {formErrors.click_url && (
+                <p className="text-red-600 text-sm mt-1">
+                  {formErrors.click_url}
+                </p>
+              )}
+            </div>
+
+            {/* Open in New Tab */}
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="open_new_tab"
+                checked={formData.open_new_tab}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    open_new_tab: e.target.checked,
+                  }))
+                }
+                className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+              />
+              <label
+                htmlFor="open_new_tab"
+                className="ml-2 block text-sm text-gray-700"
+              >
+                Open link in new tab
+              </label>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 my-4"></div>
+            <h3 className="text-sm font-semibold text-gray-900">
+              Targeting & Priority
+            </h3>
+
+            {/* Target States - Dropdown Multi-Select */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Target States
+              </label>
+              <select
+                value=""
+                onChange={(e) => {
+                  const stateId = Number(e.target.value);
+                  if (stateId && !formData.target_states.includes(stateId)) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      target_states: [...prev.target_states, stateId],
+                    }));
+                  }
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="">Select state to add...</option>
+                {states
+                  .filter((state) => !formData.target_states.includes(state.id))
+                  .map((state) => (
+                    <option key={state.id} value={state.id}>
+                      {state.name}
+                    </option>
+                  ))}
+              </select>
+
+              {/* Selected States Display */}
+              {formData.target_states.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {formData.target_states.map((stateId) => {
+                    const state = states.find((s) => s.id === stateId);
+                    return (
+                      <span
+                        key={stateId}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                      >
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {state?.name}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              target_states: prev.target_states.filter(
+                                (id) => id !== stateId
+                              ),
+                            }));
+                          }}
+                          className="ml-2 text-blue-600 hover:text-blue-800"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500 mt-2">
+                  No states selected - banner will show in ALL states
+                </p>
+              )}
+            </div>
+
+            {/* Target Categories - Tag Style Picker */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Target Categories
+              </label>
+              <select
+                value=""
+                onChange={(e) => {
+                  const catId = Number(e.target.value);
+                  if (catId && !formData.target_categories.includes(catId)) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      target_categories: [...prev.target_categories, catId],
+                    }));
+                  }
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="">Select category to add...</option>
+                {categories
+                  .filter((cat) => !formData.target_categories.includes(cat.id))
+                  .map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+              </select>
+
+              {/* Selected Categories Display */}
+              {formData.target_categories.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {formData.target_categories.map((catId) => {
+                    const category = categories.find((c) => c.id === catId);
+                    return (
+                      <span
+                        key={catId}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800"
+                      >
+                        <Tag className="h-3 w-3 mr-1" />
+                        {category?.name}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              target_categories: prev.target_categories.filter(
+                                (id) => id !== catId
+                              ),
+                            }));
+                          }}
+                          className="ml-2 text-purple-600 hover:text-purple-800"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500 mt-2">
+                  No categories selected - banner will show in ALL categories
+                </p>
+              )}
+            </div>
+
+            {/* Priority Slider */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Priority (Higher = Shows First)
+              </label>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={formData.priority}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      priority: Number(e.target.value),
+                    }))
+                  }
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, #f97316 0%, #f97316 ${formData.priority}%, #e5e7eb ${formData.priority}%, #e5e7eb 100%)`,
+                  }}
+                />
+                <span className="text-lg font-semibold text-gray-900 w-12 text-right">
+                  {formData.priority}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>Low (0)</span>
+                <span>Medium (50)</span>
+                <span>High (100)</span>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Banners with higher priority appear first. Same priority? Newer
+                shows first.
+              </p>
+            </div>
+
+            {/* Schedule */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Start Date (Optional)
+                </label>
+                <input
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      start_date: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  End Date (Optional)
+                </label>
+                <input
+                  type="date"
+                  value={formData.end_date}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      end_date: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+                {formErrors.end_date && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {formErrors.end_date}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Form Actions */}
           <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
             <button
               type="button"

@@ -81,7 +81,9 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
       if (errors.submit) {
         toast.error(errors.submit);
       } else {
-        toast.error("Failed to create ad. Please check the form and try again.");
+        toast.error(
+          "Failed to create ad. Please check the form and try again."
+        );
       }
     }
   };

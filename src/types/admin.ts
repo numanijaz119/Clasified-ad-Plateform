@@ -247,30 +247,41 @@ export interface AdminBulkReportActionRequest {
 // BANNER MANAGEMENT
 // ============================================================================
 
-export type BannerPlacement = "top" | "side" | "bottom" | "inline" | "mobile";
+// src/types/admin.ts - ADD/UPDATE these Banner types
+
+export type BannerPosition =
+  | "header"
+  | "sidebar"
+  | "footer"
+  | "between_ads"
+  | "category_page"
+  | "ad_detail";
+export type BannerType = "image" | "html" | "text";
 
 export interface AdminBanner {
   id: number;
   title: string;
-  image: string;
-  target_url: string;
-  placement: BannerPlacement;
-  state?: {
-    id: number;
-    code: string;
-    name: string;
-  };
+  description?: string;
+  banner_type: BannerType;
+  image?: string;
+  html_content?: string;
+  text_content?: string;
+  position: BannerPosition;
+  target_states: number[];
+  target_categories: number[];
+  target_states_display?: Array<{ id: number; name: string }>;
+  target_categories_display?: Array<{ id: number; name: string }>;
+  click_url?: string;
+  open_new_tab: boolean;
   is_active: boolean;
+  is_currently_active: boolean;
   impressions: number;
   clicks: number;
   ctr: number;
+  priority: number;
   start_date?: string;
   end_date?: string;
-  created_by?: {
-    id: number;
-    email: string;
-    full_name: string;
-  };
+  created_by_name?: string;
   created_at: string;
   updated_at: string;
 }
@@ -279,8 +290,8 @@ export interface AdminBannerListParams {
   page?: number;
   page_size?: number;
   is_active?: boolean;
-  placement?: BannerPlacement;
-  state?: string;
+  position?: BannerPosition;
+  banner_type?: BannerType;
   ordering?: string;
 }
 
@@ -293,23 +304,37 @@ export interface AdminBannerListResponse {
 
 export interface AdminBannerCreateRequest {
   title: string;
-  image: File;
-  target_url: string;
-  placement: BannerPlacement;
-  state?: number;
+  description?: string;
+  banner_type: BannerType;
+  image?: File;
+  html_content?: string;
+  text_content?: string;
+  position: BannerPosition;
+  target_states?: number[];
+  target_categories?: number[];
+  click_url?: string;
+  open_new_tab?: boolean;
   start_date?: string;
   end_date?: string;
+  priority?: number;
 }
 
 export interface AdminBannerUpdateRequest {
   title?: string;
+  description?: string;
+  banner_type?: BannerType;
   image?: File;
-  target_url?: string;
-  placement?: BannerPlacement;
-  state?: number;
+  html_content?: string;
+  text_content?: string;
+  position?: BannerPosition;
+  target_states?: number[];
+  target_categories?: number[];
+  click_url?: string;
+  open_new_tab?: boolean;
   is_active?: boolean;
   start_date?: string;
   end_date?: string;
+  priority?: number;
 }
 
 export interface AdminBannerToggleResponse {
@@ -318,21 +343,9 @@ export interface AdminBannerToggleResponse {
 }
 
 export interface AdminBannerAnalytics {
-  banner_info: {
-    id: number;
-    title: string;
-    total_impressions: number;
-    total_clicks: number;
-    ctr: number;
-  };
-  daily_impressions: Array<{
-    day: string;
-    impressions: number;
-  }>;
-  daily_clicks: Array<{
-    day: string;
-    clicks: number;
-  }>;
+  total_impressions: number;
+  total_clicks: number;
+  ctr: number;
 }
 
 // ============================================================================

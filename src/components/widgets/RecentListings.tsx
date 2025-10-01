@@ -1,6 +1,7 @@
 import React from "react";
 import { useAds } from "../../hooks/useAds";
 import { useListingModal } from "../../hooks/useListingModal";
+import { useAuth } from "../../contexts/AuthContext";
 import ListingModal from "../ListingModal";
 
 
@@ -9,6 +10,7 @@ interface RecentListingsProps {
 }
 
 const RecentListings: React.FC<RecentListingsProps> = () => {
+  const { isAuthenticated } = useAuth();
   const [currentIndex, setCurrentIndex] = React.useState(0);
   
   // Fetch 10 most recent ads from API
@@ -102,7 +104,7 @@ const RecentListings: React.FC<RecentListingsProps> = () => {
         listing={selectedListing}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        isLoggedIn={true}
+        isLoggedIn={isAuthenticated}
       />
     </>
   );

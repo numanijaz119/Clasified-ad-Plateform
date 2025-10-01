@@ -4,11 +4,13 @@ import { Link } from "react-router-dom";
 import { MapPin, Eye, Clock, Star, Heart } from "lucide-react";
 import { useFeaturedAds } from "../hooks/useFeaturedAds";
 import { useListingModal } from "../hooks/useListingModal";
+import { useAuth } from "../contexts/AuthContext";
 import ListingModal from "./ListingModal";
 import Button from "./ui/Button";
 import Badge from "./ui/Badge";
 
 const FeaturedAds: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const { ads, loading, error, refetch } = useFeaturedAds({ page_size: 3 });
   const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } =
     useListingModal();
@@ -141,6 +143,7 @@ const FeaturedAds: React.FC = () => {
         listing={selectedListing}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        isLoggedIn={isAuthenticated}
       />
     </section>
   );

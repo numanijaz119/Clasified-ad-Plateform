@@ -22,6 +22,7 @@ import { adsService } from "../services";
 import { useCategories } from "../hooks/useCategories";
 import { useCities } from "../hooks/useCities";
 import { useListingModal } from "../hooks/useListingModal";
+import { useAuth } from "../contexts/AuthContext";
 import type { BasicAd } from "../hooks/useAdDetails";
 
 // Using BasicAd from the reusable hook
@@ -29,6 +30,7 @@ import type { BasicAd } from "../hooks/useAdDetails";
 // All interfaces are now in the reusable hooks
 
 const SearchPage: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSearchQuery =
     searchParams.get("search") || searchParams.get("q") || "";
@@ -558,6 +560,7 @@ const SearchPage: React.FC = () => {
         listing={selectedListing}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        isLoggedIn={isAuthenticated}
       />
     </div>
   );

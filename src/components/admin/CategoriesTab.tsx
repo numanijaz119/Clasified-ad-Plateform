@@ -195,7 +195,7 @@ const CategoriesTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex sm:items-center flex-col gap-y-2 sm:gap-y-0 sm:flex-col  justify-between">
+      <div className="flex sm:items-center flex-col sm:flex-row gap-y-2 sm:gap-y-0   justify-between">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
             Categories Management

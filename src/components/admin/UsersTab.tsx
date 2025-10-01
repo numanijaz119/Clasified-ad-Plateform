@@ -202,12 +202,32 @@ const UsersTab: React.FC = () => {
 
   if (loading && users.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <RefreshCw className="h-8 w-8 text-orange-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading users...</p>
+      <>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              User Management
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {totalCount} total users found
+            </p>
+          </div>
+          <button
+            onClick={() => fetchUsers()}
+            disabled={loading}
+            className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            <span>Refresh</span>
+          </button>
         </div>
-      </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <RefreshCw className="h-8 w-8 text-orange-500 animate-spin mx-auto mb-4" />
+            <p className="text-gray-600">Loading users...</p>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -447,7 +467,7 @@ const UsersTab: React.FC = () => {
                             {user.email_verified && (
                               <CheckCircle
                                 className="h-3 w-3 text-green-600"
-                                title="Email Verified"
+                                // title="Email Verified"
                               />
                             )}
                           </div>

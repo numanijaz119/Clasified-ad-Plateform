@@ -1,5 +1,5 @@
 // src/components/admin/BannersTab.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Plus,
   Eye,
@@ -13,6 +13,9 @@ import {
   MapPin,
   BarChart3,
   Tag,
+  Filter,
+  Search,
+  X,
 } from "lucide-react";
 import { useToast } from "../../contexts/ToastContext";
 import { adminService } from "../../services/adminService";
@@ -82,6 +85,11 @@ const BannersTab: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
+  // New state for tabs and mobile features
+  const [activeTab, setActiveTab] = useState<"stats" | "banners">("stats");
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     loadBanners();
     loadStates();
@@ -117,7 +125,7 @@ const BannersTab: React.FC = () => {
 
   const loadCategories = async () => {
     try {
-      const response = await contentService.getCategoriesSimple();
+      const response = await contentService.getCategories();
       setCategories(response);
     } catch (err) {
       console.error("Failed to load categories:", err);
@@ -165,11 +173,14 @@ const BannersTab: React.FC = () => {
   const handleViewAnalytics = async (banner: AdminBanner) => {
     try {
       setSelectedBanner(banner);
+      setAnalytics(null); // Reset analytics to show loading state
+      setShowAnalyticsModal(true); // Show modal immediately
       const data = await adminService.getBannerAnalytics(banner.id);
       setAnalytics(data);
-      setShowAnalyticsModal(true);
     } catch (err: any) {
       toast.error(err.message || "Failed to load analytics");
+      setShowAnalyticsModal(false);
+      setSelectedBanner(null);
     }
   };
 
@@ -354,6 +365,18 @@ const BannersTab: React.FC = () => {
   const totalPages = Math.ceil(pagination.count / (filters.page_size || 20));
   const currentPage = filters.page || 1;
 
+  // Filter banners based on search query for the banner list tab
+  const filteredBanners = useMemo(() => {
+    if (!searchQuery.trim()) return banners;
+
+    return banners.filter(
+      (banner) =>
+        banner.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        banner.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        banner.click_url?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [banners, searchQuery]);
+
   const getPositionLabel = (position: BannerPosition) => {
     const labels: Record<BannerPosition, string> = {
       header: "Header",
@@ -400,385 +423,490 @@ const BannersTab: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              value={
-                filters.is_active === undefined
-                  ? "all"
-                  : filters.is_active
-                  ? "active"
-                  : "inactive"
-              }
-              onChange={(e) => {
-                const val = e.target.value;
-                handleFilterChange(
-                  "is_active",
-                  val === "all" ? undefined : val === "active"
-                );
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            >
-              <option value="all">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Type
-            </label>
-            <select
-              value={filters.banner_type || "all"}
-              onChange={(e) =>
-                handleFilterChange("banner_type", e.target.value)
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            >
-              <option value="all">All Types</option>
-              <option value="image">Image</option>
-              <option value="html">HTML</option>
-              <option value="text">Text</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Position
-            </label>
-            <select
-              value={filters.position || "all"}
-              onChange={(e) => handleFilterChange("position", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            >
-              <option value="all">All Positions</option>
-              <option value="header">Header</option>
-              <option value="sidebar">Sidebar</option>
-              <option value="footer">Footer</option>
-              <option value="between_ads">Between Ads</option>
-              <option value="category_page">Category Page</option>
-              <option value="ad_detail">Ad Detail</option>
-            </select>
-          </div>
-
-          <div className="flex items-end">
+      {/* Tabs */}
+      <div className="bg-white rounded-lg border border-gray-200">
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8 px-6" aria-label="Tabs">
             <button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium text-gray-700 transition-colors disabled:opacity-50"
+              onClick={() => setActiveTab("stats")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "stats"
+                  ? "border-orange-500 text-orange-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
             >
-              <RefreshCw
-                className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-              />
-              <span>Refresh</span>
+              <div className="flex items-center space-x-2">
+                <BarChart3 className="h-4 w-4" />
+                <span>Highlights & Stats</span>
+              </div>
             </button>
-          </div>
+            <button
+              onClick={() => setActiveTab("banners")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "banners"
+                  ? "border-orange-500 text-orange-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <ImageIcon className="h-4 w-4" />
+                <span>Banner List</span>
+              </div>
+            </button>
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-6">
+          {activeTab === "stats" ? (
+            <div className="space-y-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Total Banners</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {pagination.count}
+                      </p>
+                    </div>
+                    <ImageIcon className="h-8 w-8 text-gray-400" />
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Active</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {banners.filter((b) => b.is_active).length}
+                      </p>
+                    </div>
+                    <Eye className="h-8 w-8 text-green-400" />
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Inactive</p>
+                      <p className="text-2xl font-bold text-gray-600">
+                        {banners.filter((b) => !b.is_active).length}
+                      </p>
+                    </div>
+                    <EyeOff className="h-8 w-8 text-gray-400" />
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Total Clicks</p>
+                      <p className="text-2xl font-bold text-orange-600">
+                        {banners
+                          .reduce((sum, b) => sum + b.clicks, 0)
+                          .toLocaleString()}
+                      </p>
+                    </div>
+                    <TrendingUp className="h-8 w-8 text-orange-400" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Search and Mobile Filter Toggle */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex items-center space-x-4">
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <input
+                      type="text"
+                      placeholder="Search banners..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 w-64"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-x-2 sm:hidden">
+                  {/* Mobile Filter Button */}
+                  <button
+                    onClick={() => setShowMobileFilters(!showMobileFilters)}
+                    className="sm:hidden flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  >
+                    <Filter className="h-4 w-4" />
+                    <span>Filters</span>
+                  </button>
+
+                  <button
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium text-gray-700 transition-colors disabled:opacity-50"
+                  >
+                    <RefreshCw
+                      className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+                    />
+                    <span>Refresh</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Filters - Desktop always visible, Mobile collapsible */}
+              <div
+                className={`bg-gray-50 rounded-lg border border-gray-200 p-4 ${
+                  showMobileFilters ? "block" : "hidden sm:block"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-4 sm:hidden">
+                  <h3 className="text-sm font-medium text-gray-900">Filters</h3>
+                  <button
+                    onClick={() => setShowMobileFilters(false)}
+                    className="p-1 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={
+                        filters.is_active === undefined
+                          ? "all"
+                          : filters.is_active
+                          ? "active"
+                          : "inactive"
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        handleFilterChange(
+                          "is_active",
+                          val === "all" ? undefined : val === "active"
+                        );
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Type
+                    </label>
+                    <select
+                      value={filters.banner_type || "all"}
+                      onChange={(e) =>
+                        handleFilterChange("banner_type", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="image">Image</option>
+                      <option value="html">HTML</option>
+                      <option value="text">Text</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Position
+                    </label>
+                    <select
+                      value={filters.position || "all"}
+                      onChange={(e) =>
+                        handleFilterChange("position", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                      <option value="all">All Positions</option>
+                      <option value="header">Header</option>
+                      <option value="sidebar">Sidebar</option>
+                      <option value="footer">Footer</option>
+                      <option value="between_ads">Between Ads</option>
+                      <option value="category_page">Category Page</option>
+                      <option value="ad_detail">Ad Detail</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Banners</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {pagination.count}
-              </p>
+      {/* Banner List Content - Only show when banners tab is active */}
+      {activeTab === "banners" && (
+        <div className="space-y-6">
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
             </div>
-            <ImageIcon className="h-8 w-8 text-gray-400" />
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Active</p>
-              <p className="text-2xl font-bold text-green-600">
-                {banners.filter((b) => b.is_active).length}
+          ) : filteredBanners.length === 0 ? (
+            <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+              <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {searchQuery
+                  ? "No banners match your search"
+                  : "No banners found"}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {searchQuery
+                  ? "Try adjusting your search terms"
+                  : "Get started by creating your first banner"}
               </p>
+              {!searchQuery && (
+                <button
+                  onClick={openCreateModal}
+                  className="inline-flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Create Banner</span>
+                </button>
+              )}
             </div>
-            <Eye className="h-8 w-8 text-green-400" />
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Inactive</p>
-              <p className="text-2xl font-bold text-gray-600">
-                {banners.filter((b) => !b.is_active).length}
-              </p>
-            </div>
-            <EyeOff className="h-8 w-8 text-gray-400" />
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Clicks</p>
-              <p className="text-2xl font-bold text-orange-600">
-                {banners.reduce((sum, b) => sum + b.clicks, 0).toLocaleString()}
-              </p>
-            </div>
-            <TrendingUp className="h-8 w-8 text-orange-400" />
-          </div>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
-        </div>
-      ) : banners.length === 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No banners found
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Get started by creating your first banner
-          </p>
-          <button
-            onClick={openCreateModal}
-            className="inline-flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Create Banner</span>
-          </button>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Banner
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Type & Position
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Targeting
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Performance
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {banners.map((banner) => (
-                  <tr key={banner.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        {banner.banner_type === "image" && banner.image ? (
-                          <img
-                            src={banner.image}
-                            alt={banner.title}
-                            className="h-16 w-24 object-cover rounded border border-gray-200"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="h-16 w-24 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
-                            <span className="text-xs text-gray-500">
+          ) : (
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Banner
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Type & Position
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Targeting
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Performance
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredBanners.map((banner) => (
+                      <tr key={banner.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-3">
+                            {banner.banner_type === "image" && banner.image ? (
+                              <img
+                                src={banner.image}
+                                alt={banner.title}
+                                className="h-16 w-24 object-cover rounded border border-gray-200"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="h-16 w-24 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+                                <span className="text-xs text-gray-500">
+                                  {getBannerTypeLabel(banner.banner_type)}
+                                </span>
+                              </div>
+                            )}
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {banner.title}
+                              </p>
+                              {banner.click_url && (
+                                <a
+                                  href={banner.click_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-blue-600 hover:underline flex items-center space-x-1 mt-1"
+                                >
+                                  <span className="truncate max-w-xs">
+                                    {banner.click_url}
+                                  </span>
+                                  <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="space-y-1">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                               {getBannerTypeLabel(banner.banner_type)}
                             </span>
+                            <div className="text-sm text-gray-600">
+                              {getPositionLabel(banner.position)}
+                            </div>
                           </div>
-                        )}
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {banner.title}
-                          </p>
-                          {banner.click_url && (
-                            <a
-                              href={banner.click_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-blue-600 hover:underline flex items-center space-x-1 mt-1"
-                            >
-                              <span className="truncate max-w-xs">
-                                {banner.click_url}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="space-y-1">
+                            {banner.target_states_display &&
+                            banner.target_states_display.length > 0 ? (
+                              <div className="flex items-center space-x-1 text-gray-900">
+                                <MapPin className="h-4 w-4 text-gray-400" />
+                                <span>
+                                  {banner.target_states_display.length} state(s)
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">All States</span>
+                            )}
+                            {banner.target_categories_display &&
+                            banner.target_categories_display.length > 0 ? (
+                              <div className="flex items-center space-x-1 text-gray-900">
+                                <Tag className="h-4 w-4 text-gray-400" />
+                                <span>
+                                  {banner.target_categories_display.length}{" "}
+                                  category(ies)
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">
+                                All Categories
                               </span>
-                              <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          {getBannerTypeLabel(banner.banner_type)}
-                        </span>
-                        <div className="text-sm text-gray-600">
-                          {getPositionLabel(banner.position)}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <div className="space-y-1">
-                        {banner.target_states_display &&
-                        banner.target_states_display.length > 0 ? (
-                          <div className="flex items-center space-x-1 text-gray-900">
-                            <MapPin className="h-4 w-4 text-gray-400" />
-                            <span>
-                              {banner.target_states_display.length} state(s)
-                            </span>
+                            )}
                           </div>
-                        ) : (
-                          <span className="text-gray-400">All States</span>
-                        )}
-                        {banner.target_categories_display &&
-                        banner.target_categories_display.length > 0 ? (
-                          <div className="flex items-center space-x-1 text-gray-900">
-                            <Tag className="h-4 w-4 text-gray-400" />
-                            <span>
-                              {banner.target_categories_display.length}{" "}
-                              category(ies)
-                            </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm">
+                            <div className="text-gray-900 font-medium">
+                              {banner.clicks.toLocaleString()} clicks
+                            </div>
+                            <div className="text-gray-500">
+                              {banner.impressions.toLocaleString()} views
+                            </div>
+                            <div className="text-xs text-gray-400 mt-1">
+                              CTR: {(banner.ctr * 100).toFixed(2)}%
+                            </div>
                           </div>
-                        ) : (
-                          <span className="text-gray-400">All Categories</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm">
-                        <div className="text-gray-900 font-medium">
-                          {banner.clicks.toLocaleString()} clicks
-                        </div>
-                        <div className="text-gray-500">
-                          {banner.impressions.toLocaleString()} views
-                        </div>
-                        <div className="text-xs text-gray-400 mt-1">
-                          CTR: {(banner.ctr * 100).toFixed(2)}%
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleToggle(banner)}
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          banner.is_active
-                            ? "bg-green-100 text-green-800 hover:bg-green-200"
-                            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-                        } transition-colors`}
-                        aria-label={`Toggle banner ${
-                          banner.is_active ? "off" : "on"
-                        }`}
-                      >
-                        {banner.is_active ? (
-                          <>
-                            <Eye className="h-3 w-3 mr-1" />
-                            Active
-                          </>
-                        ) : (
-                          <>
-                            <EyeOff className="h-3 w-3 mr-1" />
-                            Inactive
-                          </>
-                        )}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end space-x-2">
-                        <button
-                          onClick={() => handleViewAnalytics(banner)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="View Analytics"
-                          aria-label="View banner analytics"
-                        >
-                          <BarChart3 className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => openEditModal(banner)}
-                          className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                          title="Edit"
-                          aria-label="Edit banner"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedBanner(banner);
-                            setShowDeleteModal(true);
-                          }}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete"
-                          aria-label="Delete banner"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={() => handleToggle(banner)}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              banner.is_active
+                                ? "bg-green-100 text-green-800 hover:bg-green-200"
+                                : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                            } transition-colors`}
+                            aria-label={`Toggle banner ${
+                              banner.is_active ? "off" : "on"
+                            }`}
+                          >
+                            {banner.is_active ? (
+                              <>
+                                <Eye className="h-3 w-3 mr-1" />
+                                Active
+                              </>
+                            ) : (
+                              <>
+                                <EyeOff className="h-3 w-3 mr-1" />
+                                Inactive
+                              </>
+                            )}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end space-x-2">
+                            <button
+                              onClick={() => handleViewAnalytics(banner)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="View Analytics"
+                              aria-label="View banner analytics"
+                            >
+                              <BarChart3 className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => openEditModal(banner)}
+                              className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                              title="Edit"
+                              aria-label="Edit banner"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedBanner(banner);
+                                setShowDeleteModal(true);
+                              }}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Delete"
+                              aria-label="Delete banner"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-          {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-              <div className="text-sm text-gray-700">
-                Showing {(currentPage - 1) * (filters.page_size || 20) + 1} to{" "}
-                {Math.min(
-                  currentPage * (filters.page_size || 20),
-                  pagination.count
-                )}{" "}
-                of {pagination.count} results
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <div className="flex space-x-1">
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                          currentPage === pageNum
-                            ? "bg-orange-500 text-white"
-                            : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
+              {totalPages > 1 && (
+                <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                  <div className="text-sm text-gray-700">
+                    Showing {(currentPage - 1) * (filters.page_size || 20) + 1}{" "}
+                    to{" "}
+                    {Math.min(
+                      currentPage * (filters.page_size || 20),
+                      pagination.count
+                    )}{" "}
+                    of {pagination.count} results
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                    <div className="flex space-x-1">
+                      {Array.from(
+                        { length: Math.min(totalPages, 5) },
+                        (_, i) => {
+                          let pageNum;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => handlePageChange(pageNum)}
+                              className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                                currentPage === pageNum
+                                  ? "bg-orange-500 text-white"
+                                  : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        }
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-1 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
+              )}
             </div>
           )}
         </div>

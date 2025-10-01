@@ -175,12 +175,27 @@ const BannersTab: React.FC = () => {
       setSelectedBanner(banner);
       setAnalytics(null); // Reset analytics to show loading state
       setShowAnalyticsModal(true); // Show modal immediately
+
+      console.log("Fetching analytics for banner ID:", banner.id);
       const data = await adminService.getBannerAnalytics(banner.id);
+      console.log("Analytics data received:", data);
       setAnalytics(data);
     } catch (err: any) {
-      toast.error(err.message || "Failed to load analytics");
-      setShowAnalyticsModal(false);
-      setSelectedBanner(null);
+      console.error("Analytics fetch error:", err);
+
+      // For now, show mock data if API fails (for development/testing)
+      const mockAnalytics = {
+        total_impressions: banner.impressions || 0,
+        total_clicks: banner.clicks || 0,
+        ctr: banner.ctr || 0,
+      };
+
+      console.log("Using mock analytics data:", mockAnalytics);
+      setAnalytics(mockAnalytics);
+
+      toast.error(
+        "Using cached analytics data - API endpoint may not be available"
+      );
     }
   };
 
@@ -414,6 +429,7 @@ const BannersTab: React.FC = () => {
             Manage promotional banners across the platform
           </p>
         </div>
+
         <button
           onClick={openCreateModal}
           className="flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors"
@@ -470,7 +486,7 @@ const BannersTab: React.FC = () => {
                         {pagination.count}
                       </p>
                     </div>
-                    <ImageIcon className="h-8 w-8 text-gray-400" />
+                    <ImageIcon className="h-5 w-5 text-gray-400" />
                   </div>
                 </div>
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -481,7 +497,7 @@ const BannersTab: React.FC = () => {
                         {banners.filter((b) => b.is_active).length}
                       </p>
                     </div>
-                    <Eye className="h-8 w-8 text-green-400" />
+                    <Eye className="h-5 w-5 text-green-400" />
                   </div>
                 </div>
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -492,7 +508,7 @@ const BannersTab: React.FC = () => {
                         {banners.filter((b) => !b.is_active).length}
                       </p>
                     </div>
-                    <EyeOff className="h-8 w-8 text-gray-400" />
+                    <EyeOff className="h-5 w-5 text-gray-400" />
                   </div>
                 </div>
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -505,7 +521,7 @@ const BannersTab: React.FC = () => {
                           .toLocaleString()}
                       </p>
                     </div>
-                    <TrendingUp className="h-8 w-8 text-orange-400" />
+                    <TrendingUp className="h-5 w-5 text-orange-400" />
                   </div>
                 </div>
               </div>
@@ -514,7 +530,7 @@ const BannersTab: React.FC = () => {
             <div className="space-y-6">
               {/* Search and Mobile Filter Toggle */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center justify-between w-full space-x-4">
                   {/* Search */}
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -526,6 +542,16 @@ const BannersTab: React.FC = () => {
                       className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 w-64"
                     />
                   </div>
+                  <button
+                    onClick={() => handleRefresh()}
+                    disabled={loading}
+                    className="sm:flex hidden items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
+                  >
+                    <RefreshCw
+                      className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                    />
+                    <span>Refresh</span>
+                  </button>
                 </div>
 
                 <div className="flex gap-x-2 sm:hidden">
@@ -539,12 +565,12 @@ const BannersTab: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={handleRefresh}
-                    disabled={refreshing}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium text-gray-700 transition-colors disabled:opacity-50"
+                    onClick={() => handleRefresh()}
+                    disabled={loading}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
                   >
                     <RefreshCw
-                      className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+                      className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
                     />
                     <span>Refresh</span>
                   </button>
@@ -1813,7 +1839,7 @@ const BannersTab: React.FC = () => {
                     Total Impressions
                   </p>
                   <p className="text-2xl font-bold text-blue-900 mt-1">
-                    {analytics.total_impressions.toLocaleString()}
+                    {(analytics.total_impressions || 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="bg-green-50 rounded-lg p-4">
@@ -1821,7 +1847,7 @@ const BannersTab: React.FC = () => {
                     Total Clicks
                   </p>
                   <p className="text-2xl font-bold text-green-900 mt-1">
-                    {analytics.total_clicks.toLocaleString()}
+                    {(analytics.total_clicks || 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-4">
@@ -1829,7 +1855,7 @@ const BannersTab: React.FC = () => {
                     Click-Through Rate
                   </p>
                   <p className="text-2xl font-bold text-purple-900 mt-1">
-                    {(analytics.ctr * 100).toFixed(2)}%
+                    {((analytics.ctr || 0) * 100).toFixed(2)}%
                   </p>
                 </div>
               </div>
@@ -1885,8 +1911,9 @@ const BannersTab: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
+            <div className="flex flex-col justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mb-4" />
+              <p className="text-gray-600 text-sm">Loading analytics data...</p>
             </div>
           )}
         </div>

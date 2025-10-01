@@ -23,6 +23,7 @@ import { PostAdModal } from "../components";
 import { useToast } from "../contexts/ToastContext";
 import { useListingModal } from "../hooks/useListingModal";
 import ListingModal from "../components/ListingModal";
+import ConfirmModal from "../components/admin/ConfirmModal";
 import type { BasicAd } from "../hooks/useAdDetails";
 
 type TabId = "overview" | "ads" | "stats" | "promote";
@@ -51,8 +52,11 @@ const UserDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showPostAdModal, setShowPostAdModal] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [adToDelete, setAdToDelete] = useState<{ id: number; slug: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const { toast } = useToast();
+  const toast = useToast();
 
   const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } =
     useListingModal();
@@ -126,18 +130,34 @@ const UserDashboard: React.FC = () => {
     setShowPostAdModal(false);
   };
 
-  const handleDeleteAd = async (adId: number, slug: string) => {
-    if (!window.confirm("Are you sure you want to delete this ad?")) {
-      return;
-    }
+  const handleDeleteAd = (adId: number, slug: string, title: string) => {
+    setAdToDelete({ id: adId, slug, title });
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDeleteAd = async () => {
+    if (!adToDelete) return;
+    
+    setIsDeleting(true);
     try {
-      await adsService.deleteAd(slug);
-      setUserAds((ads) => ads.filter((ad) => ad.id !== adId));
+      await adsService.deleteAd(adToDelete.slug);
+      setUserAds((ads) => ads.filter((ad) => ad.id !== adToDelete.id));
       await fetchDashboardAnalytics();
       toast.success("Ad deleted successfully!");
+      setDeleteModalOpen(false);
+      setAdToDelete(null);
     } catch (error: any) {
       console.error("Failed to delete ad:", error);
       toast.error("Failed to delete ad. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (!isDeleting) {
+      setDeleteModalOpen(false);
+      setAdToDelete(null);
     }
   };
 
@@ -572,7 +592,7 @@ const UserDashboard: React.FC = () => {
                           <Edit className="h-4 w-4" />
                         </Link> */}
                         <button
-                          onClick={() => handleDeleteAd(ad.id, ad.slug)}
+                          onClick={() => handleDeleteAd(ad.id, ad.slug, ad.title)}
                           className="text-red-600 hover:text-red-700 p-1 rounded"
                           title="Delete Ad"
                         >
@@ -992,6 +1012,19 @@ const UserDashboard: React.FC = () => {
           isLoggedIn={isAuthenticated}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={confirmDeleteAd}
+        title="Delete Ad"
+        message={`Are you sure you want to delete "${adToDelete?.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        loading={isDeleting}
+      />
     </div>
   );
 };

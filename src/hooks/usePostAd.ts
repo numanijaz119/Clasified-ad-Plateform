@@ -5,7 +5,11 @@ import { adsService } from "../services/adsService";
 import { contentService } from "../services/contentService";
 import { useAuth } from "../contexts/AuthContext";
 import type { Category, City } from "../types/content";
-import type { PostAdFormState, PostAdFormErrors } from "../types/ads";
+import type {
+  PostAdFormState,
+  PostAdFormErrors,
+  CreateAdRequest,
+} from "../types/ads";
 
 export const usePostAd = () => {
   const { user } = useAuth();
@@ -202,7 +206,7 @@ export const usePostAd = () => {
     setErrors({});
 
     try {
-      const createAdRequest: any = {
+      const createAdRequest: CreateAdRequest = {
         title: formData.title.trim(),
         description: formData.description.trim(),
         category: parseInt(formData.category),
@@ -215,6 +219,7 @@ export const usePostAd = () => {
         keywords: formData.keywords.trim() || undefined,
         plan: selectedPlan,
         images: images,
+        status: "pending",
       };
 
       // Add price for fixed/negotiable

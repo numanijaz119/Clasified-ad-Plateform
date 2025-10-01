@@ -133,6 +133,7 @@ export interface CreateAdRequest {
   // Optional fields
   keywords?: string;
   plan?: AdPlan;
+  status?: AdStatus;
 
   // Images (handled separately in FormData)
   images?: File[];

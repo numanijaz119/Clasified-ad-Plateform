@@ -32,6 +32,7 @@ class AdsService extends BaseService {
         price_type: adData.price_type,
         condition: adData.condition,
         hide_phone: adData.hide_phone || false,
+        status: "pending",
       };
 
       // Add price for fixed/negotiable

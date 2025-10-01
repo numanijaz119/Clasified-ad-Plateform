@@ -553,8 +553,7 @@ const PostsReviewTab: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center text-sm">
-                        {ad.plan === "free" &&
-                        (!ad.price || parseFloat(ad.price) === 0) ? (
+                        {!ad.price || parseFloat(ad.price) === 0 ? (
                           <span className="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-semibold">
                             FREE
                           </span>
@@ -877,8 +876,8 @@ const AdDetailsModal: React.FC<AdDetailsModalProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-600">Price</p>
-              {ad.plan === "free" &&
-              (!ad.price || parseFloat(ad.price) === 0) ? (
+
+              {!ad.price || parseFloat(ad.price) === 0 ? (
                 <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-md text-sm font-semibold">
                   FREE
                 </span>

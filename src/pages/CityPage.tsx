@@ -23,6 +23,7 @@ import { useAds } from "../hooks/useAds";
 import { useCategories } from "../hooks/useCategories";
 import { useCities } from "../hooks/useCities";
 import { adsService } from "../services";
+import { useAuth } from "../contexts/AuthContext";
 
 interface Listing {
   id: number;
@@ -49,6 +50,7 @@ const CityPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   // Fetch cities to get the city ID
   const { cities: citiesData } = useCities();
@@ -125,16 +127,17 @@ const CityPage: React.FC = () => {
       setIsModalOpen(true);
 
       // Find the original ad data to get the slug
-      const originalAd = ads.find(ad => ad.id === listing.id);
+      const originalAd = ads.find((ad) => ad.id === listing.id);
       if (!originalAd?.slug) return;
 
       // Fetch detailed ad data
-      const detailedAd = await adsService.getAd(originalAd.slug) as any;
-      
+      const detailedAd = (await adsService.getAd(originalAd.slug)) as any;
+
       // Get all images from detailed response
-      const images = detailedAd.images?.length > 0 
-        ? detailedAd.images.map((img: any) => img.image)
-        : [listing.image];
+      const images =
+        detailedAd.images?.length > 0
+          ? detailedAd.images.map((img: any) => img.image)
+          : [listing.image];
 
       // Update modal with enhanced data
       const enhancedListing: Listing = {
@@ -147,7 +150,7 @@ const CityPage: React.FC = () => {
 
       setSelectedListing(enhancedListing);
     } catch (error) {
-      console.error('Error fetching ad details:', error);
+      console.error("Error fetching ad details:", error);
       // Modal already shows basic data, so user still sees something
     }
   };
@@ -448,6 +451,7 @@ const CityPage: React.FC = () => {
         listing={selectedListing}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        isLoggedIn={isAuthenticated}
       />
     </div>
   );

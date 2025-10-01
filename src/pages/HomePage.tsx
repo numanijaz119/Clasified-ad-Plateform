@@ -8,21 +8,8 @@ import {
   RecentListings,
   BottomBanner,
 } from "../components/AdBanners";
-import ListingModal from "../components/ListingModal";
 
 const HomePage: React.FC = () => {
-  const [selectedListing, setSelectedListing] = React.useState(null);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-
-  const handleListingClick = (listing: any) => {
-    setSelectedListing(listing);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedListing(null);
-  };
 
   return (
     <>
@@ -42,7 +29,7 @@ const HomePage: React.FC = () => {
 
             {/* Mobile Recent Listing component */}
             <div className="md:hidden">
-              <RecentListings onListingClick={handleListingClick} />
+              <RecentListings />
             </div>
 
             {/* Mobile Ad */}
@@ -67,7 +54,7 @@ const HomePage: React.FC = () => {
           <div className="hidden md:block lg:w-64 xl:w-72 md:w-48 flex-shrink-0">
             <div className="sticky top-24 space-y-2">
               {/* <SideBanner /> */}
-              <RecentListings onListingClick={handleListingClick} />
+              <RecentListings />
             </div>
           </div>
         </div>
@@ -75,13 +62,6 @@ const HomePage: React.FC = () => {
         {/* Bottom Banner Ad */}
         <BottomBanner />
       </main>
-
-      {/* Listing Modal */}
-      <ListingModal
-        listing={selectedListing}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
     </>
   );
 };

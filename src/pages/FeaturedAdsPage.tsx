@@ -11,9 +11,11 @@ import {
 import ListingModal from "../components/ListingModal";
 import { useFeaturedAds } from "../hooks/useFeaturedAds";
 import { useListingModal } from "../hooks/useListingModal";
+import { useAuth } from "../contexts/AuthContext";
 import Badge from "../components/ui/Badge";
 
 const FeaturedAdsPage: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
@@ -431,7 +433,7 @@ const FeaturedAdsPage: React.FC = () => {
         listing={selectedListing}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        isLoggedIn={true}
+        isLoggedIn={isAuthenticated}
       />
     </div>
   );

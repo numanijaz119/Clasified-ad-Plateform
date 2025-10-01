@@ -40,7 +40,7 @@ interface DashboardData {
 }
 
 const UserDashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
@@ -989,6 +989,7 @@ const UserDashboard: React.FC = () => {
           listing={selectedListing}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
+          isLoggedIn={isAuthenticated}
         />
       )}
     </div>

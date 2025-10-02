@@ -218,9 +218,9 @@ const Hero: React.FC = () => {
                       <h3 className="text-white font-bold text-xs mb-0.5 truncate group-hover:text-orange-200 transition-colors">
                         {city.name}
                       </h3>
-                      <p className="text-white/90 text-xs truncate group-hover:text-orange-100 transition-colors">
+                      {/* <p className="text-white/90 text-xs truncate group-hover:text-orange-100 transition-colors">
                         {city.count}
-                      </p>
+                      </p> */}
                     </div>
                     <div className="absolute inset-0 bg-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute top-1 right-1 w-4 h-4 bg-white/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -288,10 +288,10 @@ const Hero: React.FC = () => {
                       {category.name}
                     </h3>
                     <div className="flex items-center justify-center space-x-1">
-                      <span className="text-xs font-bold text-gray-900">
+                      {/* <span className="text-xs font-bold text-gray-900">
                         {category.count.toLocaleString()}
-                      </span>
-                      <span className="text-xs text-gray-500">ads</span>
+                      </span> */}
+                      {/* <span className="text-xs text-gray-500">ads</span> */}
                     </div>
                     <div
                       className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${category.color} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300`}

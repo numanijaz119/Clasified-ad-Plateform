@@ -17,6 +17,8 @@ import {
   SideBanner,
   InlineBanner,
   BottomBanner,
+  RecentListing,
+  RecentListings,
 } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
 import { useAds } from "../hooks/useAds";
@@ -24,7 +26,12 @@ import { useCategories } from "../hooks/useCategories";
 import { useCities } from "../hooks/useCities";
 import { adsService } from "../services";
 import { useAuth } from "../contexts/AuthContext";
-import { BetweenAdsBanner } from "../components/common/BannerLayouts";
+import {
+  AdDetailBanner,
+  BetweenAdsBanner,
+  HeaderBanner,
+  SidebarBanner,
+} from "../components/common/BannerLayouts";
 
 interface Listing {
   id: number;
@@ -181,21 +188,23 @@ const CityPage: React.FC = () => {
       {/* Top Ad Banner */}
       <div className=" bg-white border-b border-gray-200">
         <div className="px-4 py-2">
-          <MobileBanner />
+          {/* <MobileBanner /> */}
+          <HeaderBanner />
         </div>
       </div>
 
       {/* Mobile Ad */}
-      <div className="md:hidden m-4 mb-0">
+      {/* <div className="md:hidden m-4 mb-0">
         <FlippingAd size="medium" />
-      </div>
+      </div> */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex gap-2 md:gap-4 lg:gap-6">
           {/* Left Sidebar with Ads */}
           <div className=" md:w-48   xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
             <div className="sticky top-24 space-y-4 z-10">
-              <SideBanner />
+              {/* <SideBanner /> */}
+              <SidebarBanner />
               <FlippingAd size="medium" />
             </div>
           </div>
@@ -433,7 +442,8 @@ const CityPage: React.FC = () => {
           {/* Right Sidebar with Ads */}
           <div className="md:w-48  hidden md:block  xl:w-72 lg:w-60 flex-shrink-0">
             <div className="sticky top-24 space-y-4">
-              <FlippingAd size="medium" />
+              {/* <FlippingAd size="medium" /> */}
+              <RecentListings />
             </div>
           </div>
         </div>
@@ -445,7 +455,8 @@ const CityPage: React.FC = () => {
 
       {/* Bottom Banner Ad */}
       <div className="mx-4">
-        <BottomBanner />
+        {/* <BottomBanner /> */}
+        <AdDetailBanner />
       </div>
 
       {/* Listing Modal */}

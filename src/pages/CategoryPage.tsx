@@ -8,6 +8,7 @@ import {
   SideBanner,
   InlineBanner,
   BottomBanner,
+  RecentListings,
 } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
 import { useAds } from "../hooks/useAds";
@@ -171,9 +172,9 @@ const CategoryPage: React.FC = () => {
       </div>
 
       {/* Mobile FlippingAd */}
-      <div className=" md:hidden m-4 mb-0">
+      {/* <div className=" md:hidden m-4 mb-0">
         <FlippingAd size="medium" />
-      </div>
+      </div> */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex gap-2 md:gap-4 lg:gap-6">
@@ -392,14 +393,21 @@ const CategoryPage: React.FC = () => {
           {/* Right Sidebar with Ads */}
           <div className="md:w-48 xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
             <div className="sticky top-24 space-y-4">
-              <FlippingAd size="medium" />
-              <FlippingAd size="small" />
+              {/* <FlippingAd size="medium" />
+              <FlippingAd size="small" /> */}
+              <RecentListings />
             </div>
           </div>
         </div>
       </main>
 
       {/* Mobile Bottom FlippingAd */}
+      <div className="md:hidden m-4 mt-0">
+        {/* <FlippingAd size="medium" /> */}
+        <RecentListings />
+      </div>
+
+      {/* Bottom FlippingAd */}
       <div className="md:hidden m-4 mt-0">
         <FlippingAd size="medium" />
       </div>

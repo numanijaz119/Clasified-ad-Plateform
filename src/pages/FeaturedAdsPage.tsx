@@ -7,12 +7,20 @@ import {
   SideBanner,
   InlineBanner,
   BottomBanner,
+  RecentListing,
+  RecentListings,
 } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
 import { useFeaturedAds } from "../hooks/useFeaturedAds";
 import { useListingModal } from "../hooks/useListingModal";
 import { useAuth } from "../contexts/AuthContext";
 import Badge from "../components/ui/Badge";
+import {
+  AdDetailBanner,
+  BetweenAdsBanner,
+  HeaderBanner,
+  SidebarBanner,
+} from "../components/common/BannerLayouts";
 
 const FeaturedAdsPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -103,10 +111,13 @@ const FeaturedAdsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <HeaderBanner />
+
       {/* Mobile Ad Banner */}
       <div className="md:hidden bg-white border-b border-gray-200">
         <div className="px-4 py-2">
-          <MobileBanner />
+          {/* <MobileBanner /> */}
+          <HeaderBanner />
         </div>
       </div>
 
@@ -126,7 +137,8 @@ const FeaturedAdsPage: React.FC = () => {
                 <FlippingAd size="small" />
               </div> */}
               <div className="block">
-                <SideBanner />
+                {/* <SideBanner /> */}
+                <SidebarBanner />
               </div>
               <FlippingAd size="medium" />
               {/* <div className="hidden md:block">
@@ -340,9 +352,9 @@ const FeaturedAdsPage: React.FC = () => {
 
                               {/* Views */}
 
-                              <div className="absolute bottom-2 right-2">
+                              {/* <div className="absolute bottom-2 right-2">
                                 <Badge variant="primary">{ad.view_count}</Badge>
-                              </div>
+                              </div> */}
                             </div>
 
                             {/* Content */}
@@ -381,7 +393,8 @@ const FeaturedAdsPage: React.FC = () => {
                       {/* Inline Banner after every 6 ads (except the last chunk) */}
                       {endIndex < filteredListings.length && (
                         <div className="w-full">
-                          <InlineBanner />
+                          {/* <InlineBanner /> */}
+                          <BetweenAdsBanner />
                         </div>
                       )}
                     </React.Fragment>
@@ -411,8 +424,9 @@ const FeaturedAdsPage: React.FC = () => {
           {/* Right Sidebar with Ads */}
           <div className="md:w-48 xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
             <div className="sticky top-24 space-y-4">
-              <FlippingAd size="medium" />
-              <FlippingAd size="small" />
+              {/* <FlippingAd size="medium" />
+              <FlippingAd size="small" /> */}
+              <RecentListings />
             </div>
           </div>
         </div>
@@ -425,7 +439,8 @@ const FeaturedAdsPage: React.FC = () => {
 
       {/* Bottom Banner Ad */}
       <div className="mx-4">
-        <BottomBanner />
+        {/* <BottomBanner /> */}
+        <AdDetailBanner />
       </div>
 
       {/* Listing Modal */}

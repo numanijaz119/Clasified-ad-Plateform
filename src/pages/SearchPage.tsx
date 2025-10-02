@@ -16,6 +16,8 @@ import {
   SideBanner,
   InlineBanner,
   BottomBanner,
+  RecentListing,
+  RecentListings,
 } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
 import { adsService } from "../services";
@@ -24,6 +26,12 @@ import { useCities } from "../hooks/useCities";
 import { useListingModal } from "../hooks/useListingModal";
 import { useAuth } from "../contexts/AuthContext";
 import type { BasicAd } from "../hooks/useAdDetails";
+import {
+  AdDetailBanner,
+  BetweenAdsBanner,
+  HeaderBanner,
+  SidebarBanner,
+} from "../components/common/BannerLayouts";
 
 // Using BasicAd from the reusable hook
 
@@ -43,12 +51,8 @@ const SearchPage: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState(cityFilter);
   const [sortBy, setSortBy] = useState("newest");
   // Use the reusable listing modal hook
-  const {
-    selectedListing,
-    isModalOpen,
-    handleListingClick,
-    handleCloseModal,
-  } = useListingModal();
+  const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } =
+    useListingModal();
 
   // API state
   const [listings, setListings] = useState<BasicAd[]>([]);
@@ -208,7 +212,8 @@ const SearchPage: React.FC = () => {
       {/* Mobile Ad Banner */}
       <div className=" bg-white border-b border-gray-200">
         <div className="px-4 py-2">
-          <MobileBanner />
+          {/* <MobileBanner /> */}
+          <HeaderBanner />
         </div>
       </div>
 
@@ -228,7 +233,7 @@ const SearchPage: React.FC = () => {
                 {/* <FlippingAd size="small" /> */}
               </div>
               <div className="hidden lg:block">
-                <SideBanner />
+                <SidebarBanner />
               </div>
               <FlippingAd size="medium" />
               {/* <div className="hidden md:block">
@@ -434,7 +439,8 @@ const SearchPage: React.FC = () => {
                       {(index + 1) % 5 === 0 &&
                         index < filteredListings.length - 1 && (
                           <div className="p-2 bg-gray-50 border-t border-b border-gray-200">
-                            <InlineBanner />
+                            {/* <InlineBanner /> */}
+                            <BetweenAdsBanner />
                           </div>
                         )}
                     </div>
@@ -539,7 +545,8 @@ const SearchPage: React.FC = () => {
           {/* Right Sidebar with Ads */}
           <div className="md:w-48  hidden md:block  xl:w-72 lg:w-60 flex-shrink-0">
             <div className="sticky top-24 space-y-4 z-10">
-              <FlippingAd size="medium" />
+              {/* <FlippingAd size="medium" /> */}
+              <RecentListings />
             </div>
           </div>
         </div>
@@ -552,7 +559,8 @@ const SearchPage: React.FC = () => {
 
       {/* Bottom Banner Ad */}
       <div className="mx-4">
-        <BottomBanner />
+        {/* <BottomBanner /> */}
+        <AdDetailBanner />
       </div>
 
       {/* Listing Modal */}

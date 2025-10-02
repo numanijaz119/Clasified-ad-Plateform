@@ -1,7 +1,6 @@
 // src/components/common/BannerLayouts.tsx
 import React from "react";
 import BannerDisplay from "./BannerDisplay";
-import type { BannerPosition } from "../../types/banners";
 
 interface BannerLayoutProps {
   stateCode?: string;
@@ -14,13 +13,13 @@ export const HeaderBanner: React.FC<BannerLayoutProps> = ({
   categoryId,
 }) => {
   return (
-    <div className="w-full bg-gray-50 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+    <div className="w-full bg-gray-50 border-b border-gray-200 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         <BannerDisplay
           position="header"
           stateCode={stateCode}
           categoryId={categoryId}
-          className=""
+          className="mx-auto"
         />
       </div>
     </div>
@@ -33,7 +32,7 @@ export const SidebarBanner: React.FC<BannerLayoutProps> = ({
   categoryId,
 }) => {
   return (
-    <aside className="hidden lg:block flex-shrink-0">
+    <aside className="hidden lg:block w-64 xl:w-72 flex-shrink-0 overflow-hidden">
       <div className="sticky top-20 space-y-4">
         <BannerDisplay
           position="sidebar"
@@ -52,13 +51,13 @@ export const FooterBanner: React.FC<BannerLayoutProps> = ({
   categoryId,
 }) => {
   return (
-    <div className="w-full bg-gray-50 border-t border-gray-200 mt-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div className="w-full bg-gray-50 border-t border-gray-200 mt-8 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <BannerDisplay
           position="footer"
           stateCode={stateCode}
           categoryId={categoryId}
-          className="max-h-32"
+          className="mx-auto"
         />
       </div>
     </div>
@@ -73,7 +72,7 @@ export const BetweenAdsBanner: React.FC<
   if (index % 6 !== 0 || index === 0) return null;
 
   return (
-    <div className="col-span-full my-6">
+    <div className="col-span-full my-4 overflow-hidden">
       <BannerDisplay
         position="between_ads"
         stateCode={stateCode}
@@ -90,12 +89,12 @@ export const CategoryPageBanner: React.FC<BannerLayoutProps> = ({
   categoryId,
 }) => {
   return (
-    <div className="mb-6">
+    <div className="mb-4 overflow-hidden">
       <BannerDisplay
         position="category_page"
         stateCode={stateCode}
         categoryId={categoryId}
-        className="w-full"
+        className="w-full mx-auto"
       />
     </div>
   );
@@ -107,12 +106,12 @@ export const AdDetailBanner: React.FC<BannerLayoutProps> = ({
   categoryId,
 }) => {
   return (
-    <div className="my-6">
+    <div className="my-4 overflow-hidden">
       <BannerDisplay
         position="ad_detail"
         stateCode={stateCode}
         categoryId={categoryId}
-        className="w-full"
+        className="w-full mx-auto"
       />
     </div>
   );
@@ -153,7 +152,7 @@ export const MobileBottomBanner: React.FC<BannerLayoutProps> = ({
           position="footer"
           stateCode={stateCode}
           categoryId={categoryId}
-          className="max-h-20"
+          className="w-full"
         />
       </div>
     </div>

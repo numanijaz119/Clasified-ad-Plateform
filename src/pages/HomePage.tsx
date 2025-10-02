@@ -10,6 +10,7 @@ import {
 } from "../components/AdBanners";
 import {
   AdDetailBanner,
+  BetweenAdsBanner,
   FooterBanner,
   HeaderBanner,
   SidebarBanner,
@@ -53,7 +54,8 @@ const HomePage: React.FC = () => {
                 <FlippingAd size="medium" />
               </div>
 
-              <InlineBanner />
+              {/* <InlineBanner /> */}
+              <BetweenAdsBanner />
             </div>
           </div>
 

@@ -15,11 +15,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   onGoogleSuccess,
 }) => {
   const { register, isLoading, error, clearError } = useAuth();
-  const [email, setEmail] = useState("umanijaz5@gmail.com");
+  const [email, setEmail] = useState("mrwhite0798@gmail.com");
   const [password, setPassword] = useState("abc@12345");
   const [confirmPassword, setConfirmPassword] = useState("abc@12345");
-  const [firstName, setFirstName] = useState("Umanijaz");
-  const [lastName, setLastName] = useState("Khan");
+  const [firstName, setFirstName] = useState("Numan");
+  const [lastName, setLastName] = useState("Ijaz");
   const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 

@@ -70,7 +70,8 @@ const HomePage: React.FC = () => {
 
         {/* Bottom Banner Ad */}
         <div className="overflow-hidden">
-          <AdDetailBanner />
+          {/* <AdDetailBanner /> */}
+          <FooterBanner />
         </div>
       </main>
     </>

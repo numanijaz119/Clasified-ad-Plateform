@@ -67,9 +67,9 @@ export const FooterBanner: React.FC<BannerLayoutProps> = ({
 // Between Ads Banner - Inline with content
 export const BetweenAdsBanner: React.FC<
   BannerLayoutProps & { index?: number }
-> = ({ stateCode, categoryId, index = 0 }) => {
-  // Only show between every 6 ads
-  if (index % 6 !== 0 || index === 0) return null;
+> = ({ stateCode, categoryId, index }) => {
+  // If index is provided, only show between every 6 ads (but not at index 0)
+  if (index !== undefined && (index % 6 !== 0 || index === 0)) return null;
 
   return (
     <div className="col-span-full my-4 overflow-hidden">

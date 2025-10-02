@@ -18,6 +18,7 @@ import Badge from "../components/ui/Badge";
 import {
   AdDetailBanner,
   BetweenAdsBanner,
+  FooterBanner,
   HeaderBanner,
   SidebarBanner,
 } from "../components/common/BannerLayouts";
@@ -440,7 +441,9 @@ const FeaturedAdsPage: React.FC = () => {
       {/* Bottom Banner Ad */}
       <div className="mx-4">
         {/* <BottomBanner /> */}
-        <AdDetailBanner />
+        {/* <AdDetailBanner /> */}
+                  <FooterBanner />
+        
       </div>
 
       {/* Listing Modal */}

@@ -29,6 +29,7 @@ import { useAuth } from "../contexts/AuthContext";
 import {
   AdDetailBanner,
   BetweenAdsBanner,
+  FooterBanner,
   HeaderBanner,
   SidebarBanner,
 } from "../components/common/BannerLayouts";
@@ -456,7 +457,9 @@ const CityPage: React.FC = () => {
       {/* Bottom Banner Ad */}
       <div className="mx-4">
         {/* <BottomBanner /> */}
-        <AdDetailBanner />
+        {/* <AdDetailBanner /> */}
+                  <FooterBanner />
+        
       </div>
 
       {/* Listing Modal */}

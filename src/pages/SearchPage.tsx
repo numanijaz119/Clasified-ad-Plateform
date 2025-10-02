@@ -29,6 +29,7 @@ import type { BasicAd } from "../hooks/useAdDetails";
 import {
   AdDetailBanner,
   BetweenAdsBanner,
+  FooterBanner,
   HeaderBanner,
   SidebarBanner,
 } from "../components/common/BannerLayouts";
@@ -560,7 +561,8 @@ const SearchPage: React.FC = () => {
       {/* Bottom Banner Ad */}
       <div className="mx-4">
         {/* <BottomBanner /> */}
-        <AdDetailBanner />
+        {/* <AdDetailBanner /> */}
+        <FooterBanner />
       </div>
 
       {/* Listing Modal */}

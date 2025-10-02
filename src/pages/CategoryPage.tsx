@@ -19,8 +19,10 @@ import { useAuth } from "../contexts/AuthContext";
 import {
   AdDetailBanner,
   CategoryPageBanner,
+  FooterBanner,
   HeaderBanner,
   SidebarBanner,
+  BetweenAdsBanner,
 } from "../components/common/BannerLayouts";
 
 interface Listing {
@@ -359,11 +361,12 @@ const CategoryPage: React.FC = () => {
                       </div>
 
                       {/* Inline Ad every 5 listings */}
+                      {/* Inline Ad every 5 listings */}
                       {(index + 1) % 5 === 0 &&
                         index < filteredListings.length - 1 && (
                           <div className="p-2 bg-gray-50 border-t border-b border-gray-200">
-                            {/* <InlineBanner /> */}
-                            <CategoryPageBanner />
+                            {/* <InlineBanner </> */}
+                            <BetweenAdsBanner />
                           </div>
                         )}
                     </div>
@@ -415,7 +418,8 @@ const CategoryPage: React.FC = () => {
       {/* Bottom Banner Ad */}
       <div className="mx-4">
         {/* <BottomBanner /> */}
-        <AdDetailBanner />
+        {/* <AdDetailBanner /> */}
+        <FooterBanner />
       </div>
 
       {/* Listing Modal */}

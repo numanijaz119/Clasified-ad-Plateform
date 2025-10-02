@@ -190,14 +190,14 @@ const Header: React.FC<HeaderProps> = ({
                         Dashboard
                       </Link>
 
-                      <Link
+                      {/* <Link
                         to="/settings"
                         onClick={() => setIsProfileDropdownOpen(false)}
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         <Settings className="h-4 w-4 mr-3" />
                         Settings
-                      </Link>
+                      </Link> */}
 
                       <div className="border-t border-gray-100"></div>
 
@@ -301,14 +301,14 @@ const Header: React.FC<HeaderProps> = ({
                     Dashboard
                   </Link>
 
-                  <Link
+                  {/* <Link
                     to="/settings"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
                   >
                     <Settings className="h-5 w-5 mr-3" />
                     Settings
-                  </Link>
+                  </Link> */}
 
                   <button
                     onClick={() => {

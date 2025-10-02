@@ -40,6 +40,10 @@ export const API_CONFIG = {
       CATEGORIES: "/api/content/categories/",
       CATEGORIES_SIMPLE: "/api/content/categories/simple/",
       CATEGORY_DETAIL: "/api/content/categories/:slug/",
+
+      // Banners - NEW
+      BANNERS: "/api/content/banners/",
+      // Query params: ?position=header&state=IL&category=1
     },
 
     // ========================================================================

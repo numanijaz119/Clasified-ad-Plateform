@@ -8,9 +8,15 @@ import {
   RecentListings,
   BottomBanner,
 } from "../components/AdBanners";
+import {
+  AdDetailBanner,
+  BetweenAdsBanner,
+  FooterBanner,
+  HeaderBanner,
+  SidebarBanner,
+} from "../components/common/BannerLayouts";
 
 const HomePage: React.FC = () => {
-
   return (
     <>
       <main className="max-w-7xl mx-auto px-4">
@@ -18,7 +24,7 @@ const HomePage: React.FC = () => {
           {/* Left Sidebar with Ads */}
           <div className="hidden md:block lg:w-64 xl:w-72 md:w-48 flex-shrink-0">
             <div className="sticky top-24 space-y-4 z-10">
-              <SideBanner />
+              <SidebarBanner />
               <FlippingAd size="medium" />
             </div>
           </div>
@@ -34,7 +40,9 @@ const HomePage: React.FC = () => {
 
             {/* Mobile Ad */}
             <div className="md:hidden my-4">
-              <SideBanner size="small" />
+              {/* <SideBanner size="small" /> */}
+              {/* <SideBanner /> */}
+              <HeaderBanner />
             </div>
 
             <FeaturedAds />
@@ -46,7 +54,8 @@ const HomePage: React.FC = () => {
                 <FlippingAd size="medium" />
               </div>
 
-              <InlineBanner />
+              {/* <InlineBanner /> */}
+              <BetweenAdsBanner />
             </div>
           </div>
 
@@ -60,7 +69,10 @@ const HomePage: React.FC = () => {
         </div>
 
         {/* Bottom Banner Ad */}
-        <BottomBanner />
+        <div className="overflow-hidden">
+          {/* <AdDetailBanner /> */}
+          <FooterBanner />
+        </div>
       </main>
     </>
   );

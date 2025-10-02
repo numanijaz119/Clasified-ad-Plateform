@@ -5,6 +5,7 @@ import { Cloud, MapPin } from "lucide-react";
 import SearchBar from "./SearchBar";
 import { useCities } from "../hooks/useCities";
 import { useCategories } from "../hooks/useCategories";
+import { HeaderBanner } from "./common/BannerLayouts";
 
 const Hero: React.FC = () => {
   const {
@@ -137,7 +138,7 @@ const Hero: React.FC = () => {
   return (
     <section className="pt-2 pb-3">
       {/* Top Banner with Weather */}
-      <div className="bg-white border-b border-gray-200 mb-6">
+      {/* <div className="bg-white border-b border-gray-200 mb-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-center">
             <div className="w-full bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-500 font-medium h-20">
@@ -150,7 +151,9 @@ const Hero: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
+
+      <HeaderBanner />
 
       <div className="pb-4">
         <SearchBar className="my-0 mx-auto" />
@@ -215,9 +218,9 @@ const Hero: React.FC = () => {
                       <h3 className="text-white font-bold text-xs mb-0.5 truncate group-hover:text-orange-200 transition-colors">
                         {city.name}
                       </h3>
-                      <p className="text-white/90 text-xs truncate group-hover:text-orange-100 transition-colors">
+                      {/* <p className="text-white/90 text-xs truncate group-hover:text-orange-100 transition-colors">
                         {city.count}
-                      </p>
+                      </p> */}
                     </div>
                     <div className="absolute inset-0 bg-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute top-1 right-1 w-4 h-4 bg-white/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -285,10 +288,10 @@ const Hero: React.FC = () => {
                       {category.name}
                     </h3>
                     <div className="flex items-center justify-center space-x-1">
-                      <span className="text-xs font-bold text-gray-900">
+                      {/* <span className="text-xs font-bold text-gray-900">
                         {category.count.toLocaleString()}
-                      </span>
-                      <span className="text-xs text-gray-500">ads</span>
+                      </span> */}
+                      {/* <span className="text-xs text-gray-500">ads</span> */}
                     </div>
                     <div
                       className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${category.color} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300`}

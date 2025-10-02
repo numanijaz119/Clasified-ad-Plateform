@@ -18,7 +18,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
   onForgotPassword, // New prop
 }) => {
   const { login, isLoading, resendVerification, error, clearError } = useAuth();
-  const [email, setEmail] = useState("umanijaz5@gmail.com");
+  const [email, setEmail] = useState("mrwhite0798@gmail.com");
   const [password, setPassword] = useState("abc@12345");
   const [showPassword, setShowPassword] = useState(false);
 

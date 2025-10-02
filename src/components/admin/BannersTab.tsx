@@ -32,6 +32,7 @@ import {
 import { State, Category } from "../../types/content";
 import BaseModal from "../modals/BaseModal";
 import ConfirmModal from "./ConfirmModal";
+import { truncateFilename } from "../../utils/truncateFilename";
 
 const BannersTab: React.FC = () => {
   const toast = useToast();
@@ -77,6 +78,7 @@ const BannersTab: React.FC = () => {
     target_categories: [] as number[],
     click_url: "",
     open_new_tab: true,
+    is_active: true,
     start_date: "",
     end_date: "",
     priority: 0,
@@ -210,7 +212,7 @@ const BannersTab: React.FC = () => {
       title: banner.title,
       description: banner.description || "",
       banner_type: banner.banner_type,
-      image: null,
+      image: null, // Keep as null - existing image will be preserved on backend
       html_content: banner.html_content || "",
       text_content: banner.text_content || "",
       position: banner.position,
@@ -218,6 +220,7 @@ const BannersTab: React.FC = () => {
       target_categories: banner.target_categories || [],
       click_url: banner.click_url || "",
       open_new_tab: banner.open_new_tab,
+      is_active: banner.is_active,
       start_date: banner.start_date ? banner.start_date.split("T")[0] : "",
       end_date: banner.end_date ? banner.end_date.split("T")[0] : "",
       priority: banner.priority || 0,
@@ -239,6 +242,7 @@ const BannersTab: React.FC = () => {
       target_categories: [],
       click_url: "",
       open_new_tab: true,
+      is_active: true,
       start_date: "",
       end_date: "",
       priority: 0,
@@ -260,7 +264,8 @@ const BannersTab: React.FC = () => {
       return;
     }
 
-    setFormData((prev) => ({ ...prev, image: file }));
+    const processedFile = truncateFilename(file);
+    setFormData((prev) => ({ ...prev, image: processedFile }));
     setFormErrors((prev) => ({ ...prev, image: "" }));
 
     const reader = new FileReader();
@@ -318,6 +323,7 @@ const BannersTab: React.FC = () => {
           target_categories: formData.target_categories,
           click_url: formData.click_url,
           open_new_tab: formData.open_new_tab,
+          is_active: formData.is_active,
           start_date: formData.start_date || undefined,
           end_date: formData.end_date || undefined,
           priority: formData.priority,
@@ -342,6 +348,7 @@ const BannersTab: React.FC = () => {
           target_categories: formData.target_categories,
           click_url: formData.click_url,
           open_new_tab: formData.open_new_tab,
+          is_active: formData.is_active,
           start_date: formData.start_date || undefined,
           end_date: formData.end_date || undefined,
           priority: formData.priority,
@@ -1777,6 +1784,7 @@ const BannersTab: React.FC = () => {
                 )}
               </div>
             </div>
+
           </div>
 
           {/* Form Actions */}

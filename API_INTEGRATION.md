@@ -36,6 +36,7 @@ Frontend/
 ## Backend API Endpoints
 
 ### Authentication (`/api/auth/`)
+
 - `POST /register/` - User registration
 - `POST /login/` - User login
 - `POST /logout/` - User logout
@@ -51,6 +52,7 @@ Frontend/
 - `POST /token/refresh/` - Refresh JWT token
 
 ### Ads (`/api/ads/`)
+
 - `GET /ads/` - List ads with filtering
 - `POST /ads/` - Create new ad
 - `GET /ads/search/` - Search ads
@@ -69,6 +71,7 @@ Frontend/
 - `GET /dashboard/analytics/` - User dashboard analytics
 
 ### Content (`/api/content/`)
+
 - `GET /categories/` - Get all categories
 - `GET /cities/` - Get all cities
 - `GET /states/` - Get all states
@@ -76,7 +79,9 @@ Frontend/
 ## Frontend Services
 
 ### AuthService
+
 Handles all authentication-related API calls:
+
 - User registration and login
 - Email verification
 - Password management
@@ -84,7 +89,9 @@ Handles all authentication-related API calls:
 - Token refresh and logout
 
 ### AdsService
+
 Handles all ad-related API calls:
+
 - CRUD operations for ads
 - Search and filtering
 - Image management
@@ -92,7 +99,9 @@ Handles all ad-related API calls:
 - Analytics and dashboard data
 
 ### ContentService
+
 Handles content-related API calls:
+
 - Categories, cities, and states
 - Location search
 - Content statistics
@@ -119,6 +128,7 @@ await login(credentials);
 ```
 
 Benefits:
+
 - Centralized state management
 - Consistent error handling
 - Automatic UI updates
@@ -135,6 +145,7 @@ Comprehensive TypeScript types ensure type safety across the application:
 ## Error Handling
 
 Consistent error handling across all services:
+
 - Network errors with retry logic
 - Token refresh on 401 errors
 - Detailed error messages from backend
@@ -143,6 +154,7 @@ Consistent error handling across all services:
 ## API Configuration
 
 Centralized API configuration in `src/config/api.ts`:
+
 - Base URL configuration
 - All endpoint definitions
 - Request headers management
@@ -151,6 +163,7 @@ Centralized API configuration in `src/config/api.ts`:
 ## Key Features Implemented
 
 ### Authentication
+
 ✅ User registration with email verification
 ✅ Login/logout with JWT tokens
 ✅ Google OAuth integration
@@ -159,6 +172,7 @@ Centralized API configuration in `src/config/api.ts`:
 ✅ Account deletion
 
 ### Ads Management
+
 ✅ Create, read, update, delete ads
 ✅ Image upload and management
 ✅ Search and filtering
@@ -168,6 +182,7 @@ Centralized API configuration in `src/config/api.ts`:
 ✅ Featured ads promotion
 
 ### Content Management
+
 ✅ Categories hierarchy
 ✅ Cities and states
 ✅ Location search
@@ -177,12 +192,13 @@ Centralized API configuration in `src/config/api.ts`:
 ## Usage Examples
 
 ### Authentication
+
 ```typescript
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from "../contexts/AuthContext";
 
 const MyComponent = () => {
   const { login, user, isLoading, error } = useAuth();
-  
+
   const handleLogin = async (credentials) => {
     try {
       await login(credentials);
@@ -195,20 +211,21 @@ const MyComponent = () => {
 ```
 
 ### Ads Management
+
 ```typescript
-import { adsService } from '../services';
+import { adsService } from "../services";
 
 // Get ads with filtering
 const ads = await adsService.getAds({
-  category: 'electronics',
-  city: 'chicago',
-  price_max: 1000
+  category: "electronics",
+  city: "chicago",
+  price_max: 1000,
 });
 
 // Create new ad
 const newAd = await adsService.createAd({
-  title: 'iPhone 13',
-  description: 'Excellent condition',
+  title: "iPhone 13",
+  description: "Excellent condition",
   price: 800,
   category: 1,
   city: 1,
@@ -217,14 +234,15 @@ const newAd = await adsService.createAd({
 ```
 
 ### Content Management
+
 ```typescript
-import { contentService } from '../services';
+import { contentService } from "../services";
 
 // Get categories with caching
 const categories = await contentService.getCategories();
 
 // Search locations
-const results = await contentService.searchLocations('chicago');
+const results = await contentService.searchLocations("chicago");
 ```
 
 ## Security Considerations
@@ -249,17 +267,20 @@ const results = await contentService.searchLocations('chicago');
 ### ✅ **Completed Integration Updates**
 
 1. **Main App Setup**:
+
    - Updated `main.tsx` to wrap the app with `AuthProvider`
    - Simplified `App.tsx` to use auth context instead of local auth state management
-   - Removed all direct `authService` calls from `App.tsx`
+   - Removed all direct `authServic` calls from `App.tsx`
 
 2. **Auth Components Integration**:
+
    - `SignInForm.tsx` - Now uses auth context exclusively
-   - `SignUpForm.tsx` - Now uses auth context exclusively  
+   - `SignUpForm.tsx` - Now uses auth context exclusively
    - `EmailVerification.tsx` - Now uses auth context exclusively
    - `GoogleSignInButton.tsx` - Updated to use auth context
 
 3. **Google Auth Utility**:
+
    - Refactored `googleAuth.ts` to accept callback functions instead of direct service calls
    - Now properly integrates with auth context pattern
 

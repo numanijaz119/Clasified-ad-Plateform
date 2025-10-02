@@ -379,6 +379,9 @@ class AdminService extends BaseApiService {
       if (data.open_new_tab !== undefined) {
         formData.append("open_new_tab", data.open_new_tab.toString());
       }
+      if (data.is_active !== undefined) {
+        formData.append("is_active", data.is_active.toString());
+      }
       if (data.start_date) formData.append("start_date", data.start_date);
       if (data.end_date) formData.append("end_date", data.end_date);
       if (data.priority !== undefined) {

@@ -1,8 +1,7 @@
 // src/types/admin.ts
 
-import { Ad, AdStatus, AdPlan } from "./ads";
-import { User } from "./auth";
-import { Category, City, State } from "./content";
+import { AdStatus, AdPlan } from "./ads";
+import { State } from "./content";
 
 // ============================================================================
 // DASHBOARD STATS
@@ -314,6 +313,7 @@ export interface AdminBannerCreateRequest {
   target_categories?: number[];
   click_url?: string;
   open_new_tab?: boolean;
+  is_active?: boolean;
   start_date?: string;
   end_date?: string;
   priority?: number;

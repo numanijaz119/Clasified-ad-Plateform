@@ -5,3 +5,4 @@ export { default as SearchPage } from "./SearchPage";
 export { default as FeaturedAdsPage } from "./FeaturedAdsPage";
 export { default as AdminDashboard } from "./AdminDashboard";
 export { default as UserDashboard } from "./UserDashboard";
+export { default as MessagesPage } from "./MessagesPage";

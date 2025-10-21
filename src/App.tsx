@@ -17,6 +17,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useToast } from "./contexts/ToastContext";
+import MessagesPage from "./pages/MessagesPage";
 
 function App() {
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
@@ -130,6 +131,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/messages"
+          element={
+            <ProtectedRoute>
+              <MessagesPage />
             </ProtectedRoute>
           }
         />

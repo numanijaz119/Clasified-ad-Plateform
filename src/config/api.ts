@@ -100,6 +100,34 @@ export const API_CONFIG = {
     },
 
     // ========================================================================
+// MESSAGING ENDPOINTS
+// ========================================================================
+MESSAGING: {
+  // Conversations
+  CONVERSATIONS: "/api/messaging/conversations/",
+  CONVERSATION_DETAIL: "/api/messaging/conversations/:id/",
+  CONVERSATION_MARK_READ: "/api/messaging/conversations/:id/mark_all_read/",
+  CONVERSATION_ARCHIVE: "/api/messaging/conversations/:id/archive/",
+  CONVERSATION_BLOCK: "/api/messaging/conversations/:id/block/",
+  CONVERSATIONS_UNREAD: "/api/messaging/conversations/unread_count/",
+  CONVERSATIONS_STATS: "/api/messaging/conversations/stats/",
+  
+  // Messages
+  MESSAGES: "/api/messaging/messages/",
+  MESSAGE_DETAIL: "/api/messaging/messages/:id/",
+  MESSAGE_MARK_READ: "/api/messaging/messages/:id/mark_read/",
+  MESSAGES_MARK_ALL_READ: "/api/messaging/messages/mark_all_read/",
+  
+  // Notifications
+  NOTIFICATIONS: "/api/messaging/notifications/",
+  NOTIFICATION_DETAIL: "/api/messaging/notifications/:id/",
+  NOTIFICATION_MARK_READ: "/api/messaging/notifications/:id/mark_read/",
+  NOTIFICATIONS_MARK_ALL_READ: "/api/messaging/notifications/mark_all_read/",
+  NOTIFICATIONS_UNREAD: "/api/messaging/notifications/unread_count/",
+  NOTIFICATIONS_CLEAR: "/api/messaging/notifications/clear_all/",
+},
+
+    // ========================================================================
     // ADMINISTRATOR ENDPOINTS
     // ========================================================================
     ADMIN: {
@@ -207,6 +235,8 @@ export const API_CONFIG = {
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000, // 1 second
 };
+
+
 
 // Request headers
 export const getHeaders = (includeAuth: boolean = true) => {

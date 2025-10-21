@@ -1,0 +1,300 @@
+// src/hooks/useMessaging.ts
+import { useState, useEffect, useCallback } from 'react';
+import { messagingService } from '../services/messagingService';
+import { useToast } from '../contexts/ToastContext';
+import type {
+  Conversation,
+  Message,
+  Notification,
+  MessageCreateRequest,
+  MessageStats,
+} from '../types/messaging';
+
+/**
+ * Hook for managing conversations
+ */
+export const useConversations = () => {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const toast = useToast();
+
+  const fetchConversations = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await messagingService.getConversations();
+      setConversations(response.results);
+    } catch (err: any) {
+      const errorMsg = err.message || 'Failed to load conversations';
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const count = await messagingService.getUnreadCount();
+      setUnreadCount(count);
+    } catch (err) {
+      console.error('Failed to fetch unread count:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchConversations();
+    fetchUnreadCount();
+  }, [fetchConversations, fetchUnreadCount]);
+
+  const markAsRead = useCallback(async (conversationId: number) => {
+    try {
+      await messagingService.markConversationRead(conversationId);
+      // Update local state
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === conversationId ? { ...conv, unread_count: 0 } : conv
+        )
+      );
+      fetchUnreadCount();
+    } catch (err: any) {
+      toast.error('Failed to mark as read');
+    }
+  }, [toast, fetchUnreadCount]);
+
+  const archiveConversation = useCallback(async (conversationId: number) => {
+    try {
+      await messagingService.archiveConversation(conversationId);
+      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+      toast.success('Conversation archived');
+    } catch (err: any) {
+      toast.error('Failed to archive conversation');
+    }
+  }, [toast]);
+
+  const blockConversation = useCallback(async (conversationId: number) => {
+    try {
+      await messagingService.blockConversation(conversationId);
+      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+      toast.success('User blocked');
+    } catch (err: any) {
+      toast.error('Failed to block user');
+    }
+  }, [toast]);
+
+  return {
+    conversations,
+    loading,
+    error,
+    unreadCount,
+    refetch: fetchConversations,
+    markAsRead,
+    archiveConversation,
+    blockConversation,
+  };
+};
+
+/**
+ * Hook for managing messages in a conversation
+ */
+export const useMessages = (conversationId: number | null) => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+
+  const fetchMessages = useCallback(async () => {
+    if (!conversationId) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await messagingService.getMessages({
+        conversation_id: conversationId,
+      });
+      setMessages(response.results);
+    } catch (err: any) {
+      const errorMsg = err.message || 'Failed to load messages';
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  }, [conversationId, toast]);
+
+  useEffect(() => {
+    if (conversationId) {
+      fetchMessages();
+    }
+  }, [conversationId, fetchMessages]);
+
+  const sendMessage = useCallback(async (content: string) => {
+    if (!conversationId || !content.trim()) return false;
+
+    try {
+      setSending(true);
+      const messageData: MessageCreateRequest = {
+        conversation: conversationId,
+        message_type: 'text',
+        content: content.trim(),
+      };
+
+      const newMessage = await messagingService.sendMessage(messageData);
+      
+      // Add new message to list
+      setMessages(prev => [...prev, newMessage]);
+      
+      return true;
+    } catch (err: any) {
+      toast.error('Failed to send message');
+      return false;
+    } finally {
+      setSending(false);
+    }
+  }, [conversationId, toast]);
+
+  const markAsRead = useCallback(async () => {
+    if (!conversationId) return;
+
+    try {
+      await messagingService.markAllMessagesRead(conversationId);
+      // Update local state
+      setMessages(prev =>
+        prev.map(msg => ({ ...msg, is_read: true }))
+      );
+    } catch (err) {
+      console.error('Failed to mark messages as read:', err);
+    }
+  }, [conversationId]);
+
+  return {
+    messages,
+    loading,
+    sending,
+    error,
+    sendMessage,
+    markAsRead,
+    refetch: fetchMessages,
+  };
+};
+
+/**
+ * Hook for managing notifications
+ */
+export const useNotifications = () => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const toast = useToast();
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await messagingService.getNotifications();
+      setNotifications(response.results);
+    } catch (err: any) {
+      const errorMsg = err.message || 'Failed to load notifications';
+      setError(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const count = await messagingService.getUnreadNotificationsCount();
+      setUnreadCount(count);
+    } catch (err) {
+      console.error('Failed to fetch unread notifications:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+    fetchUnreadCount();
+  }, [fetchNotifications, fetchUnreadCount]);
+
+  const markAsRead = useCallback(async (notificationId: number) => {
+    try {
+      await messagingService.markNotificationRead(notificationId);
+      setNotifications(prev =>
+        prev.map(notif =>
+          notif.id === notificationId ? { ...notif, is_read: true } : notif
+        )
+      );
+      fetchUnreadCount();
+    } catch (err: any) {
+      toast.error('Failed to mark notification as read');
+    }
+  }, [toast, fetchUnreadCount]);
+
+  const markAllAsRead = useCallback(async () => {
+    try {
+      await messagingService.markAllNotificationsRead();
+      setNotifications(prev =>
+        prev.map(notif => ({ ...notif, is_read: true }))
+      );
+      setUnreadCount(0);
+      toast.success('All notifications marked as read');
+    } catch (err: any) {
+      toast.error('Failed to mark all as read');
+    }
+  }, [toast]);
+
+  const clearAll = useCallback(async () => {
+    try {
+      await messagingService.clearAllNotifications();
+      setNotifications([]);
+      toast.success('Notifications cleared');
+    } catch (err: any) {
+      toast.error('Failed to clear notifications');
+    }
+  }, [toast]);
+
+  return {
+    notifications,
+    loading,
+    error,
+    unreadCount,
+    refetch: fetchNotifications,
+    markAsRead,
+    markAllAsRead,
+    clearAll,
+  };
+};
+
+/**
+ * Hook for messaging statistics
+ */
+export const useMessagingStats = () => {
+  const [stats, setStats] = useState<MessageStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const toast = useToast();
+
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await messagingService.getStats();
+      setStats(data);
+    } catch (err: any) {
+      toast.error('Failed to load messaging statistics');
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  return {
+    stats,
+    loading,
+    refetch: fetchStats,
+  };
+};

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "./";
 import { useAuth } from "../contexts/AuthContext";
+import { NotificationBell, MessageIcon } from './messaging';
 
 /**
  * Normalizes avatar URL to ensure it's absolute and includes cache-busting
@@ -109,18 +110,18 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="flex items-center space-x-2">
                   {/* Notifications */}
                   <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
-                    <Bell className="h-6 w-6" />
+                  <NotificationBell />
                     {/* Notification badge - you can add logic for unread count */}
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-[1px] right-[6px] bg-red-500 text-white text-xs rounded-full  h-[1.2rem] w-[1.2rem] flex items-center justify-center">
                       3
                     </span>
                   </button>
 
                   {/* Chat/Messages */}
                   <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
-                    <MessageCircle className="h-6 w-6" />
+                   <MessageIcon />
                     {/* Message badge - you can add logic for unread count */}
-                    <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-[1px] right-[6px] bg-blue-500 text-white text-xs rounded-full h-[1.2rem] w-[1.2rem] flex items-center justify-center">
                       2
                     </span>
                   </button>

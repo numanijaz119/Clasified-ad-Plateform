@@ -16,22 +16,52 @@ import type {
 export const useConversations = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const toast = useToast();
 
-  const fetchConversations = useCallback(async () => {
+  const fetchConversations = useCallback(async (isRefreshing = false) => {
     try {
-      setLoading(true);
-      setError(null);
+      // Only show loading state on initial load when there are no conversations
+      if (!isRefreshing && (!conversations || conversations.length === 0)) {
+        setLoading(true);
+      }
+      
       const response = await messagingService.getConversations();
-      setConversations(response.results);
+      
+      // Use functional update to ensure we have the latest state
+      setConversations(prevConversations => {
+        // Only update if there are actual changes to prevent unnecessary re-renders
+        const newConversations = response.results;
+        
+        // Check if the data has actually changed
+        const hasChanges = JSON.stringify(prevConversations) !== JSON.stringify(newConversations);
+        
+        if (hasChanges) {
+          return newConversations;
+        }
+        return prevConversations;
+      });
+      
+      // Update unread count
+      const newUnreadCount = response.results.reduce(
+        (count: number, conv: any) => count + (conv.unread_count || 0), 
+        0
+      );
+      setUnreadCount(newUnreadCount);
+      
     } catch (err: any) {
       const errorMsg = err.message || 'Failed to load conversations';
       setError(errorMsg);
-      toast.error(errorMsg);
+      if (!isRefreshing) { // Only show toast for initial load errors
+        toast.error(errorMsg);
+      }
     } finally {
-      setLoading(false);
+      if (!isRefreshing) {
+        setLoading(false);
+      }
     }
   }, [toast]);
 
@@ -84,12 +114,18 @@ export const useConversations = () => {
     }
   }, [toast]);
 
+  // Wrap the refetch function to handle the refreshing state
+  const refetch = useCallback(async (isRefreshing = false) => {
+    return fetchConversations(isRefreshing);
+  }, [fetchConversations]);
+
   return {
     conversations,
     loading,
+    refreshing,
     error,
     unreadCount,
-    refetch: fetchConversations,
+    refetch,
     markAsRead,
     archiveConversation,
     blockConversation,

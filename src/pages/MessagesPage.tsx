@@ -27,6 +27,7 @@ const MessagesPage: React.FC = () => {
     archiveConversation,
     blockConversation,
     refetch: refetchConversations,
+    refreshing: refreshingConversations,
   } = useConversations();
 
   const {
@@ -38,13 +39,46 @@ const MessagesPage: React.FC = () => {
     refetch: refetchMessages,
   } = useMessages(selectedConversation?.id || null);
 
-  // Auto-refresh conversations every 10 seconds for real-time feel
+  // Initial fetch and auto-refresh setup
   useEffect(() => {
-    const interval = setInterval(() => {
-      refetchConversations();
-    }, 10000); // 10 seconds
-
-    return () => clearInterval(interval);
+    let isMounted = true;
+    let refreshTimer: NodeJS.Timeout;
+    
+    const fetchData = async (isBackgroundRefresh = false) => {
+      if (!isMounted) return;
+      
+      try {
+        await refetchConversations(isBackgroundRefresh);
+      } catch (error) {
+        console.error('Error refreshing conversations:', error);
+      }
+      
+      // Schedule next refresh only if component is still mounted
+      if (isMounted) {
+        refreshTimer = setTimeout(() => fetchData(true), 10000); // 10 seconds
+      }
+    };
+    
+    // Initial fetch
+    fetchData(false);
+    
+    // Set up visibility change handler for more efficient refreshes
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchData(true);
+      } else {
+        clearTimeout(refreshTimer);
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+      clearTimeout(refreshTimer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [refetchConversations]);
 
   // Auto-refresh messages every 5 seconds when conversation is selected
@@ -121,7 +155,8 @@ const MessagesPage: React.FC = () => {
   const handleSendMessage = async (content: string) => {
     const success = await sendMessage(content);
     if (success) {
-      // Refresh conversations to update last message
+      // Silently refresh conversations to update last message
+      refetchConversations(true).catch(console.error);
       setTimeout(() => refetchConversations(), 500);
     }
     return success;
@@ -139,7 +174,7 @@ const MessagesPage: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">
@@ -198,6 +233,7 @@ const MessagesPage: React.FC = () => {
                   selectedId={selectedConversation?.id || null}
                   onSelect={handleSelectConversation}
                   loading={loadingConversations}
+                  refreshing={refreshingConversations}
                 />
               </div>
             </div>

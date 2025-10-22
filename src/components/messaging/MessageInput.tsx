@@ -74,7 +74,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         <button
           type="submit"
           disabled={!message.trim() || disabled || sending}
-          className="btn-primary px-4 py-2 flex-shrink-0"
+          className="btn-primary h-[41.33px] px-4 py-2 flex-shrink-0"
           aria-label="Send message"
         >
           {sending ? (

@@ -124,13 +124,13 @@ const ConversationList: React.FC<ConversationListProps> = ({
                         )}
 
                         {/* Time */}
-                        <div className="flex items-center gap-1 text-xs text-gray-400">
+                        {/* <div className="flex items-center gap-1 text-xs text-gray-400">
                             <Clock className="h-3 w-3" />
                             <span>{conversation.time_since_created}</span>
                             {refreshing && isSelected && (
                                 <div className="absolute right-4 top-4 w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
                             )}
-                        </div>
+                        </div> */}
                         </button>
                     </div>
                 );

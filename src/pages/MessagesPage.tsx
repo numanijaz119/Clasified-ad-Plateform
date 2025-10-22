@@ -177,7 +177,7 @@ const MessagesPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <MessageCircle className="h-8 w-8 text-orange-500" />
             Messages
@@ -188,20 +188,20 @@ const MessagesPage: React.FC = () => {
           <p className="text-gray-600 mt-1">
             Manage your conversations with buyers and sellers
           </p>
-        </div>
+        </div> */}
 
         {/* Main Content */}
-        <div className="card overflow-hidden" style={{ height: 'calc(100vh - 240px)' }}>
+        <div className="card overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
           <div className="flex h-full">
             {/* Conversations List - Left Side */}
             <div
               className={`
                 ${selectedConversation ? 'hidden md:block' : 'block'}
-                w-full md:w-96 border-r border-gray-200 flex flex-col
+                w-full md:w-96 border-r border-gray-200 flex flex-col overflow-y-auto scrollbar-thin
               `}
             >
               {/* Search Bar */}
-              <div className="p-4 border-b border-gray-200 bg-gray-50">
+              <div className="p-4 border-b border-gray-200 bg-gray-50 sticky top-0 z-10">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input

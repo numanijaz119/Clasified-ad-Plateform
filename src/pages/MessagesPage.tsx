@@ -3,17 +3,18 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MessageCircle, ArrowLeft, MoreVertical, Archive, Ban, Search, X } from 'lucide-react';
 import { useConversations, useMessages } from '../hooks/useMessaging';
+import { messagingService } from '../services/messagingService';
 import ConversationList from '../components/messaging/ConversationList';
 import MessageThread from '../components/messaging/MessageThread';
 import MessageInput from '../components/messaging/MessageInput';
 import type { Conversation } from '../types/messaging';
-import { useToast } from '../contexts/ToastContext';
+import { useNotificationContext } from '../contexts/NotificationContext';
 
 const MessagesPage: React.FC = () => {
   const { conversationId } = useParams<{ conversationId?: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const toast = useToast();
+  const { refreshUnreadCounts, markMessagesAsRead } = useNotificationContext();
   
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [showActions, setShowActions] = useState(false);
@@ -120,8 +121,28 @@ const MessagesPage: React.FC = () => {
     if (selectedConversation && selectedConversation.unread_count > 0) {
       markAsRead(selectedConversation.id);
       markMessagesRead();
+      // Update global notification count
+      markMessagesAsRead(selectedConversation.id);
+      // Refresh counts after a short delay
+      setTimeout(() => refreshUnreadCounts(), 500);
     }
-  }, [selectedConversation?.id]);
+  }, [selectedConversation?.id, markAsRead, markMessagesRead, markMessagesAsRead, refreshUnreadCounts]);
+
+  // Also mark any notifications related to this conversation as read
+  useEffect(() => {
+    if (!selectedConversation) return;
+
+    // Best-effort: mark related notification items as read and then refresh counts
+    messagingService
+      .markConversationNotificationsRead(selectedConversation.id)
+      .then(() => {
+        // Slight delay to allow backend to update count, then refresh badges
+        setTimeout(() => refreshUnreadCounts(), 300);
+      })
+      .catch(() => {
+        // ignore errors silently
+      });
+  }, [selectedConversation?.id, refreshUnreadCounts]);
 
   const handleSelectConversation = (conversation: Conversation) => {
     setSelectedConversation(conversation);

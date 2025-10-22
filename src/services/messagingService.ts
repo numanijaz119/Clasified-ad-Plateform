@@ -326,6 +326,33 @@ async createConversation(adId: number, initialMessage?: string): Promise<Convers
   }
   
   /**
+   * Mark all notifications related to a conversation as read
+   * This is useful to keep notification badges in sync when a chat is viewed
+   */
+  async markConversationNotificationsRead(conversationId: number): Promise<void> {
+    try {
+      // Fetch unread notifications (first page) and mark those tied to this conversation as read
+      const response = await this.getNotifications({ is_read: false });
+      const toMark = (response.results || []).filter(
+        (n) => !n.is_read && n.conversation === conversationId
+      );
+
+      if (toMark.length === 0) return;
+
+      // Mark in parallel but avoid unhandled rejections
+      await Promise.all(
+        toMark.map((n) =>
+          this.markNotificationRead(n.id).catch((err) => {
+            console.warn('Failed to mark notification as read:', n.id, err);
+          })
+        )
+      );
+    } catch (error) {
+      console.warn('markConversationNotificationsRead failed:', error);
+    }
+  }
+
+  /**
    * Clear all read notifications
    */
   async clearAllNotifications(): Promise<void> {

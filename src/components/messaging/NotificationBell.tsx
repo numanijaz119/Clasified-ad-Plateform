@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Bell, Check, X } from 'lucide-react';
 import { useNotifications } from '../../hooks/useMessaging';
 import { useNavigate } from 'react-router-dom';
+import { useNotificationContext } from '../../contexts/NotificationContext';
 
 const NotificationBell: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -12,10 +13,15 @@ const NotificationBell: React.FC = () => {
   const {
     notifications,
     loading,
-    unreadCount,
     markAsRead,
     markAllAsRead,
+    refetch: refetchNotifications,
   } = useNotifications();
+  
+  const { unreadNotificationCount, refreshUnreadCounts } = useNotificationContext();
+  
+  // Calculate actual unread count from notifications list
+  const actualUnreadCount = notifications.filter(n => !n.is_read).length;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -34,9 +40,14 @@ const NotificationBell: React.FC = () => {
     };
   }, [showDropdown]);
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = async (notification: any) => {
     if (!notification.is_read) {
-      markAsRead(notification.id);
+      await markAsRead(notification.id);
+      // Refresh both the global count and notifications list
+      setTimeout(() => {
+        refreshUnreadCounts();
+        refetchNotifications();
+      }, 300);
     }
     if (notification.action_url) {
       navigate(notification.action_url);
@@ -44,9 +55,14 @@ const NotificationBell: React.FC = () => {
     setShowDropdown(false);
   };
 
-  const handleMarkAllRead = (e: React.MouseEvent) => {
+  const handleMarkAllRead = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    markAllAsRead();
+    await markAllAsRead();
+    // Refresh both the global count and notifications list
+    setTimeout(() => {
+      refreshUnreadCounts();
+      refetchNotifications();
+    }, 300);
   };
 
   const getNotificationIcon = (type: string) => {
@@ -75,9 +91,9 @@ const NotificationBell: React.FC = () => {
         aria-label="Notifications"
       >
         <Bell className="h-6 w-6" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-[6px] -right-[4px] bg-red-500 text-white text-xs rounded-full h-[1.2rem] w-[1.2rem] flex items-center justify-center font-semibold">
-            {unreadCount > 9 ? '9+' : unreadCount}
+        {unreadNotificationCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center font-semibold px-1 shadow-lg animate-pulse">
+            {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
           </span>
         )}
       </button>
@@ -87,8 +103,13 @@ const NotificationBell: React.FC = () => {
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
           {/* Header */}
           <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">Notifications</h3>
-            {unreadCount > 0 && (
+            <h3 className="font-semibold text-gray-900">
+              Notifications
+              {actualUnreadCount > 0 && (
+                <span className="ml-2 text-xs text-gray-500">({actualUnreadCount} unread)</span>
+              )}
+            </h3>
+            {actualUnreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
                 className="text-xs text-orange-500 hover:text-orange-600 font-medium flex items-center gap-1"

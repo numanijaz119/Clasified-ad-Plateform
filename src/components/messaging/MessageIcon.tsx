@@ -1,12 +1,12 @@
 // src/components/messaging/MessageIcon.tsx
-import React, { useEffect } from 'react';
+import React from 'react';
 import { MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useConversations } from '../../hooks/useMessaging';
+import { useNotificationContext } from '../../contexts/NotificationContext';
 
 const MessageIcon: React.FC = () => {
   const navigate = useNavigate();
-  const { unreadCount } = useConversations();
+  const { unreadMessageCount } = useNotificationContext();
 
   return (
     <button
@@ -15,9 +15,9 @@ const MessageIcon: React.FC = () => {
       aria-label="Messages"
     >
       <MessageCircle className="h-6 w-6" />
-      {unreadCount > 0 && (
-        <span className="absolute -top-[6px] -right-[4px] bg-blue-500 text-white text-xs rounded-full h-[1.2rem] w-[1.2rem] items-center justify-center font-semibold">
-          {unreadCount > 9 ? '9+' : unreadCount}
+      {unreadMessageCount > 0 && (
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center font-semibold px-1 shadow-lg animate-pulse">
+          {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
         </span>
       )}
     </button>

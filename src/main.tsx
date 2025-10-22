@@ -5,13 +5,16 @@ import { AuthProvider } from "./contexts/AuthContext";
 import App from "./App.tsx";
 import "./index.css";
 import { ToastProvider } from "./contexts/ToastContext.tsx";
+import { NotificationProvider } from "./contexts/NotificationContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <ToastProvider>
-          <App />
+          <NotificationProvider>
+            <App />
+          </NotificationProvider>
         </ToastProvider>
       </AuthProvider>
     </BrowserRouter>

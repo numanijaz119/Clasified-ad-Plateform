@@ -1,6 +1,6 @@
 // src/components/messaging/ConversationList.tsx
 import React from 'react';
-import { MessageCircle, Clock } from 'lucide-react';
+import { MessageCircle, Clock, Unlock } from 'lucide-react';
 import type { Conversation, Message } from '../../types/messaging';
 
 // Helper function to check if a message is new (within last 30 seconds)
@@ -14,16 +14,20 @@ interface ConversationListProps {
     conversations: Conversation[];
     selectedId: number | null;
     onSelect: (conversation: Conversation) => void;
+    onUnblock?: (conversationId: number) => void;
     loading?: boolean;
     refreshing?: boolean;
+    isBlockedView?: boolean;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
     conversations,
     selectedId,
     onSelect,
+    onUnblock,
     loading,
     refreshing = false,
+    isBlockedView = false,
 }) => {
     // Show loading skeleton only on initial load and when there are no conversations
     if (loading && (!conversations || conversations.length === 0)) {
@@ -61,8 +65,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                         {showNewIndicator && (
                             <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-orange-400 rounded-r-sm"></div>
                         )}
-                        <button
-                            onClick={() => onSelect(conversation)}
+                        <div
                             className={`
                                 w-full text-left p-4 rounded-lg border transition-all relative
                                 ${isSelected
@@ -72,6 +75,10 @@ const ConversationList: React.FC<ConversationListProps> = ({
                                 ${showNewIndicator ? 'pl-5' : 'pl-4'}
                             `}
                         >
+                            <button
+                                onClick={() => onSelect(conversation)}
+                                className="w-full text-left"
+                            >
                             <div className="flex items-start justify-between mb-2">
                                 <div className="flex items-center gap-3 flex-1 min-w-0">
                                     {/* Avatar */}
@@ -132,6 +139,23 @@ const ConversationList: React.FC<ConversationListProps> = ({
                             )}
                         </div> */}
                         </button>
+                        
+                        {/* Unblock Button for Blocked Chats */}
+                        {isBlockedView && onUnblock && (
+                            <div className="mt-3 pt-3 border-t border-gray-200">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onUnblock(conversation.id);
+                                    }}
+                                    className="w-full px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <Unlock className="h-4 w-4" />
+                                    Unblock User
+                                </button>
+                            </div>
+                        )}
+                        </div>
                     </div>
                 );
             })}

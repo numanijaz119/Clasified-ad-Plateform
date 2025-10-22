@@ -125,31 +125,33 @@ class MessagingService extends BaseService {
     }
   }
   
-  /**
-   * Block conversation
-   */
-  async blockConversation(id: number): Promise<void> {
-    try {
-      const url = API_CONFIG.ENDPOINTS.MESSAGING.CONVERSATION_BLOCK.replace(':id', id.toString());
-      await this.post(url, {}, true);
-    } catch (error: any) {
-      console.error('Block conversation error:', error);
-      throw error;
-    }
+ /**
+ * Block conversation
+ */
+async blockConversation(id: number): Promise<any> {
+  try {
+    const url = API_CONFIG.ENDPOINTS.MESSAGING.CONVERSATION_BLOCK.replace(':id', id.toString());
+    const response = await this.post(url, {}, true);
+    return response.data;
+  } catch (error: any) {
+    console.error('Block conversation error:', error);
+    throw error;
   }
-  
-  /**
-   * Unblock conversation
-   */
-  async unblockConversation(id: number): Promise<void> {
-    try {
-      const url = API_CONFIG.ENDPOINTS.MESSAGING.CONVERSATION_UNBLOCK.replace(':id', id.toString());
-      await this.post(url, {}, true);
-    } catch (error: any) {
-      console.error('Unblock conversation error:', error);
-      throw error;
-    }
+}
+
+/**
+ * Unblock conversation
+ */
+async unblockConversation(id: number): Promise<any> {
+  try {
+    const url = API_CONFIG.ENDPOINTS.MESSAGING.CONVERSATION_UNBLOCK.replace(':id', id.toString());
+    const response = await this.post(url, {}, true);
+    return response.data;
+  } catch (error: any) {
+    console.error('Unblock conversation error:', error);
+    throw error;
   }
+}
   
   /**
    * Get unread conversations count

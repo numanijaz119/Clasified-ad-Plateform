@@ -145,6 +145,21 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [isAuthenticated, refreshUnreadCounts]);
 
+  // Listen for block/unblock events to refresh counts immediately
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const handleConversationRefresh = (data: any) => {
+      if (data?.reason === 'user_blocked' || data?.reason === 'user_unblocked') {
+        // Immediately refresh unread counts when user blocks/unblocks
+        refreshUnreadCounts();
+      }
+    };
+
+    const unsubscribe = eventBus.on('conversations:refresh', handleConversationRefresh);
+    return () => unsubscribe();
+  }, [isAuthenticated, refreshUnreadCounts]);
+
   const value = {
     unreadMessageCount,
     unreadNotificationCount,

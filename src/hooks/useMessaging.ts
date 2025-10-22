@@ -143,25 +143,59 @@ export const useConversations = (options?: { status?: 'active' | 'archived' | 'b
     }
   }, [toast]);
 
-  const blockConversation = useCallback(async (conversationId: number) => {
-    try {
-      await messagingService.blockConversation(conversationId);
-      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
-      toast.success('User blocked');
-    } catch (err: any) {
-      toast.error('Failed to block user');
+ const blockConversation = useCallback(async (conversationId: number) => {
+  try {
+    const response = await messagingService.blockConversation(conversationId);
+    
+    // Remove all conversations from the list (backend blocks all)
+    setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+    
+    // Refresh unread count immediately to clear badges from blocked conversations
+    fetchUnreadCount();
+    
+    // Emit event to refresh global notification counts
+    eventBus.emit('conversations:refresh', { reason: 'user_blocked' });
+    
+    // Show count if available
+    const count = (response as any)?.blocked_count || 1;
+    const userName = (response as any)?.blocked_user_name || 'User';
+    
+    if (count > 1) {
+      toast.success(`${userName} blocked. ${count} conversations blocked.`);
+    } else {
+      toast.success(`${userName} blocked.`);
     }
-  }, [toast]);
+  } catch (err: any) {
+    toast.error('Failed to block user');
+  }
+}, [toast, fetchUnreadCount]);
 
-  const unblockConversation = useCallback(async (conversationId: number) => {
-    try {
-      await messagingService.unblockConversation(conversationId);
-      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
-      toast.success('User unblocked');
-    } catch (err: any) {
-      toast.error('Failed to unblock user');
+const unblockConversation = useCallback(async (conversationId: number) => {
+  try {
+    const response = await messagingService.unblockConversation(conversationId);
+    
+    // Remove from blocked list
+    setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+    
+    // Refresh unread count to restore badges if there are unread messages
+    fetchUnreadCount();
+    
+    // Emit event to refresh global notification counts
+    eventBus.emit('conversations:refresh', { reason: 'user_unblocked' });
+    
+    // Show count if available
+    const count = (response as any)?.unblocked_count || 1;
+    const userName = (response as any)?.unblocked_user_name || 'User';
+    
+    if (count > 1) {
+      toast.success(`${userName} unblocked. ${count} conversations restored.`);
+    } else {
+      toast.success(`${userName} unblocked.`);
     }
-  }, [toast]);
+  } catch (err: any) {
+    toast.error('Failed to unblock user');
+  }
+}, [toast, fetchUnreadCount]);
 
   // Wrap the refetch function to handle the refreshing state
   const refetch = useCallback(async (isRefreshing = false) => {

@@ -9,12 +9,14 @@ import MessageThread from '../components/messaging/MessageThread';
 import MessageInput from '../components/messaging/MessageInput';
 import type { Conversation } from '../types/messaging';
 import { useNotificationContext } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 
 const MessagesPage: React.FC = () => {
   const { conversationId } = useParams<{ conversationId?: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const { refreshUnreadCounts, markMessagesAsRead, setActiveConversationId } = useNotificationContext();
+  const toast = useToast();
   
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [showActions, setShowActions] = useState(false);
@@ -154,6 +156,18 @@ const MessagesPage: React.FC = () => {
   }, [selectedConversation?.id, refreshUnreadCounts]);
 
   const handleSelectConversation = (conversation: Conversation) => {
+    // Check if conversation is blocked (only show error if not in blocked view)
+    if (conversation.is_blocked && viewStatus !== 'blocked') {
+      toast.error('This conversation is blocked. Please unblock to continue.');
+      return;
+    }
+    
+    // In blocked view, don't open the conversation, just show it's selected
+    if (conversation.is_blocked && viewStatus === 'blocked') {
+      toast.info('Use the Unblock button below to restore this conversation.');
+      return;
+    }
+    
     setSelectedConversation(conversation);
     setShowActions(false);
     // Update URL without page reload
@@ -194,12 +208,7 @@ const MessagesPage: React.FC = () => {
     }
   };
 
-  const handleUnblock = async () => {
-    if (!selectedConversation) return;
-    await unblockConversation(selectedConversation.id);
-    handleBackToList();
-    setViewStatus('active');
-  };
+  // handleUnblock removed - unblock now happens directly from conversation list
 
   const handleUnarchive = async () => {
     if (!selectedConversation) return;
@@ -209,6 +218,12 @@ const MessagesPage: React.FC = () => {
   };
 
   const handleSendMessage = async (content: string) => {
+    // Check if conversation is blocked before sending
+    if (selectedConversation?.is_blocked) {
+      toast.error('Cannot send message. This conversation is blocked.');
+      return false;
+    }
+    
     const success = await sendMessage(content);
     if (success) {
       // Silently refresh conversations to update last message
@@ -327,8 +342,10 @@ const MessagesPage: React.FC = () => {
                   conversations={filteredConversations}
                   selectedId={selectedConversation?.id || null}
                   onSelect={handleSelectConversation}
+                  onUnblock={unblockConversation}
                   loading={loadingConversations}
                   refreshing={refreshingConversations}
+                  isBlockedView={viewStatus === 'blocked'}
                 />
               </div>
             </div>
@@ -426,15 +443,7 @@ const MessagesPage: React.FC = () => {
                                 Unarchive Conversation
                               </button>
                             )}
-                            {viewStatus === 'blocked' && (
-                              <button
-                                onClick={handleUnblock}
-                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                              >
-                                <Ban className="h-4 w-4" />
-                                Unblock User
-                              </button>
-                            )}
+                            {/* Unblock button removed - now in conversation list */}
                           </div>
                         </>
                       )}

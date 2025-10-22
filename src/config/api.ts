@@ -108,7 +108,9 @@ MESSAGING: {
   CONVERSATION_DETAIL: "/api/messaging/conversations/:id/",
   CONVERSATION_MARK_READ: "/api/messaging/conversations/:id/mark_read/",
   CONVERSATION_ARCHIVE: "/api/messaging/conversations/:id/archive/",
+  CONVERSATION_UNARCHIVE: "/api/messaging/conversations/:id/unarchive/",
   CONVERSATION_BLOCK: "/api/messaging/conversations/:id/block/",
+  CONVERSATION_UNBLOCK: "/api/messaging/conversations/:id/unblock/",
   CONVERSATIONS_UNREAD: "/api/messaging/conversations/unread_count/",
   CONVERSATIONS_STATS: "/api/messaging/conversations/stats/",
   

@@ -63,8 +63,7 @@ export interface Notification {
 // API Request/Response Types
 export interface ConversationListParams {
   page?: number;
-  is_active?: boolean;
-  is_blocked?: boolean;
+  status?: 'active' | 'archived' | 'blocked';
   ad?: number;
 }
 

@@ -19,6 +19,8 @@ const MessagesPage: React.FC = () => {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [showActions, setShowActions] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewStatus, setViewStatus] = useState<'active' | 'archived' | 'blocked'>('active');
+  const [showListMenu, setShowListMenu] = useState(false);
   
   const {
     conversations,
@@ -26,10 +28,12 @@ const MessagesPage: React.FC = () => {
     unreadCount,
     markAsRead,
     archiveConversation,
+    unarchiveConversation,
     blockConversation,
+    unblockConversation,
     refetch: refetchConversations,
     refreshing: refreshingConversations,
-  } = useConversations();
+  } = useConversations({ status: viewStatus });
 
   const {
     messages,
@@ -92,6 +96,11 @@ const MessagesPage: React.FC = () => {
       return () => clearInterval(interval);
     }
   }, [selectedConversation?.id, refetchMessages]);
+
+  // Refetch list when switching between views
+  useEffect(() => {
+    refetchConversations(true).catch(() => {});
+  }, [viewStatus, refetchConversations]);
 
   // Handle conversation selection from URL
   useEffect(() => {
@@ -185,6 +194,20 @@ const MessagesPage: React.FC = () => {
     }
   };
 
+  const handleUnblock = async () => {
+    if (!selectedConversation) return;
+    await unblockConversation(selectedConversation.id);
+    handleBackToList();
+    setViewStatus('active');
+  };
+
+  const handleUnarchive = async () => {
+    if (!selectedConversation) return;
+    await unarchiveConversation(selectedConversation.id);
+    handleBackToList();
+    setViewStatus('active');
+  };
+
   const handleSendMessage = async (content: string) => {
     const success = await sendMessage(content);
     if (success) {
@@ -233,8 +256,47 @@ const MessagesPage: React.FC = () => {
                 w-full md:w-96 border-r border-gray-200 flex flex-col overflow-y-auto scrollbar-thin
               `}
             >
-              {/* Search Bar */}
+              {/* List Header: menu + search */}
               <div className="p-4 border-b border-gray-200 bg-gray-50 sticky top-0 z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-gray-700">
+                    {viewStatus === 'blocked' ? 'Blocked chats' : viewStatus === 'archived' ? 'Archived chats' : 'Active chats'}
+                  </p>
+                  <div className="relative">
+                    <button
+                      className="btn-ghost p-2"
+                      aria-label="List options"
+                      onClick={() => setShowListMenu(v => !v)}
+                    >
+                      <MoreVertical className="h-5 w-5" />
+                    </button>
+                    {showListMenu && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setShowListMenu(false)} />
+                        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                          <button
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                            onClick={() => { setViewStatus('active'); setShowListMenu(false); setSelectedConversation(null); navigate('/messages', { replace: true }); }}
+                          >
+                            Show Active Chats
+                          </button>
+                          <button
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                            onClick={() => { setViewStatus('archived'); setShowListMenu(false); setSelectedConversation(null); navigate('/messages', { replace: true }); }}
+                          >
+                            Show Archived Chats
+                          </button>
+                          <button
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                            onClick={() => { setViewStatus('blocked'); setShowListMenu(false); setSelectedConversation(null); navigate('/messages', { replace: true }); }}
+                          >
+                            Show Blocked Chats
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
@@ -337,20 +399,42 @@ const MessagesPage: React.FC = () => {
                             onClick={() => setShowActions(false)}
                           />
                           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
-                            <button
-                              onClick={handleArchive}
-                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                            >
-                              <Archive className="h-4 w-4" />
-                              Archive Conversation
-                            </button>
-                            <button
-                              onClick={handleBlock}
-                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                            >
-                              <Ban className="h-4 w-4" />
-                              Block User
-                            </button>
+                            {viewStatus === 'active' && (
+                              <>
+                                <button
+                                  onClick={handleArchive}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                >
+                                  <Archive className="h-4 w-4" />
+                                  Archive Conversation
+                                </button>
+                                <button
+                                  onClick={handleBlock}
+                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                >
+                                  <Ban className="h-4 w-4" />
+                                  Block User
+                                </button>
+                              </>
+                            )}
+                            {viewStatus === 'archived' && (
+                              <button
+                                onClick={handleUnarchive}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                              >
+                                <Archive className="h-4 w-4 rotate-180" />
+                                Unarchive Conversation
+                              </button>
+                            )}
+                            {viewStatus === 'blocked' && (
+                              <button
+                                onClick={handleUnblock}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                              >
+                                <Ban className="h-4 w-4" />
+                                Unblock User
+                              </button>
+                            )}
                           </div>
                         </>
                       )}

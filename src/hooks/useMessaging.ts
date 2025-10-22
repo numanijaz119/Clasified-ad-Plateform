@@ -14,7 +14,8 @@ import type {
 /**
  * Hook for managing conversations
  */
-export const useConversations = () => {
+export const useConversations = (options?: { status?: 'active' | 'archived' | 'blocked' }) => {
+  const status = options?.status ?? 'active';
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -30,7 +31,7 @@ export const useConversations = () => {
         setLoading(true);
       }
       
-      const response = await messagingService.getConversations();
+      const response = await messagingService.getConversations({ status });
       
       // Use functional update to ensure we have the latest state
       setConversations(prevConversations => {
@@ -64,7 +65,7 @@ export const useConversations = () => {
         setLoading(false);
       }
     }
-  }, [toast]);
+  }, [toast, status]);
 
   const fetchUnreadCount = useCallback(async () => {
     try {
@@ -105,7 +106,7 @@ export const useConversations = () => {
       offUpdate();
       offRefresh();
     };
-  }, [fetchConversations, fetchUnreadCount]);
+  }, [fetchConversations, fetchUnreadCount, status]);
 
   const markAsRead = useCallback(async (conversationId: number) => {
     try {
@@ -132,6 +133,16 @@ export const useConversations = () => {
     }
   }, [toast]);
 
+  const unarchiveConversation = useCallback(async (conversationId: number) => {
+    try {
+      await messagingService.unarchiveConversation(conversationId);
+      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+      toast.success('Conversation restored');
+    } catch (err: any) {
+      toast.error('Failed to restore conversation');
+    }
+  }, [toast]);
+
   const blockConversation = useCallback(async (conversationId: number) => {
     try {
       await messagingService.blockConversation(conversationId);
@@ -139,6 +150,16 @@ export const useConversations = () => {
       toast.success('User blocked');
     } catch (err: any) {
       toast.error('Failed to block user');
+    }
+  }, [toast]);
+
+  const unblockConversation = useCallback(async (conversationId: number) => {
+    try {
+      await messagingService.unblockConversation(conversationId);
+      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+      toast.success('User unblocked');
+    } catch (err: any) {
+      toast.error('Failed to unblock user');
     }
   }, [toast]);
 
@@ -156,7 +177,9 @@ export const useConversations = () => {
     refetch,
     markAsRead,
     archiveConversation,
+    unarchiveConversation,
     blockConversation,
+    unblockConversation,
   };
 };
 

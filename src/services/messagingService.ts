@@ -31,8 +31,7 @@ class MessagingService extends BaseService {
       if (params) {
         const queryParams = new URLSearchParams();
         if (params.page) queryParams.append('page', params.page.toString());
-        if (params.is_active !== undefined) queryParams.append('is_active', params.is_active.toString());
-        if (params.is_blocked !== undefined) queryParams.append('is_blocked', params.is_blocked.toString());
+        if (params.status) queryParams.append('status', params.status);
         if (params.ad) queryParams.append('ad', params.ad.toString());
         
         const queryString = queryParams.toString();
@@ -61,44 +60,44 @@ class MessagingService extends BaseService {
     }
   }
   
-/**
- * Create new conversation
- */
-async createConversation(adId: number, initialMessage?: string): Promise<Conversation> {
-  try {
-    const payload: any = { ad_id: adId };
-    if (initialMessage) {
-      payload.initial_message = initialMessage;
-    }
+  /**
+   * Create new conversation
+   */
+  async createConversation(adId: number, initialMessage?: string): Promise<Conversation> {
+    try {
+      const payload: any = { ad_id: adId };
+      if (initialMessage) {
+        payload.initial_message = initialMessage;
+      }
 
-    const response = await this.post<Conversation>(
-      API_CONFIG.ENDPOINTS.MESSAGING.CONVERSATIONS,
-      payload,
-      true
-    );
-    return response.data!;
-  } catch (error: any) {
-    console.error('Create conversation error:', error);
-    throw error;
+      const response = await this.post<Conversation>(
+        API_CONFIG.ENDPOINTS.MESSAGING.CONVERSATIONS,
+        payload,
+        true
+      );
+      return response.data!;
+    } catch (error: any) {
+      console.error('Create conversation error:', error);
+      throw error;
+    }
   }
-}
   
   /**
    * Mark all messages in conversation as read
    */
- async markConversationRead(id: number): Promise<void> {
-  try {
-    // Use the messages mark_all_read endpoint with conversation_id
-    await this.post(
-      API_CONFIG.ENDPOINTS.MESSAGING.MESSAGES_MARK_ALL_READ,
-      { conversation_id: id },
-      true
-    );
-  } catch (error: any) {
-    console.error('Mark conversation read error:', error);
-    // Don't throw - fail silently to not disrupt UX
+  async markConversationRead(id: number): Promise<void> {
+    try {
+      // Use the messages mark_all_read endpoint with conversation_id
+      await this.post(
+        API_CONFIG.ENDPOINTS.MESSAGING.MESSAGES_MARK_ALL_READ,
+        { conversation_id: id },
+        true
+      );
+    } catch (error: any) {
+      console.error('Mark conversation read error:', error);
+      // Don't throw - fail silently to not disrupt UX
+    }
   }
-}
   
   /**
    * Archive conversation
@@ -114,6 +113,19 @@ async createConversation(adId: number, initialMessage?: string): Promise<Convers
   }
   
   /**
+   * Unarchive conversation
+   */
+  async unarchiveConversation(id: number): Promise<void> {
+    try {
+      const url = API_CONFIG.ENDPOINTS.MESSAGING.CONVERSATION_UNARCHIVE.replace(':id', id.toString());
+      await this.post(url, {}, true);
+    } catch (error: any) {
+      console.error('Unarchive conversation error:', error);
+      throw error;
+    }
+  }
+  
+  /**
    * Block conversation
    */
   async blockConversation(id: number): Promise<void> {
@@ -122,6 +134,19 @@ async createConversation(adId: number, initialMessage?: string): Promise<Convers
       await this.post(url, {}, true);
     } catch (error: any) {
       console.error('Block conversation error:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Unblock conversation
+   */
+  async unblockConversation(id: number): Promise<void> {
+    try {
+      const url = API_CONFIG.ENDPOINTS.MESSAGING.CONVERSATION_UNBLOCK.replace(':id', id.toString());
+      await this.post(url, {}, true);
+    } catch (error: any) {
+      console.error('Unblock conversation error:', error);
       throw error;
     }
   }

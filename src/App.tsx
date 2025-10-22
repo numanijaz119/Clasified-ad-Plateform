@@ -142,6 +142,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/messages/:conversationId"
+  element={
+    <ProtectedRoute>
+      <MessagesPage />
+    </ProtectedRoute>
+  }
+/>
       </Routes>
 
       <Footer />

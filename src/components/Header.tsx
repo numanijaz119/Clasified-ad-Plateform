@@ -111,19 +111,12 @@ const Header: React.FC<HeaderProps> = ({
                   {/* Notifications */}
                   <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
                   <NotificationBell />
-                    {/* Notification badge - you can add logic for unread count */}
-                    <span className="absolute -top-[1px] right-[6px] bg-red-500 text-white text-xs rounded-full  h-[1.2rem] w-[1.2rem] flex items-center justify-center">
-                      3
-                    </span>
+              
                   </button>
 
                   {/* Chat/Messages */}
                   <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
                    <MessageIcon />
-                    {/* Message badge - you can add logic for unread count */}
-                    <span className="absolute -top-[1px] right-[6px] bg-blue-500 text-white text-xs rounded-full h-[1.2rem] w-[1.2rem] flex items-center justify-center">
-                      2
-                    </span>
                   </button>
                 </div>
 

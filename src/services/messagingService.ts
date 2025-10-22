@@ -61,22 +61,27 @@ class MessagingService extends BaseService {
     }
   }
   
-  /**
-   * Create new conversation
-   */
-  async createConversation(adId: number): Promise<Conversation> {
-    try {
-      const response = await this.post<Conversation>(
-        API_CONFIG.ENDPOINTS.MESSAGING.CONVERSATIONS,
-        { ad: adId },
-        true
-      );
-      return response.data!;
-    } catch (error: any) {
-      console.error('Create conversation error:', error);
-      throw error;
+/**
+ * Create new conversation
+ */
+async createConversation(adId: number, initialMessage?: string): Promise<Conversation> {
+  try {
+    const payload: any = { ad_id: adId };
+    if (initialMessage) {
+      payload.initial_message = initialMessage;
     }
+
+    const response = await this.post<Conversation>(
+      API_CONFIG.ENDPOINTS.MESSAGING.CONVERSATIONS,
+      payload,
+      true
+    );
+    return response.data!;
+  } catch (error: any) {
+    console.error('Create conversation error:', error);
+    throw error;
   }
+}
   
   /**
    * Mark all messages in conversation as read

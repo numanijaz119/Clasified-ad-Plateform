@@ -35,7 +35,7 @@ export interface Conversation {
   buyer: User;
   seller: User;
   ad: Ad;
-  last_message?: string;
+ last_message?: string | Message;
   last_message_at: string;
   is_active: boolean;
   is_blocked: boolean;

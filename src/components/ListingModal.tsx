@@ -9,8 +9,14 @@ import {
   Mail,
   Calendar,
   User,
+  MessageCircle,
 } from "lucide-react";
 import { BaseModal } from "./modals";
+import { useState } from 'react'; // if not already imported
+import { useNavigate } from 'react-router-dom';
+import { messagingService } from '../services/messagingService';
+import { useToast } from '../contexts/ToastContext';
+import { useAuth } from "../contexts/AuthContext";
 
 interface Listing {
   id: number;
@@ -47,6 +53,11 @@ const ListingModal: React.FC<ListingModalProps> = ({
   isLoggedIn = false,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+  const navigate = useNavigate();
+  const toast = useToast();
+  const [startingConversation, setStartingConversation] = useState(false);
+  const { user } = useAuth();
+const isOwnAd = user && listing?.user?.id === user.id;
 
   if (!listing) return null;
 
@@ -67,6 +78,42 @@ const ListingModal: React.FC<ListingModalProps> = ({
       (prev) => (prev - 1 + displayImages.length) % displayImages.length
     );
   };
+
+  // Add this function inside the component
+const handleMessageSeller = async () => {
+  if (!listing || !isLoggedIn) {
+    toast.error('Please sign in to message the seller');
+    return;
+  }
+
+  try {
+    setStartingConversation(true);
+
+    // Create or get existing conversation
+    const conversation = await messagingService.createConversation(listing.id);
+    
+    toast.success('Opening conversation...');
+    
+    // Navigate to messages page with the conversation selected
+    navigate('/messages', { 
+      state: { conversationId: conversation.id } 
+    });
+    
+    // Close the modal
+    onClose();
+    
+  } catch (error: any) {
+    console.error('Failed to start conversation:', error);
+    
+    if (error.message?.includes('yourself')) {
+      toast.error('You cannot message yourself');
+    } else {
+      toast.error('Failed to start conversation. Please try again.');
+    }
+  } finally {
+    setStartingConversation(false);
+  }
+};
 
   return (
     <BaseModal
@@ -268,22 +315,59 @@ const ListingModal: React.FC<ListingModalProps> = ({
             </div>
           )}
 
-          {/* Action Buttons */}
-          {isLoggedIn && (
-            <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <button className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 font-semibold flex items-center justify-center space-x-2">
-                <Phone className="h-5 w-5" />
-                <span>Call Now</span>
-              </button>
-              <button className="flex-1 bg-white border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-200 font-semibold flex items-center justify-center space-x-2">
-                <Mail className="h-5 w-5" />
-                <span>Send Email</span>
-              </button>
-              <button className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center">
-                <Heart className="h-5 w-5" />
-              </button>
-            </div>
-          )}
+         {/* Action Buttons */}
+{isLoggedIn && (
+  <div className="flex flex-col sm:flex-row gap-3 mt-6">
+    {/* Message Seller Button - PRIMARY ACTION */}
+    <button 
+      onClick={handleMessageSeller}
+      disabled={startingConversation}
+      className="btn-primary flex-1"
+    >
+      {startingConversation ? (
+        <>
+          <div className="spinner h-4 w-4"></div>
+          <span>Opening...</span>
+        </>
+      ) : (
+        <>
+          <MessageCircle className="h-5 w-5" />
+          <span>Message Seller</span>
+        </>
+      )}
+    </button>
+
+    {/* Call Button */}
+    {listing.phone && (
+      <a
+        href={`tel:${listing.phone}`}
+        className="btn-secondary flex-1"
+      >
+        <Phone className="h-5 w-5" />
+        <span>Call</span>
+      </a>
+    )}
+
+    {/* Email Button */}
+    {listing.email && (
+      <a
+        href={`mailto:${listing.email}`}
+        className="btn-secondary flex-1"
+      >
+        <Mail className="h-5 w-5" />
+        <span>Email</span>
+      </a>
+    )}
+
+    {/* Favorite Button */}
+    <button 
+      className="btn-ghost px-4"
+      aria-label="Add to favorites"
+    >
+      <Heart className="h-5 w-5" />
+    </button>
+  </div>
+)}
         </div>
       </div>
     </BaseModal>

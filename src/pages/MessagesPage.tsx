@@ -14,7 +14,7 @@ const MessagesPage: React.FC = () => {
   const { conversationId } = useParams<{ conversationId?: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { refreshUnreadCounts, markMessagesAsRead } = useNotificationContext();
+  const { refreshUnreadCounts, markMessagesAsRead, setActiveConversationId } = useNotificationContext();
   
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [showActions, setShowActions] = useState(false);
@@ -149,13 +149,25 @@ const MessagesPage: React.FC = () => {
     setShowActions(false);
     // Update URL without page reload
     navigate(`/messages/${conversation.id}`, { replace: true });
+    // Set active conversation id for notification suppression
+    setActiveConversationId(conversation.id);
   };
 
   const handleBackToList = () => {
     setSelectedConversation(null);
     setShowActions(false);
+    // Clear active conversation id
+    setActiveConversationId(null);
+    // Update URL without page reload
     navigate('/messages', { replace: true });
   };
+
+  // Clear active conversation on unmount
+  useEffect(() => {
+    return () => {
+      setActiveConversationId(null);
+    };
+  }, [setActiveConversationId]);
 
   const handleArchive = async () => {
     if (!selectedConversation) return;

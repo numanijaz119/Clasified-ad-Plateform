@@ -1,6 +1,7 @@
 // src/contexts/NotificationContext.tsx
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { messagingService } from '../services/messagingService';
+import { eventBus } from '../utils/eventBus';
 import { useToast } from './ToastContext';
 import { useAuth } from './AuthContext';
 
@@ -10,6 +11,8 @@ interface NotificationContextType {
   refreshUnreadCounts: () => Promise<void>;
   markMessagesAsRead: (conversationId: number) => void;
   playNotificationSound: () => void;
+  activeConversationId: number | null;
+  setActiveConversationId: (id: number | null) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -20,6 +23,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [lastMessageCount, setLastMessageCount] = useState(0);
   const [lastNotificationCount, setLastNotificationCount] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
   const toast = useToast();
   const { isAuthenticated } = useAuth();
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -46,26 +50,48 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     try {
-      // Fetch both counts in parallel
-      const [messageCount, notificationCount] = await Promise.all([
-        messagingService.getUnreadCount(),
-        messagingService.getUnreadNotificationsCount(),
-      ]);
+      // Fetch unread messages count
+      let messageCount = await messagingService.getUnreadCount();
+      
+      // If user is currently viewing a conversation and we detect a bump
+      // verify the unread belongs to the active conversation before marking it as read
+      let markedActiveAsRead = false;
+      if (activeConversationId && messageCount > lastMessageCount) {
+        try {
+          const unreadForActive = await messagingService.getMessages({ conversation_id: activeConversationId, unread: true, page: 1 });
+          const hasUnreadInActive = (unreadForActive.results || []).length > 0;
+          if (hasUnreadInActive) {
+            await messagingService.markAllMessagesRead(activeConversationId);
+            markedActiveAsRead = true;
+            // Re-fetch message count after marking as read to avoid badge flash
+            messageCount = await messagingService.getUnreadCount();
+          }
+        } catch (e) {
+          // Best-effort; ignore
+        }
+      }
+
+      // Fetch unread notifications list and exclude chat-related types for bell badge
+      const unreadNotifications = await messagingService.getNotifications({ is_read: false });
+      const nonChatUnread = (unreadNotifications.results || []).filter(
+        (n) => n.notification_type !== 'new_message' && n.notification_type !== 'new_conversation'
+      );
+      const notificationCount = nonChatUnread.length;
 
       // Only show toast notifications after initialization to prevent duplicates
       if (isInitialized) {
-        // Check for new messages
-        if (messageCount > lastMessageCount && lastMessageCount > 0) {
-          const newMessages = messageCount - lastMessageCount;
-          toast.info(`You have ${newMessages} new message${newMessages > 1 ? 's' : ''}`);
-          playNotificationSound();
-        }
-
-        // Check for new notifications
+        // Check for new NON-chat notifications (bell only)
         if (notificationCount > lastNotificationCount && lastNotificationCount > 0) {
           const newNotifications = notificationCount - lastNotificationCount;
           toast.info(`You have ${newNotifications} new notification${newNotifications > 1 ? 's' : ''}`);
           playNotificationSound();
+        }
+
+        // We do NOT toast for new messages here to avoid redundancy with chat UI
+        // If message unread increased and we did NOT mark the active conversation as read,
+        // it means another conversation received a message. Emit a refresh so the list updates immediately.
+        if (messageCount > lastMessageCount && !markedActiveAsRead) {
+          eventBus.emit('conversations:refresh', { reason: 'unread_bump' });
         }
       } else {
         // Mark as initialized after first fetch
@@ -79,7 +105,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch (error) {
       console.error('Failed to fetch unread counts:', error);
     }
-  }, [isAuthenticated, isInitialized, lastMessageCount, lastNotificationCount, toast, playNotificationSound]);
+  }, [isAuthenticated, isInitialized, lastMessageCount, lastNotificationCount, activeConversationId, toast, playNotificationSound]);
 
   const markMessagesAsRead = useCallback((conversationId: number) => {
     // Optimistically update the count
@@ -125,6 +151,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     refreshUnreadCounts,
     markMessagesAsRead,
     playNotificationSound,
+    activeConversationId,
+    setActiveConversationId,
   };
 
   return (

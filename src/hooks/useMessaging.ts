@@ -1,6 +1,7 @@
 // src/hooks/useMessaging.ts
 import { useState, useEffect, useCallback } from 'react';
 import { messagingService } from '../services/messagingService';
+import { eventBus, ConversationPreviewUpdate, RefreshConversationsEvent } from '../utils/eventBus';
 import { useToast } from '../contexts/ToastContext';
 import type {
   Conversation,
@@ -77,6 +78,33 @@ export const useConversations = () => {
   useEffect(() => {
     fetchConversations();
     fetchUnreadCount();
+    // Listen for conversation preview updates to update list instantly
+    const offUpdate = eventBus.on<ConversationPreviewUpdate>('conversation:update', (payload) => {
+      setConversations((prev) => {
+        const next = prev.map((c) => {
+          if (c.id !== payload.conversationId) return c;
+          const lastMessage = typeof payload.lastMessage === 'string' ? payload.lastMessage : (payload.lastMessage?.content || c.last_message || '');
+          return {
+            ...c,
+            last_message: lastMessage,
+            last_message_at: payload.lastMessageAt || c.last_message_at,
+            unread_count: typeof payload.unreadDelta === 'number' ? Math.max(0, (c.unread_count || 0) + payload.unreadDelta) : c.unread_count,
+          };
+        });
+        return next;
+      });
+      // Also refresh unread count quickly
+      fetchUnreadCount();
+    });
+    // Listen for refresh events (e.g., from NotificationContext)
+    const offRefresh = eventBus.on<RefreshConversationsEvent>('conversations:refresh', () => {
+      fetchConversations(true);
+      fetchUnreadCount();
+    });
+    return () => {
+      offUpdate();
+      offRefresh();
+    };
   }, [fetchConversations, fetchUnreadCount]);
 
   const markAsRead = useCallback(async (conversationId: number) => {
@@ -152,6 +180,16 @@ export const useMessages = (conversationId: number | null) => {
         conversation_id: conversationId,
       });
       setMessages(response.results);
+      // Emit preview update using the last message received
+      const last = response.results[response.results.length - 1];
+      if (last) {
+        eventBus.emit<ConversationPreviewUpdate>('conversation:update', {
+          conversationId: conversationId,
+          lastMessage: last,
+          lastMessageAt: last.created_at,
+          // unreadDelta will be handled by server counts; do not bump here
+        });
+      }
     } catch (err: any) {
       const errorMsg = err.message || 'Failed to load messages';
       setError(errorMsg);
@@ -182,6 +220,13 @@ export const useMessages = (conversationId: number | null) => {
       
       // Add new message to list
       setMessages(prev => [...prev, newMessage]);
+      // Emit immediate preview update (no unread delta for self send)
+      eventBus.emit<ConversationPreviewUpdate>('conversation:update', {
+        conversationId,
+        lastMessage: newMessage,
+        lastMessageAt: newMessage.created_at,
+        unreadDelta: 0,
+      });
       
       return true;
     } catch (err: any) {

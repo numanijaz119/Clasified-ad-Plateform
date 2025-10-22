@@ -20,8 +20,12 @@ const NotificationBell: React.FC = () => {
   
   const { unreadNotificationCount, refreshUnreadCounts } = useNotificationContext();
   
-  // Calculate actual unread count from notifications list
-  const actualUnreadCount = notifications.filter(n => !n.is_read).length;
+  // Exclude chat-related notifications from dropdown to avoid redundancy
+  const filteredNotifications = notifications.filter(
+    (n) => n.notification_type !== 'new_message' && n.notification_type !== 'new_conversation'
+  );
+  // Calculate actual unread count from filtered list
+  const actualUnreadCount = filteredNotifications.filter(n => !n.is_read).length;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -126,14 +130,14 @@ const NotificationBell: React.FC = () => {
               <div className="p-4 text-center">
                 <div className="spinner h-6 w-6 mx-auto"></div>
               </div>
-            ) : notifications.length === 0 ? (
+            ) : filteredNotifications.length === 0 ? (
               <div className="p-8 text-center">
                 <Bell className="h-12 w-12 text-gray-300 mx-auto mb-2" />
                 <p className="text-gray-500 text-sm">No notifications</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
-                {notifications.slice(0, 10).map((notification) => (
+                {filteredNotifications.slice(0, 10).map((notification) => (
                   <button
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}

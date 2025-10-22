@@ -242,8 +242,9 @@ const MessagesPage: React.FC = () => {
             <div
               className={`
                 ${selectedConversation ? 'flex' : 'hidden md:flex'}
-                flex-1 flex-col
+                flex-1 flex-col bg-white
               `}
+               style={{ minHeight: 0 }}
             >
               {selectedConversation ? (
                 <>

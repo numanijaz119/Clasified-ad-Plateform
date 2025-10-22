@@ -86,15 +86,19 @@ async createConversation(adId: number, initialMessage?: string): Promise<Convers
   /**
    * Mark all messages in conversation as read
    */
-  async markConversationRead(id: number): Promise<void> {
-    try {
-      const url = API_CONFIG.ENDPOINTS.MESSAGING.CONVERSATION_MARK_READ.replace(':id', id.toString());
-      await this.post(url, {}, true);
-    } catch (error: any) {
-      console.error('Mark conversation read error:', error);
-      throw error;
-    }
+ async markConversationRead(id: number): Promise<void> {
+  try {
+    // Use the messages mark_all_read endpoint with conversation_id
+    await this.post(
+      API_CONFIG.ENDPOINTS.MESSAGING.MESSAGES_MARK_ALL_READ,
+      { conversation_id: id },
+      true
+    );
+  } catch (error: any) {
+    console.error('Mark conversation read error:', error);
+    // Don't throw - fail silently to not disrupt UX
   }
+}
   
   /**
    * Archive conversation

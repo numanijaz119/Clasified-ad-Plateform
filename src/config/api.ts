@@ -106,7 +106,7 @@ MESSAGING: {
   // Conversations
   CONVERSATIONS: "/api/messaging/conversations/",
   CONVERSATION_DETAIL: "/api/messaging/conversations/:id/",
-  CONVERSATION_MARK_READ: "/api/messaging/conversations/:id/mark_all_read/",
+  CONVERSATION_MARK_READ: "/api/messaging/conversations/:id/mark_read/",
   CONVERSATION_ARCHIVE: "/api/messaging/conversations/:id/archive/",
   CONVERSATION_BLOCK: "/api/messaging/conversations/:id/block/",
   CONVERSATIONS_UNREAD: "/api/messaging/conversations/unread_count/",

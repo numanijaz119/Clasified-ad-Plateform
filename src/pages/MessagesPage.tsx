@@ -7,6 +7,7 @@ import { messagingService } from '../services/messagingService';
 import ConversationList from '../components/messaging/ConversationList';
 import MessageThread from '../components/messaging/MessageThread';
 import MessageInput from '../components/messaging/MessageInput';
+import BlockUserModal from '../components/messaging/BlockUserModal';
 import type { Conversation } from '../types/messaging';
 import { useNotificationContext } from '../contexts/NotificationContext';
 import { useToast } from '../contexts/ToastContext';
@@ -23,6 +24,7 @@ const MessagesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewStatus, setViewStatus] = useState<'active' | 'archived' | 'blocked'>('active');
   const [showListMenu, setShowListMenu] = useState(false);
+  const [showBlockModal, setShowBlockModal] = useState(false);
   
   const {
     conversations,
@@ -199,13 +201,16 @@ const MessagesPage: React.FC = () => {
     handleBackToList();
   };
 
-  const handleBlock = async () => {
+  const handleBlock = () => {
     if (!selectedConversation) return;
-    
-    if (window.confirm('Are you sure you want to block this user?')) {
-      await blockConversation(selectedConversation.id);
-      handleBackToList();
-    }
+    setShowBlockModal(true);
+    setShowActions(false);
+  };
+
+  const handleConfirmBlock = async () => {
+    if (!selectedConversation) return;
+    await blockConversation(selectedConversation.id);
+    handleBackToList();
   };
 
   // handleUnblock removed - unblock now happens directly from conversation list
@@ -487,6 +492,21 @@ const MessagesPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Block User Modal */}
+      <BlockUserModal
+        isOpen={showBlockModal}
+        onClose={() => setShowBlockModal(false)}
+        onConfirm={handleConfirmBlock}
+        userName={selectedConversation?.other_user.full_name || 'this user'}
+        conversationCount={
+          selectedConversation
+            ? conversations.filter(
+                (c) => c.other_user.id === selectedConversation.other_user.id
+              ).length
+            : 1
+        }
+      />
     </div>
   );
 };

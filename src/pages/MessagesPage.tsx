@@ -8,9 +8,12 @@ import ConversationList from '../components/messaging/ConversationList';
 import MessageThread from '../components/messaging/MessageThread';
 import MessageInput from '../components/messaging/MessageInput';
 import BlockUserModal from '../components/messaging/BlockUserModal';
+import ListingModal from '../components/ListingModal';
 import type { Conversation } from '../types/messaging';
 import { useNotificationContext } from '../contexts/NotificationContext';
 import { useToast } from '../contexts/ToastContext';
+import { useListingModal } from '../hooks/useListingModal';
+import { useAuth } from '../contexts/AuthContext';
 
 const MessagesPage: React.FC = () => {
   const { conversationId } = useParams<{ conversationId?: string }>();
@@ -18,6 +21,8 @@ const MessagesPage: React.FC = () => {
   const location = useLocation();
   const { refreshUnreadCounts, markMessagesAsRead, setActiveConversationId } = useNotificationContext();
   const toast = useToast();
+  const { user } = useAuth();
+  const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } = useListingModal();
   
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [showActions, setShowActions] = useState(false);
@@ -249,6 +254,38 @@ const MessagesPage: React.FC = () => {
     return userName.includes(query) || adTitle.includes(query);
   });
 
+  // Handle ad click from conversation list
+  const handleAdClick = async (adId: number) => {
+    // Find the conversation with this ad to get the slug
+    const conv = conversations.find(c => c.ad.id === adId);
+    
+    if (conv) {
+      try {
+        // Provide minimal BasicAd structure - full details will be fetched by slug
+        await handleListingClick({
+          id: conv.ad.id,
+          slug: conv.ad.slug,
+          title: conv.ad.title,
+          description: '',
+          price: 0,
+          price_type: 'fixed',
+          display_price: conv.ad.display_price,
+          category: { id: 0, name: '', icon: '' },
+          city: { id: 0, name: '' },
+          state: { id: 0, name: '', code: '' },
+          plan: 'free',
+          view_count: 0,
+          time_since_posted: '',
+          is_featured_active: false,
+          created_at: new Date().toISOString(),
+        } as any);
+      } catch (error) {
+        console.error('Error opening ad modal:', error);
+        toast.error('Failed to open ad details');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -348,6 +385,7 @@ const MessagesPage: React.FC = () => {
                   selectedId={selectedConversation?.id || null}
                   onSelect={handleSelectConversation}
                   onUnblock={unblockConversation}
+                  onAdClick={handleAdClick}
                   loading={loadingConversations}
                   refreshing={refreshingConversations}
                   isBlockedView={viewStatus === 'blocked'}
@@ -506,6 +544,14 @@ const MessagesPage: React.FC = () => {
               ).length
             : 1
         }
+      />
+
+      {/* Listing Modal for viewing ads */}
+      <ListingModal
+        listing={selectedListing}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        isLoggedIn={!!user}
       />
     </div>
   );

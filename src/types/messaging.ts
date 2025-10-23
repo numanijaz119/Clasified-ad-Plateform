@@ -12,6 +12,14 @@ export interface Ad {
   title: string;
   slug: string;
   display_price: string;
+  price?: string;
+  images?: string[];
+  primary_image?: {
+    id: number;
+    image: string;
+    caption?: string;
+    is_primary: boolean;
+  };
 }
 
 export interface Message {

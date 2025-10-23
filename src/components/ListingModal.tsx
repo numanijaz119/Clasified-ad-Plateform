@@ -57,7 +57,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
   const toast = useToast();
   const [startingConversation, setStartingConversation] = useState(false);
   const { user } = useAuth();
-const isOwnAd = user && listing?.user?.id === user.id;
+  const isOwnAd = user && listing?.user?.id === user.id;
 
   if (!listing) return null;
 
@@ -91,8 +91,6 @@ const handleMessageSeller = async () => {
 
     // Create or get existing conversation
     const conversation = await messagingService.createConversation(listing.id);
-    
-    toast.success('Opening conversation...');
     
     // Navigate to messages page with the conversation selected
     navigate('/messages', { 

@@ -105,8 +105,35 @@ const handleMessageSeller = async () => {
   } catch (error: any) {
     console.error('Failed to start conversation:', error);
     
-    if (error.message?.includes('yourself')) {
-      toast.error('You cannot message yourself');
+    // Handle different error cases
+    // Check both error.message and error.error (backend can return either)
+    let errorMessage = '';
+    
+    if (error.details?.error) {
+      // Handle nested error object from backend
+      errorMessage = Array.isArray(error.details.error) 
+        ? error.details.error[0] 
+        : error.details.error;
+    } else if (error.error) {
+      errorMessage = error.error;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    if (errorMessage.includes('yourself')) {
+      toast.error('You cannot message yourself about your own ad');
+    } else if (errorMessage.includes('blocked')) {
+      // Handle blocked user errors
+      if (errorMessage.includes('You have blocked')) {
+        toast.error('You have blocked this user. Please unblock them from Blocked Chats to continue.');
+      } else if (errorMessage.includes('has blocked you')) {
+        toast.error('This user has blocked you. You cannot start a conversation with them.');
+      } else {
+        toast.error('Cannot start conversation. User is blocked.');
+      }
+    } else if (errorMessage) {
+      // Show the actual error message if available
+      toast.error(errorMessage);
     } else {
       toast.error('Failed to start conversation. Please try again.');
     }

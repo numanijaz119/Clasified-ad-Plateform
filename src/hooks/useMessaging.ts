@@ -287,7 +287,25 @@ export const useMessages = (conversationId: number | null) => {
       
       return true;
     } catch (err: any) {
-      toast.error('Failed to send message');
+      // Parse error message from backend
+      let errorMessage = 'Failed to send message';
+      
+      if (err.details?.conversation) {
+        // Handle conversation-level errors (e.g., blocked)
+        const conversationError = Array.isArray(err.details.conversation) 
+          ? err.details.conversation[0] 
+          : err.details.conversation;
+        
+        if (conversationError.includes('blocked')) {
+          errorMessage = 'Cannot send message. This conversation is blocked.';
+        } else {
+          errorMessage = conversationError;
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      toast.error(errorMessage);
       return false;
     } finally {
       setSending(false);

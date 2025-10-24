@@ -1,25 +1,18 @@
 // src/pages/FeaturedAdsPage.tsx
-// UPDATED: Added blue border for user's own ads
-
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Search, Eye, Clock, Star, MapPin } from "lucide-react";
+import { ArrowLeft, Search, Star } from "lucide-react";
 import {
-  MobileBanner,
   FlippingAd,
-  SideBanner,
-  InlineBanner,
-  BottomBanner,
-  RecentListing,
   RecentListings,
 } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
+import AdCard from "../components/AdCard";
 import { useFeaturedAds } from "../hooks/useFeaturedAds";
 import { useListingModal } from "../hooks/useListingModal";
 import { useAuth } from "../contexts/AuthContext";
-import Badge from "../components/ui/Badge";
+import { adsService } from "../services";
 import {
-  AdDetailBanner,
   BetweenAdsBanner,
   FooterBanner,
   HeaderBanner,
@@ -27,7 +20,7 @@ import {
 } from "../components/common/BannerLayouts";
 
 const FeaturedAdsPage: React.FC = () => {
-  const { isAuthenticated, user } = useAuth(); // Added user to check ownership
+  const { isAuthenticated, user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
@@ -35,7 +28,7 @@ const FeaturedAdsPage: React.FC = () => {
 
   // Use dynamic data from API
   const { ads, loading, error, refetch } = useFeaturedAds({
-    page_size: 50, // Get more ads for the full page
+    page_size: 50,
   });
 
   // Use reusable modal hook
@@ -113,10 +106,34 @@ const FeaturedAdsPage: React.FC = () => {
     return filtered;
   }, [ads, searchQuery, selectedCategory, selectedCity, sortBy]);
 
+  const handleAdClick = async (ad: any) => {
+    try {
+      // Open modal immediately with basic data
+      handleListingClick(ad);
+
+      // Fetch detailed ad data in background
+      if (ad.slug) {
+        const detailedAd = (await adsService.getAd(ad.slug)) as any;
+        
+        // Create enhanced listing with all images
+        const images =
+          detailedAd.images?.length > 0
+            ? detailedAd.images.map((img: any) => img.image)
+            : ad.primary_image?.image
+            ? [ad.primary_image.image]
+            : [];
+
+        // The hook will handle updating the modal with enhanced data
+      }
+    } catch (error) {
+      console.error("Error fetching ad details:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Ad Banner */}
-      <div className="md:hidden bg-white border-b border-gray-200">
+      {/* Header Banner */}
+      <div className="bg-white border-b border-gray-200">
         <div className="px-4 py-2">
           <HeaderBanner />
         </div>
@@ -142,6 +159,7 @@ const FeaturedAdsPage: React.FC = () => {
                 <Link
                   to="/"
                   className="flex items-center text-orange-500 hover:text-orange-600 transition-colors mr-4 text-sm"
+                  aria-label="Back to home"
                 >
                   <ArrowLeft className="h-4 w-4 mr-1" />
                   <span className="font-medium">Back to Home</span>
@@ -149,7 +167,7 @@ const FeaturedAdsPage: React.FC = () => {
               </div>
 
               <div className="flex items-center mb-1">
-                <Star className="h-5 w-5 text-orange-500 mr-2 fill-current" />
+                <Star className="h-5 w-5 text-orange-500 mr-2 fill-current" aria-hidden="true" />
                 <h1 className="text-xl font-bold text-gray-900">
                   Featured Advertisements
                 </h1>
@@ -175,13 +193,17 @@ const FeaturedAdsPage: React.FC = () => {
               {/* Search Bar */}
               <div className="mb-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                    aria-hidden="true"
+                  />
                   <input
-                    type="text"
+                    type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search featured ads..."
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    aria-label="Search featured ads"
                   />
                 </div>
               </div>
@@ -190,13 +212,18 @@ const FeaturedAdsPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Category Filter */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="category-filter"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
                     Category
                   </label>
                   <select
+                    id="category-filter"
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    aria-label="Filter by category"
                   >
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>
@@ -208,13 +235,18 @@ const FeaturedAdsPage: React.FC = () => {
 
                 {/* City Filter */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="city-filter"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
                     City
                   </label>
                   <select
+                    id="city-filter"
                     value={selectedCity}
                     onChange={(e) => setSelectedCity(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    aria-label="Filter by city"
                   >
                     {cities.map((city) => (
                       <option key={city} value={city}>
@@ -224,15 +256,20 @@ const FeaturedAdsPage: React.FC = () => {
                   </select>
                 </div>
 
-                {/* Sort By */}
+                {/* Sort Filter */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="sort-filter"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
                     Sort By
                   </label>
                   <select
+                    id="sort-filter"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    aria-label="Sort listings"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
@@ -243,160 +280,105 @@ const FeaturedAdsPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Error State */}
+            {error && (
+              <div
+                className="bg-red-50 border border-red-200 rounded-lg p-6 mb-4"
+                role="alert"
+              >
+                <p className="text-red-800 font-medium mb-2">
+                  Unable to load featured ads
+                </p>
+                <p className="text-red-600 text-sm mb-4">{error}</p>
+                <button
+                  onClick={refetch}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                  aria-label="Retry loading featured ads"
+                >
+                  Try Again
+                </button>
+              </div>
+            )}
+
             {/* Loading State */}
             {loading && (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading featured ads...</p>
+              <div className="text-center py-12" role="status">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+                <p className="text-sm text-gray-600 mt-4">
+                  Loading featured ads...
+                </p>
               </div>
             )}
 
-            {/* Error State */}
-            {error && !loading && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                <div className="text-center">
-                  <div className="text-red-600 mb-4">
-                    <Star className="h-16 w-16 mx-auto" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Unable to load featured ads
-                  </h3>
-                  <p className="text-gray-600 mb-4">{error}</p>
-                  <button
-                    onClick={refetch}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                  >
-                    Try Again
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Featured Listings Grid with Inline Banners */}
+            {/* Listings Grid */}
             {!loading && !error && (
-              <div className="space-y-6">
-                {Array.from({
-                  length: Math.ceil(filteredListings.length / 6),
-                }).map((_, chunkIndex) => {
-                  const startIndex = chunkIndex * 6;
-                  const endIndex = Math.min(
-                    startIndex + 6,
-                    filteredListings.length
-                  );
-                  const chunkAds = filteredListings.slice(startIndex, endIndex);
-
-                  return (
-                    <React.Fragment key={chunkIndex}>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {chunkAds.map((ad) => {
-                          // Check if current user owns this ad
-                          const isOwnAd = user && (ad.is_owner || ad.user_id === user.id);
-
-                          return (
-                            <div
-                              key={ad.id}
-                              onClick={() => handleListingClick(ad)}
-                              className={`group bg-white rounded-lg shadow-sm transition-all cursor-pointer hover:shadow-md border-2 ${
-                                isOwnAd
-                                  ? 'border-blue-500' // Blue border for own ads
-                                  : 'border-gray-200 hover:border-orange-300' // Original styling
-                              }`}
-                            >
-                              {/* Image */}
-                              <div className="relative aspect-video bg-gray-100 rounded-t-lg overflow-hidden">
-                                {ad.primary_image?.image ? (
-                                  <img
-                                    src={ad.primary_image.image}
-                                    alt={ad.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                    loading="lazy"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                    No image
-                                  </div>
-                                )}
-
-                                {/* Featured Badge */}
-                                <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg">
-                                  <Star className="h-3 w-3 fill-current" />
-                                  <span>Featured</span>
-                                </div>
-                              </div>
-
-                              {/* Content */}
-                              <div className="p-3">
-                                {/* Category Badge */}
-                                <Badge variant="secondary" className="mb-2 text-xs">
-                                  {ad.category.name}
-                                </Badge>
-
-                                {/* Title */}
-                                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm group-hover:text-orange-600 transition-colors">
-                                  {ad.title}
-                                </h3>
-
-                                {/* Description */}
-                                <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                                  {ad.description}
-                                </p>
-
-                                {/* Price */}
-                                <div className="text-orange-600 font-bold text-base mb-2">
-                                  {ad.display_price}
-                                </div>
-
-                                {/* Location */}
-                                <div className="flex items-center text-gray-600 mb-1">
-                                  <MapPin className="h-3 w-3 mr-0.5" />
-                                  <span className="text-xs">
-                                    {ad.city.name}, {ad.state.code}
-                                  </span>
-                                </div>
-
-                                {/* Stats */}
-                                <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
-                                  <div className="flex items-center space-x-1">
-                                    <Eye className="h-3 w-3" />
-                                    <span>{ad.view_count} views</span>
-                                  </div>
-                                  <div className="flex items-center space-x-1">
-                                    <Clock className="h-3 w-3" />
-                                    <span>{ad.time_since_posted}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
+              <div>
+                {filteredListings.length === 0 ? (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+                    <div className="text-center">
+                      <div className="text-gray-400 mb-4">
+                        <Star className="h-16 w-16 mx-auto" />
                       </div>
-
-                      {/* Inline Banner after every 6 ads (except the last chunk) */}
-                      {endIndex < filteredListings.length && (
-                        <div className="w-full">
-                          <BetweenAdsBanner />
-                        </div>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* No Results */}
-            {!loading && !error && filteredListings.length === 0 && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                <div className="text-center">
-                  <div className="text-gray-400 mb-4">
-                    <Star className="h-16 w-16 mx-auto" />
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        No featured ads found
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Try adjusting your filters to see more results.
+                      </p>
+                      <button
+                        onClick={() => {
+                          setSearchQuery("");
+                          setSelectedCategory("all");
+                          setSelectedCity("all");
+                          setSortBy("newest");
+                        }}
+                        className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                      >
+                        Clear Filters
+                      </button>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    No featured ads found
-                  </h3>
-                  <p className="text-gray-600">
-                    Try adjusting your filters to see more results.
-                  </p>
-                </div>
+                ) : (
+                  <>
+                    {/* Grid with Banner Injection every 6 ads */}
+                    {Array.from({
+                      length: Math.ceil(filteredListings.length / 6),
+                    }).map((_, chunkIndex) => {
+                      const startIndex = chunkIndex * 6;
+                      const endIndex = Math.min(
+                        startIndex + 6,
+                        filteredListings.length
+                      );
+                      const chunkAds = filteredListings.slice(
+                        startIndex,
+                        endIndex
+                      );
+
+                      return (
+                        <React.Fragment key={chunkIndex}>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                            {chunkAds.map((ad) => (
+                              <AdCard
+                                key={ad.id}
+                                ad={ad}
+                                user={user}
+                                onClick={() => handleAdClick(ad)}
+                                showFeaturedBadge={true}
+                              />
+                            ))}
+                          </div>
+
+                          {/* Inject Banner Between Chunks */}
+                          {endIndex < filteredListings.length && (
+                            <div className="w-full mb-6">
+                              <BetweenAdsBanner />
+                            </div>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </>
+                )}
               </div>
             )}
           </div>

@@ -3,35 +3,26 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   ArrowLeft,
-  Eye,
-  Clock,
-  Star,
-  MapPin,
   Search,
   ChevronLeft,
   ChevronRight,
+  MapPin,
 } from "lucide-react";
 import {
-  MobileBanner,
   FlippingAd,
-  SideBanner,
-  InlineBanner,
-  BottomBanner,
-  RecentListing,
   RecentListings,
 } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
+import AdCard from "../components/AdCard";
 import { useAds } from "../hooks/useAds";
 import { useCategories } from "../hooks/useCategories";
 import { useCities } from "../hooks/useCities";
 import { adsService } from "../services";
 import { useAuth } from "../contexts/AuthContext";
 import {
-  AdDetailBanner,
   BetweenAdsBanner,
   FooterBanner,
   HeaderBanner,
-  SidebarBanner,
 } from "../components/common/BannerLayouts";
 
 interface Listing {
@@ -59,7 +50,7 @@ const CityPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   // Fetch cities to get the city ID
   const { cities: citiesData } = useCities();
@@ -86,25 +77,6 @@ const CityPage: React.FC = () => {
       page: currentPage,
     });
 
-  // Transform backend ads to Listing format
-  const mockListings: Listing[] = useMemo(() => {
-    return ads.map((ad) => ({
-      id: ad.id,
-      title: ad.title,
-      category: ad.category.name,
-      price: ad.display_price,
-      location: `${ad.city.name}, ${ad.state.code}`,
-      image: ad.primary_image?.image || "/placeholder.svg",
-      views: ad.view_count,
-      timeAgo: ad.time_since_posted,
-      postedDate: new Date(ad.created_at),
-      featured: ad.plan === "featured",
-      description: ad.description,
-      phone: "",
-      email: "",
-    }));
-  }, [ads]);
-
   // Build categories array for dropdown
   const categories = useMemo(() => {
     return ["all", ...categoriesData.map((cat) => cat.name)];
@@ -124,23 +96,35 @@ const CityPage: React.FC = () => {
     });
   }, [currentCity?.id, selectedCategory, searchQuery, sortBy, currentPage]);
 
-  const filteredListings = useMemo(() => {
-    // Backend already filters, so we just use the results
-    return mockListings;
-  }, [mockListings]);
+  // Calculate total pages
+  const itemsPerPage = 12; // Adjust based on your backend
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-  const handleListingClick = async (listing: Listing) => {
+  const handleListingClick = async (ad: any) => {
     try {
+      // Transform ad data to Listing format
+      const listing: Listing = {
+        id: ad.id,
+        title: ad.title,
+        category: ad.category.name,
+        price: ad.display_price,
+        location: `${ad.city.name}, ${ad.state.code}`,
+        image: ad.primary_image?.image || "/placeholder.svg",
+        views: ad.view_count,
+        timeAgo: ad.time_since_posted,
+        postedDate: new Date(ad.created_at),
+        featured: ad.plan === "featured",
+        description: ad.description,
+        phone: "",
+        email: "",
+      };
+
       // Open modal immediately with basic data
       setSelectedListing(listing);
       setIsModalOpen(true);
 
-      // Find the original ad data to get the slug
-      const originalAd = ads.find((ad) => ad.id === listing.id);
-      if (!originalAd?.slug) return;
-
       // Fetch detailed ad data
-      const detailedAd = (await adsService.getAd(originalAd.slug)) as any;
+      const detailedAd = (await adsService.getAd(ad.slug)) as any;
 
       // Get all images from detailed response
       const images =
@@ -153,14 +137,13 @@ const CityPage: React.FC = () => {
         ...listing,
         images,
         description: detailedAd.description || listing.description,
-        phone: detailedAd.hide_phone ? undefined : detailedAd.contact_phone,
-        email: detailedAd.contact_email_display,
+        phone: detailedAd.hide_phone ? "" : detailedAd.contact_phone || "",
+        email: detailedAd.contact_email_display || "",
       };
 
       setSelectedListing(enhancedListing);
     } catch (error) {
       console.error("Error fetching ad details:", error);
-      // Modal already shows basic data, so user still sees something
     }
   };
 
@@ -172,72 +155,79 @@ const CityPage: React.FC = () => {
   const handlePreviousPage = () => {
     if (hasPrevious && currentPage > 1) {
       setCurrentPage(currentPage - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handleNextPage = () => {
     if (hasNext) {
       setCurrentPage(currentPage + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  // Calculate total pages
-  const totalPages = Math.ceil(totalCount / 20); // 20 is default page size
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Ad Banner */}
-      <div className=" bg-white border-b border-gray-200">
-        <div className="px-4 py-2">
-          {/* <MobileBanner /> */}
-          <HeaderBanner />
-        </div>
+      {/* Header Banner */}
+      <div className="md:mx-4 mx-2 mt-2">
+        <HeaderBanner />
       </div>
 
-      {/* Mobile Ad */}
-      {/* <div className="md:hidden m-4 mb-0">
-        <FlippingAd size="medium" />
-      </div> */}
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex gap-2 md:gap-4 lg:gap-6">
-          {/* Left Sidebar with Ads */}
-          <div className=" md:w-48   xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
-            <div className="sticky top-24 space-y-4 z-10">
-              {/* <SideBanner /> */}
-              <SidebarBanner />
-              <FlippingAd size="medium" />
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Link
+                to="/"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Back to home"
+              >
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 capitalize">
+                  {currentCity?.name || cityName} Classifieds
+                </h1>
+                <p className="text-sm text-gray-600 mt-0.5">
+                  Discover local listings in your area
+                </p>
+              </div>
             </div>
           </div>
+        </div>
+      </header>
 
-          {/* Main Content */}
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex gap-6">
+           {/* Sidebar Ads (Desktop Left) */}
+                    <aside className="hidden lg:block lg:w-48 xl:w-60 flex-shrink-0">
+                      <div className="sticky top-24 space-y-4">
+                      
+                        <FlippingAd size="medium"/>
+                      </div>
+                    </aside>
+
+          {/* Left Content */}
           <div className="flex-1 min-w-0">
-            {/* Header */}
-            <div className="mb-6">
-              <div className="flex items-center mb-4">
-                <Link
-                  to="/"
-                  className="flex items-center text-orange-500 hover:text-orange-600 transition-colors mr-4 text-sm"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-1" />
-                  <span className="font-medium">Back</span>
-                </Link>
-              </div>
-
-              <div className="flex items-center mb-1">
-                <MapPin className="h-5 w-5 text-orange-500 mr-2" />
-                <h1 className="text-xl font-bold text-gray-900">
-                  Listings in {cityName}
-                </h1>
-              </div>
-              <p className="text-sm text-gray-600">
-                {totalCount} listings found • Sorted by date posted
+            {/* Results Summary */}
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-gray-600" role="status">
+                {loading
+                  ? "Loading..."
+                  : `${totalCount || ads.length} listings found`}
+                {selectedCategory !== "all" && (
+                  <span className="text-orange-600 ml-2">
+                    • Filtered by category:{" "}
+                    {
+                      categoriesData.find(
+                        (c) => c.id === parseInt(selectedCategory)
+                      )?.name
+                    }
+                  </span>
+                )}
               </p>
-              {selectedCategory !== "all" && (
-                <p className="text-sm text-orange-600">
-                  Filtered by category: {selectedCategory}
-                </p>
-              )}
             </div>
 
             {/* Filters */}
@@ -245,9 +235,12 @@ const CityPage: React.FC = () => {
               {/* Search Bar */}
               <div className="mb-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                    aria-hidden="true"
+                  />
                   <input
-                    type="text"
+                    type="search"
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
@@ -255,157 +248,179 @@ const CityPage: React.FC = () => {
                     }}
                     placeholder="Search listings..."
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                    aria-label="Search listings"
                   />
                 </div>
               </div>
 
-              {/* Filter Dropdowns - Single Line */}
+              {/* Filter Dropdowns */}
               <div className="flex flex-wrap gap-3 items-end">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="city-filter"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
                     City
                   </label>
                   <select
-                    value={cityName || "Chicago"}
+                    id="city-filter"
+                    value={cityName || ""}
                     disabled
                     className="px-3 py-1.5 border border-gray-300 rounded-md bg-gray-100 text-gray-600 text-sm"
+                    aria-label="City filter (disabled)"
                   >
-                    <option value={cityName}>{cityName}</option>
+                    <option value={cityName}>
+                      {currentCity?.name || cityName}
+                    </option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="category-filter"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
                     Category
                   </label>
                   <select
+                    id="category-filter"
                     value={selectedCategory}
                     onChange={(e) => {
                       setSelectedCategory(e.target.value);
                       setCurrentPage(1); // Reset to first page on category change
                     }}
                     className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                    aria-label="Filter by category"
                   >
                     {categories.map((category) => (
                       <option key={category} value={category}>
-                        {category === "all" ? "All Categories" : category}
+                        {category === "all"
+                          ? "All Categories"
+                          : categoriesData.find((c) => c.name === category)
+                              ?.name || category}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="sort-filter"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
                     Sort By
                   </label>
                   <select
+                    id="sort-filter"
                     value={sortBy}
-                    onChange={(e) => {
-                      setSortBy(e.target.value);
-                      setCurrentPage(1); // Reset to first page on sort change
-                    }}
+                    onChange={(e) => setSortBy(e.target.value)}
                     className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                    aria-label="Sort listings"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
-                    <option value="alphabetical">Alphabetical</option>
+                    <option value="price_low">Price: Low to High</option>
+                    <option value="price_high">Price: High to Low</option>
+                    <option value="most_viewed">Most Viewed</option>
                   </select>
                 </div>
-
-                <div>
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setSelectedCategory("all");
-                      setSortBy("newest");
-                      setCurrentPage(1);
-                    }}
-                    className="px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-                  >
-                    Clear Filters
-                  </button>
-                </div>
               </div>
             </div>
 
-            {/* Listings List - Single Line Titles */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[75vh] overflow-y-auto">
-              <div className="divide-y divide-gray-200">
-                {filteredListings.map((listing, index) => (
-                  <div key={listing.id}>
-                    <div
-                      className="p-3 hover:bg-gray-50 cursor-pointer transition-colors group"
-                      onClick={() => handleListingClick(listing)}
+            {/* Error State */}
+            {error && (
+              <div
+                className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
+                role="alert"
+              >
+                <p className="text-red-800 text-sm font-medium">
+                  Error loading listings
+                </p>
+                <p className="text-red-600 text-sm mt-1">{error}</p>
+                <button
+                  onClick={() => refetch()}
+                  className="mt-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm"
+                >
+                  Try Again
+                </button>
+              </div>
+            )}
+
+            {/* Listings Grid */}
+            {!error && (
+              <div>
+                {loading ? (
+                  <div className="text-center py-12" role="status">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+                    <p className="text-sm text-gray-600 mt-4">
+                      Loading listings...
+                    </p>
+                  </div>
+                ) : ads.length === 0 ? (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                    <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      No listings found
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Try adjusting your filters to see more results.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSelectedCategory("all");
+                        setSortBy("newest");
+                        setCurrentPage(1);
+                      }}
+                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                     >
-                      <div className="flex flex-col lg:flex-row items-start gap-y-2 lg:gap-y-0 lg:items-center lg:justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-3">
-                            {listing.featured && (
-                              <Star className="h-4 w-4 text-orange-500 fill-current flex-shrink-0" />
-                            )}
-                            <h3 className="text-sm line-clamp-1 font-medium text-gray-900 group-hover:text-orange-600 transition-colors">
-                              {listing.title}
-                            </h3>
-                          </div>
-                        </div>
-                        <div className="flex items-center self-end lg:self-auto space-x-4 text-xs text-gray-500 ml-4">
-                          <span className="font-semibold text-orange-600">
-                            {listing.price}
-                          </span>
-                          <span className="bg-gray-100 px-2 py-1 rounded text-xs">
-                            {listing.category}
-                          </span>
-                          <div className="flex items-center space-x-1">
-                            <Eye className="h-3 w-3" />
-                            <span>{listing.views}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-3 w-3" />
-                            <span>{listing.timeAgo}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Inline Ad every 5 listings */}
-                    {(index + 1) % 5 === 0 &&
-                      index < filteredListings.length - 1 && (
-                        <div className="p-2 bg-gray-50 border-t border-b border-gray-200">
-                          {/* <InlineBanner </> */}
-                          <BetweenAdsBanner />
-                        </div>
-                      )}
+                      Clear Filters
+                    </button>
                   </div>
-                ))}
+                ) : (
+                  <>
+                    {/* Ads Grid with Banner Injection */}
+                    {Array.from({
+                      length: Math.ceil(ads.length / 6),
+                    }).map((_, chunkIndex) => {
+                      const startIndex = chunkIndex * 6;
+                      const endIndex = Math.min(startIndex + 6, ads.length);
+                      const chunkAds = ads.slice(startIndex, endIndex);
+
+                      return (
+                        <React.Fragment key={chunkIndex}>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                            {chunkAds.map((ad) => (
+                              <AdCard
+                                key={ad.id}
+                                ad={ad}
+                                user={user}
+                                onClick={() => handleListingClick(ad)}
+                                showFeaturedBadge={true}
+                              />
+                            ))}
+                          </div>
+
+                          {/* Inject Banner Between Chunks */}
+                          {chunkIndex < Math.ceil(ads.length / 6) - 1 && (
+                            <div className="mb-6">
+                              <BetweenAdsBanner />
+                            </div>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </>
+                )}
               </div>
+            )}
 
-              {/* No Results */}
-              {filteredListings.length === 0 && !loading && (
-                <div className="text-center py-8">
-                  <div className="text-gray-400 mb-4">
-                    <MapPin className="h-12 w-12 mx-auto" />
-                  </div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-2">
-                    No listings found
-                  </h3>
-                  <p className="text-gray-600">
-                    Try adjusting your filters to see more results.
-                  </p>
-                </div>
-              )}
-
-              {/* Loading State */}
-              {loading && (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
-                  <p className="text-sm text-gray-600 mt-2">Loading...</p>
-                </div>
-              )}
-            </div>
-
-            {/* Pagination - Only show if there are multiple pages */}
+            {/* Pagination */}
             {totalPages > 1 && !loading && (
-              <div className="mt-4 flex items-center justify-between bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
+              <nav
+                className="mt-6 flex items-center justify-between bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3"
+                aria-label="Pagination"
+              >
                 <div className="text-sm text-gray-600">
                   Page {currentPage} of {totalPages} • {totalCount} total
                   listings
@@ -419,6 +434,7 @@ const CityPage: React.FC = () => {
                         ? "hover:bg-gray-50 text-gray-700"
                         : "text-gray-400 cursor-not-allowed"
                     }`}
+                    aria-label="Previous page"
                   >
                     <ChevronLeft className="h-4 w-4" />
                     <span>Previous</span>
@@ -431,35 +447,39 @@ const CityPage: React.FC = () => {
                         ? "hover:bg-gray-50 text-gray-700"
                         : "text-gray-400 cursor-not-allowed"
                     }`}
+                    aria-label="Next page"
                   >
                     <span>Next</span>
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
-              </div>
+              </nav>
             )}
           </div>
 
-          {/* Right Sidebar with Ads */}
-          <div className="md:w-48  hidden md:block  xl:w-72 lg:w-60 flex-shrink-0">
+          {/* Right Sidebar */}
+          <aside
+            className="md:w-48 hidden md:block xl:w-72 lg:w-60 flex-shrink-0"
+            aria-label="Sidebar"
+          >
             <div className="sticky top-24 space-y-4">
-              {/* <FlippingAd size="medium" /> */}
               <RecentListings />
             </div>
-          </div>
+          </aside>
         </div>
       </main>
 
+      {/* Mobile Ad */}
       <div className="md:hidden m-4 mt-0">
         <FlippingAd size="medium" />
+      </div> 
+       <div className="md:hidden m-4 mt-0">
+        <RecentListings />
       </div>
 
-      {/* Bottom Banner Ad */}
-      <div className="mx-4">
-        {/* <BottomBanner /> */}
-        {/* <AdDetailBanner /> */}
-                  <FooterBanner />
-        
+      {/* Footer Banner */}
+      <div className="mx-4 mb-4">
+        <FooterBanner />
       </div>
 
       {/* Listing Modal */}

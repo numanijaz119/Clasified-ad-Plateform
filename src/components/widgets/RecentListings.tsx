@@ -1,16 +1,18 @@
+// src/components/widgets/RecentListings.tsx
+// UPDATED: Only added blue border for user's own ads, no other UI changes
+
 import React from "react";
 import { useAds } from "../../hooks/useAds";
 import { useListingModal } from "../../hooks/useListingModal";
 import { useAuth } from "../../contexts/AuthContext";
 import ListingModal from "../ListingModal";
 
-
 interface RecentListingsProps {
   // No longer need onListingClick prop as we'll use the modal hook
 }
 
 const RecentListings: React.FC<RecentListingsProps> = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth(); // Added user to check ownership
   const [currentIndex, setCurrentIndex] = React.useState(0);
   
   // Fetch 10 most recent ads from API
@@ -26,7 +28,6 @@ const RecentListings: React.FC<RecentListingsProps> = () => {
     handleListingClick,
     handleCloseModal,
   } = useListingModal();
-
 
   React.useEffect(() => {
     if (ads && ads.length > 0) {
@@ -68,28 +69,38 @@ const RecentListings: React.FC<RecentListingsProps> = () => {
               className="transition-transform duration-500 ease-in-out"
               style={{ transform: `translateY(-${currentIndex * 26}px)` }}
             >
-              {ads.map((ad) => (
-                <div
-                  key={ad.id}
-                  className="h-9 flex items-center justify-between py-1 mb-1 cursor-pointer hover:bg-gray-50 transition-colors rounded px-2 border-l-2 border-transparent hover:border-orange-500"
-                  onClick={() => handleListingClick(ad)}
-                >
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-gray-900 truncate hover:text-orange-600 transition-colors leading-tight">
-                      {ad.title}
-                    </h4>
-                    <div className="text-xs text-gray-500 truncate">
-                      {ad.category.name} • {ad.city.name}, {ad.state.code}
+              {ads.map((ad) => {
+                // Check if current user owns this ad
+                const isOwnAd = user && (ad.is_owner || ad.user_id === user.id);
+                console.log(isOwnAd);
+                
+                return (
+                  <div
+                    key={ad.id}
+                    className={`h-9 flex items-center justify-between py-1 mb-1 cursor-pointer hover:bg-gray-50 transition-colors rounded px-2 border-l-2 ${
+                      isOwnAd 
+                        ? 'border-blue-500' // Blue border for own ads
+                        : 'border-transparent hover:border-orange-500' // Original styling
+                    }`}
+                    onClick={() => handleListingClick(ad)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-medium text-gray-900 truncate hover:text-orange-600 transition-colors leading-tight">
+                        {ad.title}
+                      </h4>
+                      <div className="text-xs text-gray-500 truncate">
+                        {ad.category.name} • {ad.city.name}, {ad.state.code}
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end text-xs text-gray-500 ml-2">
+                      <span className="font-semibold text-orange-600 text-sm">
+                        {ad.display_price}
+                      </span>
+                      <span className="text-xs">{ad.time_since_posted}</span>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end text-xs text-gray-500 ml-2">
-                    <span className="font-semibold text-orange-600 text-sm">
-                      {ad.display_price}
-                    </span>
-                    <span className="text-xs">{ad.time_since_posted}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ) : (

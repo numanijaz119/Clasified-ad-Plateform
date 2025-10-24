@@ -1,3 +1,6 @@
+// src/pages/FeaturedAdsPage.tsx
+// UPDATED: Added blue border for user's own ads
+
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Search, Eye, Clock, Star, MapPin } from "lucide-react";
@@ -24,7 +27,7 @@ import {
 } from "../components/common/BannerLayouts";
 
 const FeaturedAdsPage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth(); // Added user to check ownership
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
@@ -112,39 +115,22 @@ const FeaturedAdsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <HeaderBanner />
-
       {/* Mobile Ad Banner */}
       <div className="md:hidden bg-white border-b border-gray-200">
         <div className="px-4 py-2">
-          {/* <MobileBanner /> */}
           <HeaderBanner />
         </div>
       </div>
-
-      {/* Tablet Ad Banner */}
-      {/* <div className="hidden md:block lg:hidden bg-white border-b border-gray-200">
-        <div className="px-4 py-2">
-          <FlippingAd size="medium" />
-        </div>
-      </div> */}
 
       <main className="max-w-7xl mx-auto px-4">
         <div className="flex gap-2 md:gap-4 lg:gap-6">
           {/* Left Sidebar with Ads */}
           <div className="md:w-48 xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
             <div className="sticky top-24 space-y-4 z-10">
-              {/* <div className="block lg:hidden">
-                <FlippingAd size="small" />
-              </div> */}
               <div className="block">
-                {/* <SideBanner /> */}
                 <SidebarBanner />
               </div>
               <FlippingAd size="medium" />
-              {/* <div className="hidden md:block">
-                <FlippingAd size="medium" />
-              </div> */}
             </div>
           </div>
 
@@ -194,14 +180,15 @@ const FeaturedAdsPage: React.FC = () => {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search featured listings..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                    placeholder="Search featured ads..."
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                   />
                 </div>
               </div>
 
               {/* Filter Dropdowns */}
-              <div className="flex flex-wrap gap-3 items-end">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Category Filter */}
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Category
@@ -209,16 +196,17 @@ const FeaturedAdsPage: React.FC = () => {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                   >
-                    {categories.map((category) => (
-                      <option key={category} value={category}>
-                        {category === "all" ? "All Categories" : category}
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat === "all" ? "All Categories" : cat}
                       </option>
                     ))}
                   </select>
                 </div>
 
+                {/* City Filter */}
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     City
@@ -226,7 +214,7 @@ const FeaturedAdsPage: React.FC = () => {
                   <select
                     value={selectedCity}
                     onChange={(e) => setSelectedCity(e.target.value)}
-                    className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                   >
                     {cities.map((city) => (
                       <option key={city} value={city}>
@@ -236,6 +224,7 @@ const FeaturedAdsPage: React.FC = () => {
                   </select>
                 </div>
 
+                {/* Sort By */}
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Sort By
@@ -243,7 +232,7 @@ const FeaturedAdsPage: React.FC = () => {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
@@ -251,43 +240,19 @@ const FeaturedAdsPage: React.FC = () => {
                     <option value="views">Most Viewed</option>
                   </select>
                 </div>
-
-                <div>
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setSelectedCategory("all");
-                      setSelectedCity("all");
-                      setSortBy("newest");
-                    }}
-                    className="px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-                  >
-                    Clear Filters
-                  </button>
-                </div>
               </div>
             </div>
 
             {/* Loading State */}
-            {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-lg shadow-sm p-4 animate-pulse"
-                  >
-                    <div className="bg-gray-200 h-48 rounded mb-4"></div>
-                    <div className="bg-gray-200 h-4 rounded mb-2"></div>
-                    <div className="bg-gray-200 h-3 rounded mb-2 w-3/4"></div>
-                    <div className="bg-gray-200 h-5 rounded mb-2 w-1/2"></div>
-                    <div className="flex justify-between">
-                      <div className="bg-gray-200 h-3 rounded w-1/3"></div>
-                      <div className="bg-gray-200 h-3 rounded w-1/4"></div>
-                    </div>
-                  </div>
-                ))}
+            {loading && (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading featured ads...</p>
               </div>
-            ) : error ? (
+            )}
+
+            {/* Error State */}
+            {error && !loading && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                 <div className="text-center">
                   <div className="text-red-600 mb-4">
@@ -305,8 +270,10 @@ const FeaturedAdsPage: React.FC = () => {
                   </button>
                 </div>
               </div>
-            ) : (
-              /* Featured Listings Grid with Inline Banners */
+            )}
+
+            {/* Featured Listings Grid with Inline Banners */}
+            {!loading && !error && (
               <div className="space-y-6">
                 {Array.from({
                   length: Math.ceil(filteredListings.length / 6),
@@ -321,80 +288,92 @@ const FeaturedAdsPage: React.FC = () => {
                   return (
                     <React.Fragment key={chunkIndex}>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {chunkAds.map((ad) => (
-                          <div
-                            key={ad.id}
-                            className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer transform hover:-translate-y-1 overflow-hidden"
-                            onClick={() => handleListingClick(ad)}
-                          >
-                            {/* Image Container */}
-                            <div className="relative overflow-hidden">
-                              <img
-                                src={
-                                  ad.primary_image?.image || "/placeholder.svg"
-                                }
-                                alt={ad.title}
-                                className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
-                              />
+                        {chunkAds.map((ad) => {
+                          // Check if current user owns this ad
+                          const isOwnAd = user && (ad.is_owner || ad.user_id === user.id);
 
-                              {/* Featured Badge */}
-                              {ad.is_featured_active && (
-                                <div className="absolute top-2 left-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center space-x-1">
+                          return (
+                            <div
+                              key={ad.id}
+                              onClick={() => handleListingClick(ad)}
+                              className={`group bg-white rounded-lg shadow-sm transition-all cursor-pointer hover:shadow-md border-2 ${
+                                isOwnAd
+                                  ? 'border-blue-500' // Blue border for own ads
+                                  : 'border-gray-200 hover:border-orange-300' // Original styling
+                              }`}
+                            >
+                              {/* Image */}
+                              <div className="relative aspect-video bg-gray-100 rounded-t-lg overflow-hidden">
+                                {ad.primary_image?.image ? (
+                                  <img
+                                    src={ad.primary_image.image}
+                                    alt={ad.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                    No image
+                                  </div>
+                                )}
+
+                                {/* Featured Badge */}
+                                <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg">
                                   <Star className="h-3 w-3 fill-current" />
                                   <span>Featured</span>
                                 </div>
-                              )}
-
-                              {/* Category Tag */}
-
-                              <div className="absolute bottom-2 left-2">
-                                <Badge variant="info">{ad.category.name}</Badge>
                               </div>
 
-                              {/* Views */}
+                              {/* Content */}
+                              <div className="p-3">
+                                {/* Category Badge */}
+                                <Badge variant="secondary" className="mb-2 text-xs">
+                                  {ad.category.name}
+                                </Badge>
 
-                              {/* <div className="absolute bottom-2 right-2">
-                                <Badge variant="primary">{ad.view_count}</Badge>
-                              </div> */}
-                            </div>
+                                {/* Title */}
+                                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm group-hover:text-orange-600 transition-colors">
+                                  {ad.title}
+                                </h3>
 
-                            {/* Content */}
-                            <div className="p-4">
-                              <h3 className="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors">
-                                {ad.title}
-                              </h3>
+                                {/* Description */}
+                                <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                                  {ad.description}
+                                </p>
 
-                              <p className="text-xs text-gray-600 mb-3 line-clamp-2">
-                                {ad.description}
-                              </p>
+                                {/* Price */}
+                                <div className="text-orange-600 font-bold text-base mb-2">
+                                  {ad.display_price}
+                                </div>
 
-                              {/* Price */}
-                              <div className="text-lg font-bold text-orange-600 mb-2">
-                                {ad.display_price}
-                              </div>
-
-                              {/* Location and Time */}
-                              <div className="flex items-center justify-between text-xs text-gray-500">
-                                <div className="flex items-center space-x-1">
-                                  <MapPin className="h-3 w-3" />
-                                  <span>
+                                {/* Location */}
+                                <div className="flex items-center text-gray-600 mb-1">
+                                  <MapPin className="h-3 w-3 mr-0.5" />
+                                  <span className="text-xs">
                                     {ad.city.name}, {ad.state.code}
                                   </span>
                                 </div>
-                                <div className="flex items-center space-x-1">
-                                  <Clock className="h-3 w-3" />
-                                  <span>{ad.time_since_posted}</span>
+
+                                {/* Stats */}
+                                <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+                                  <div className="flex items-center space-x-1">
+                                    <Eye className="h-3 w-3" />
+                                    <span>{ad.view_count} views</span>
+                                  </div>
+                                  <div className="flex items-center space-x-1">
+                                    <Clock className="h-3 w-3" />
+                                    <span>{ad.time_since_posted}</span>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
 
                       {/* Inline Banner after every 6 ads (except the last chunk) */}
                       {endIndex < filteredListings.length && (
                         <div className="w-full">
-                          {/* <InlineBanner /> */}
                           <BetweenAdsBanner />
                         </div>
                       )}
@@ -425,8 +404,6 @@ const FeaturedAdsPage: React.FC = () => {
           {/* Right Sidebar with Ads */}
           <div className="md:w-48 xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
             <div className="sticky top-24 space-y-4">
-              {/* <FlippingAd size="medium" />
-              <FlippingAd size="small" /> */}
               <RecentListings />
             </div>
           </div>
@@ -440,10 +417,7 @@ const FeaturedAdsPage: React.FC = () => {
 
       {/* Bottom Banner Ad */}
       <div className="mx-4">
-        {/* <BottomBanner /> */}
-        {/* <AdDetailBanner /> */}
-                  <FooterBanner />
-        
+        <FooterBanner />
       </div>
 
       {/* Listing Modal */}

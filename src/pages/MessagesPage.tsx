@@ -30,6 +30,7 @@ const MessagesPage: React.FC = () => {
   const [viewStatus, setViewStatus] = useState<'active' | 'archived' | 'blocked'>('active');
   const [showListMenu, setShowListMenu] = useState(false);
   const [showBlockModal, setShowBlockModal] = useState(false);
+  const [conversationToBlock, setConversationToBlock] = useState<number | null>(null);
   
   const {
     conversations,
@@ -183,6 +184,11 @@ const MessagesPage: React.FC = () => {
     setActiveConversationId(conversation.id);
   };
 
+  const handleBlockFromList = (convId: number) => {
+  setConversationToBlock(convId);
+  setShowBlockModal(true);
+};
+
   const handleBackToList = () => {
     setSelectedConversation(null);
     setShowActions(false);
@@ -212,11 +218,21 @@ const MessagesPage: React.FC = () => {
     setShowActions(false);
   };
 
-  const handleConfirmBlock = async () => {
-    if (!selectedConversation) return;
-    await blockConversation(selectedConversation.id);
+const handleConfirmBlock = async () => {
+  if (!conversationToBlock) return;
+  
+  await blockConversation(conversationToBlock);
+  
+  if (selectedConversation?.id === conversationToBlock) {
     handleBackToList();
-  };
+  }
+  
+  setConversationToBlock(null);
+}
+
+const handleUnblockFromList = async (convId: number) => {
+  await unblockConversation(convId);
+};
 
   // handleUnblock removed - unblock now happens directly from conversation list
 
@@ -380,16 +396,17 @@ const MessagesPage: React.FC = () => {
 
               {/* Conversations List */}
               <div className="flex-1 overflow-y-auto scrollbar-thin p-4">
-                <ConversationList
-                  conversations={filteredConversations}
-                  selectedId={selectedConversation?.id || null}
-                  onSelect={handleSelectConversation}
-                  onUnblock={unblockConversation}
-                  onAdClick={handleAdClick}
-                  loading={loadingConversations}
-                  refreshing={refreshingConversations}
-                  isBlockedView={viewStatus === 'blocked'}
-                />
+             <ConversationList
+  conversations={filteredConversations}
+  selectedId={selectedConversation?.id || null}
+  onSelect={handleSelectConversation}
+  onUnblock={handleUnblockFromList}
+  onBlock={handleBlockFromList}  // ← ADD THIS LINE
+  onAdClick={handleAdClick}
+  loading={loadingConversations}
+  refreshing={refreshingConversations}
+  isBlockedView={viewStatus === 'blocked'}
+/>
               </div>
             </div>
 
@@ -532,19 +549,26 @@ const MessagesPage: React.FC = () => {
       </div>
 
       {/* Block User Modal */}
-      <BlockUserModal
-        isOpen={showBlockModal}
-        onClose={() => setShowBlockModal(false)}
-        onConfirm={handleConfirmBlock}
-        userName={selectedConversation?.other_user.full_name || 'this user'}
-        conversationCount={
-          selectedConversation
-            ? conversations.filter(
-                (c) => c.other_user.id === selectedConversation.other_user.id
-              ).length
-            : 1
-        }
-      />
+ <BlockUserModal
+  isOpen={showBlockModal}
+  onClose={() => {
+    setShowBlockModal(false);
+    setConversationToBlock(null);
+  }}
+  onConfirm={handleConfirmBlock}
+  userName={
+    conversationToBlock
+      ? conversations.find(c => c.id === conversationToBlock)?.other_user.full_name || 'this user'
+      : 'this user'
+  }
+  conversationCount={
+    conversationToBlock
+      ? conversations.filter(
+          (c) => c.other_user.id === conversations.find(conv => conv.id === conversationToBlock)?.other_user.id
+        ).length
+      : 1
+  }
+/>
 
       {/* Listing Modal for viewing ads */}
       <ListingModal

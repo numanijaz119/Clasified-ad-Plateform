@@ -380,7 +380,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
                   <BarChart3 className="h-5 w-5" />
                   <span>View Dashboard</span>
                 </button>
-                <button
+                {/* <button
                   onClick={() => {
                     navigate(`/edit-ad/${listing.id}`);
                     onClose();
@@ -389,7 +389,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
                 >
                   <Edit className="h-5 w-5" />
                   <span>Edit Ad</span>
-                </button>
+                </button> */}
               </div>
             </div>
           </>

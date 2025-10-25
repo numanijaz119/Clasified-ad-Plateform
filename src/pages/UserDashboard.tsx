@@ -11,6 +11,7 @@ import {
   Trash2,
   AlertCircle,
   RefreshCw,
+  Flag,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { adsService } from "../services";
@@ -25,8 +26,9 @@ import { useListingModal } from "../hooks/useListingModal";
 import ListingModal from "../components/ListingModal";
 import ConfirmModal from "../components/admin/ConfirmModal";
 import type { BasicAd } from "../hooks/useAdDetails";
+import MyReportsTab from "../components/dashboard/MyReportsTab";
 
-type TabId = "overview" | "ads" | "stats" | "promote";
+type TabId = "overview" | "ads" | "stats" | "promote" | "reports";
 
 interface DashboardData {
   total_ads: number;
@@ -923,6 +925,7 @@ const UserDashboard: React.FC = () => {
     { id: "ads", name: "My Ads", icon: Edit },
     { id: "stats", name: "Statistics", icon: TrendingUp },
     { id: "promote", name: "Promote Ads", icon: Star },
+    { id: "reports", name: "My Reports", icon: Flag },
   ];
 
   return (
@@ -993,6 +996,7 @@ const UserDashboard: React.FC = () => {
           {activeTab === "ads" && renderMyAds()}
           {activeTab === "stats" && renderStats()}
           {activeTab === "promote" && renderPromoteAds()}
+          {activeTab === "reports" && <MyReportsTab />}
         </main>
       </div>
 

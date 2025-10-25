@@ -15,6 +15,7 @@ import {
   TrendingUp,
   Edit,
   BarChart3,
+  Flag,
 } from "lucide-react";
 import { BaseModal } from "./modals";
 import { useState } from "react";
@@ -22,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { messagingService } from "../services/messagingService";
 import { useToast } from "../contexts/ToastContext";
 import { useAuth } from "../contexts/AuthContext";
+import ReportAdModal from "./ReportAdModal";
 
 interface Listing {
   id: number;
@@ -64,6 +66,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
   const navigate = useNavigate();
   const toast = useToast();
   const [startingConversation, setStartingConversation] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const { user } = useAuth();
 
   if (!listing) return null;
@@ -479,6 +482,18 @@ const ListingModal: React.FC<ListingModalProps> = ({
                   >
                     <Heart className="h-5 w-5" />
                   </button>
+
+                  {/* Report Button - Only show if not own ad */}
+                  {!isOwnAd && (
+                    <button
+                      onClick={() => setIsReportModalOpen(true)}
+                      className="btn-ghost px-4 text-red-600 hover:bg-red-50"
+                      aria-label="Report ad"
+                      title="Report this ad"
+                    >
+                      <Flag className="h-5 w-5" />
+                    </button>
+                  )}
                 </div>
               </>
             ) : (
@@ -498,6 +513,14 @@ const ListingModal: React.FC<ListingModalProps> = ({
           </div>
         )}
       </div>
+
+      {/* Report Ad Modal */}
+      <ReportAdModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        adId={listing.id}
+        adTitle={listing.title}
+      />
     </BaseModal>
   );
 };

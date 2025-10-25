@@ -565,17 +565,33 @@ class AdsService extends BaseService {
    */
   async reportAd(
     adId: number,
-    reason: string,
-    description?: string
-  ): Promise<void> {
+    data: { reason: string; description: string }
+  ): Promise<any> {
     try {
-      await this.post(
+      const response = await this.post(
         API_CONFIG.ENDPOINTS.ADS.REPORTS,
-        { ad: adId, reason, description },
+        { ad: adId, ...data },
         true
       );
+      return response.data;
     } catch (error: any) {
       console.error("Report ad error:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user's submitted reports
+   */
+  async getMyReports(): Promise<any> {
+    try {
+      const response = await this.get(
+        API_CONFIG.ENDPOINTS.ADS.REPORTS,
+        true
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error("Get my reports error:", error);
       throw error;
     }
   }

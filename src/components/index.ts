@@ -8,6 +8,7 @@ export { default as ListingModal } from "./ListingModal";
 export { default as PostAdModal } from "./PostAdModal";
 export { default as SignInModal } from "./SignInModal";
 export { default as SearchBar } from "./SearchBar";
+export { default as ReportAdModal } from "./ReportAdModal";
 
 // UI
 export { default as Button } from "./ui/Button";

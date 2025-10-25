@@ -10,6 +10,7 @@ import {
   DollarSign,
   Image,
   TrendingUp,
+  Flag,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -17,6 +18,7 @@ import { useAuth } from "../contexts/AuthContext";
 import OverviewTab from "../components/admin/OverviewTab";
 import PostsReviewTab from "../components/admin/PostsReviewTab";
 import UsersTab from "../components/admin/UsersTab";
+import ReportsTab from "../components/admin/ReportsTab";
 import CategoriesTab from "../components/admin/CategoriesTab";
 import AnalyticsTab from "../components/admin/AnalyticsTab";
 import BannersTab from "../components/admin/BannersTab";
@@ -26,6 +28,7 @@ type TabId =
   | "overview"
   | "posts"
   | "users"
+  | "reports"
   | "categories"
   | "earnings"
   | "analytics"
@@ -41,6 +44,7 @@ const tabs: Tab[] = [
   { id: "overview", name: "Overview", icon: BarChart3 },
   { id: "posts", name: "Posts Review", icon: FileText },
   { id: "users", name: "Users", icon: Users },
+  { id: "reports", name: "Reports", icon: Flag },
   { id: "categories", name: "Categories", icon: Settings },
   { id: "earnings", name: "Earnings", icon: DollarSign },
   { id: "analytics", name: "Analytics", icon: TrendingUp },
@@ -86,6 +90,8 @@ const AdminDashboard: React.FC = () => {
         return <PostsReviewTab />;
       case "users":
         return <UsersTab />;
+      case "reports":
+        return <ReportsTab />;
       case "categories":
         return <CategoriesTab />;
       case "earnings":

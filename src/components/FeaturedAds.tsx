@@ -146,10 +146,7 @@ const FeaturedAds: React.FC = () => {
 
                     {/* Stats */}
                     <div className="flex items-center justify-between text-xs text-gray-500 pt-1 border-t border-gray-100">
-                      <div className="flex items-center space-x-1">
-                        <Eye className="h-2.5 w-2.5" />
-                        <span>{ad.view_count} views</span>
-                      </div>
+            
                       <div className="flex items-center space-x-1">
                         <Clock className="h-2.5 w-2.5" />
                         <span>{ad.time_since_posted}</span>

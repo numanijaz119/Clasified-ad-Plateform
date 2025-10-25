@@ -308,6 +308,11 @@ class AdminService extends BaseApiService {
     }
   }
 
+  // Alias for easier usage
+  async handleReport(id: number, data: AdminReportActionRequest) {
+    return this.performReportAction(id, data);
+  }
+
   // ============================================================================
   // BANNER MANAGEMENT
   // ============================================================================

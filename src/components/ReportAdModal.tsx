@@ -121,34 +121,26 @@ const ReportAdModal: React.FC<ReportAdModalProps> = ({
         <form onSubmit={handleSubmit}>
           {/* Reason Selection */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label
+              htmlFor="reason"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Reason for Reporting <span className="text-red-500">*</span>
             </label>
-            <div className="space-y-2">
+            <select
+              id="reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              disabled={isSubmitting}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900"
+            >
+              <option value="">Select a reason...</option>
               {REPORT_REASONS.map((option) => (
-                <label
-                  key={option.value}
-                  className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${
-                    reason === option.value
-                      ? "border-orange-500 bg-orange-50"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="reason"
-                    value={option.value}
-                    checked={reason === option.value}
-                    onChange={(e) => setReason(e.target.value)}
-                    className="h-4 w-4 text-orange-600 focus:ring-orange-500"
-                    disabled={isSubmitting}
-                  />
-                  <span className="ml-3 text-sm font-medium text-gray-900">
-                    {option.label}
-                  </span>
-                </label>
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
               ))}
-            </div>
+            </select>
           </div>
 
           {/* Description */}

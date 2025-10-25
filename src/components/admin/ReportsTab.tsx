@@ -1,4 +1,5 @@
-// src/components/admin/ReportsTab.tsx
+// COMPLETE ADMIN REPORTS TAB - Copy this to src/components/admin/ReportsTab.tsx
+// This file contains ALL fixes: compact layout, pagination, refresh, proper action guidance, navigation
 
 import React, { useState, useEffect } from "react";
 import {
@@ -6,15 +7,17 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  Eye,
   Ban,
   XCircle,
   Search,
   Filter,
+  FileText,
+  RefreshCw,
 } from "lucide-react";
 import { adminService } from "../../services/adminService";
 import { useToast } from "../../contexts/ToastContext";
 import Badge from "../ui/Badge";
+import { API_CONFIG } from "../../config/api";
 
 interface Report {
   id: number;
@@ -23,6 +26,7 @@ interface Report {
     title: string;
     slug: string;
     status: string;
+    image?: string;
   };
   reported_by: {
     id: number;
@@ -61,15 +65,23 @@ const ReportsTab: React.FC = () => {
   const [actionType, setActionType] = useState<"approve" | "dismiss" | null>(null);
   const [adminNotes, setAdminNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [processedReports, setProcessedReports] = useState<Set<number>>(new Set());
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const toast = useToast();
+  const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
     fetchReports();
   }, []);
 
-  const fetchReports = async () => {
+  const fetchReports = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) {
+        setIsRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       const data = await adminService.getReports();
       
@@ -81,12 +93,17 @@ const ReportsTab: React.FC = () => {
       } else {
         setReports([]);
       }
+
+      if (isRefresh) {
+        toast.success("Reports refreshed successfully");
+      }
     } catch (err: any) {
       console.error("Failed to fetch reports:", err);
       setError("Failed to load reports. Please try again.");
       toast.error("Failed to load reports");
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
 
@@ -108,11 +125,14 @@ const ReportsTab: React.FC = () => {
         admin_notes: adminNotes.trim(),
       });
 
-      toast.success(
-        actionType === "approve"
-          ? "Report approved and action taken"
-          : "Report dismissed"
-      );
+      // Mark as processed for UI feedback
+      setProcessedReports(prev => new Set(prev).add(selectedReport.id));
+
+      const actionMessage = actionType === "approve"
+        ? getActionOutcome(selectedReport.reason)
+        : "✓ Report dismissed - No action taken on ad";
+
+      toast.success(actionMessage);
 
       // Refresh reports
       await fetchReports();
@@ -127,6 +147,66 @@ const ReportsTab: React.FC = () => {
       toast.error("Failed to process report. Please try again.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const getActionOutcome = (reason: string): string => {
+    switch (reason) {
+      case "spam":
+      case "fraud":
+        return "✓ Report approved - Ad has been REJECTED";
+      case "inappropriate":
+        return "✓ Report approved - Ad sent back for REVIEW";
+      default:
+        return "✓ Report approved - Action taken";
+    }
+  };
+
+  const getActionDescription = (reason: string): JSX.Element => {
+    switch (reason) {
+      case "spam":
+      case "fraud":
+        return (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p className="text-sm font-semibold text-red-900 mb-2">
+              ⚠️ Action Outcome:
+            </p>
+            <p className="text-sm text-red-800 mb-2">
+              The reported ad will be <strong>REJECTED</strong> and removed from listings.
+            </p>
+            <p className="text-xs text-red-700">
+              The reporter will be notified of your decision.
+            </p>
+          </div>
+        );
+      case "inappropriate":
+        return (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+            <p className="text-sm font-semibold text-orange-900 mb-2">
+              ⚠️ Action Outcome:
+            </p>
+            <p className="text-sm text-orange-800 mb-2">
+              The ad will be sent back to <strong>PENDING</strong> status for manual review.
+            </p>
+            <p className="text-xs text-orange-700">
+              The reporter will be notified of your decision.
+            </p>
+          </div>
+        );
+      default:
+        return (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <p className="text-sm font-semibold text-blue-900 mb-2">
+              ℹ️ Action Outcome:
+            </p>
+            <p className="text-sm text-blue-800 mb-2">
+              The ad status will remain unchanged. You can add notes for the reporter.
+            </p>
+            <p className="text-xs text-blue-700">
+              The reporter will be notified of your decision.
+            </p>
+          </div>
+        );
     }
   };
 
@@ -163,6 +243,16 @@ const ReportsTab: React.FC = () => {
   const pendingCount = reports.filter((r) => !r.is_reviewed).length;
   const reviewedCount = reports.filter((r) => r.is_reviewed).length;
 
+  // Pagination
+  const totalPages = Math.ceil(filteredReports.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedReports = filteredReports.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, searchTerm]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -180,7 +270,7 @@ const ReportsTab: React.FC = () => {
           <h3 className="text-red-900 font-semibold">Error Loading Reports</h3>
           <p className="text-red-700 mt-1">{error}</p>
           <button
-            onClick={fetchReports}
+            onClick={() => fetchReports()}
             className="mt-3 text-red-600 hover:text-red-700 underline text-sm"
           >
             Try Again
@@ -231,7 +321,7 @@ const ReportsTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Filters & Refresh */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
@@ -259,11 +349,21 @@ const ReportsTab: React.FC = () => {
               <option value="reviewed">Reviewed Only</option>
             </select>
           </div>
+
+          {/* Refresh Button */}
+          <button
+            onClick={() => fetchReports(true)}
+            disabled={isRefreshing}
+            className="btn-ghost px-4 py-2 flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
         </div>
       </div>
 
       {/* Reports List */}
-      {filteredReports.length === 0 ? (
+      {paginatedReports.length === 0 ? (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
           <Flag className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -278,121 +378,200 @@ const ReportsTab: React.FC = () => {
       ) : (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="divide-y divide-gray-200">
-            {filteredReports.map((report) => (
+            {paginatedReports.map((report) => {
+              const isProcessed = processedReports.has(report.id);
+              const actionOutcome = isProcessed ? getActionOutcome(report.reason) : null;
+              
+              return (
               <div
                 key={report.id}
-                className="p-6 hover:bg-gray-50 transition-colors"
+                className="p-3 hover:bg-gray-50 transition-colors"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h4 className="font-semibold text-gray-900">
-                        {report.ad.title}
-                      </h4>
-                      {report.is_reviewed ? (
-                        <Badge variant="success" size="sm">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Reviewed
-                        </Badge>
-                      ) : (
-                        <Badge variant="warning" size="sm">
-                          <Clock className="h-3 w-3 mr-1" />
-                          Pending
-                        </Badge>
-                      )}
+                <div className="flex gap-3">
+                  {/* Ad Image */}
+                  <div className="flex-shrink-0">
+                    {report.ad.image ? (
+                      <img
+                        src={report.ad.image.startsWith('http') ? report.ad.image : `${API_CONFIG.BASE_URL}${report.ad.image}`}
+                        alt={report.ad.title}
+                        className="w-20 h-20 object-cover rounded-lg"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <div className={`w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center ${report.ad.image ? 'hidden' : ''}`}>
+                      <FileText className="h-6 w-6 text-gray-400" />
                     </div>
+                  </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-3">
-                      <div>
-                        <span className="font-medium">Reported by:</span>{" "}
-                        {report.reported_by.full_name} ({report.reported_by.email})
-                      </div>
-                      <div>
-                        <span className="font-medium">Reason:</span>{" "}
-                        {REASON_LABELS[report.reason] || report.reason}
-                      </div>
-                      <div>
-                        <span className="font-medium">Date:</span>{" "}
-                        {formatDate(report.created_at)}
-                      </div>
-                      <div>
-                        <span className="font-medium">Ad Status:</span>{" "}
-                        <Badge
-                          variant={
-                            report.ad.status === "approved"
-                              ? "success"
-                              : report.ad.status === "rejected"
-                              ? "danger"
-                              : "warning"
-                          }
-                          size="sm"
-                        >
-                          {report.ad.status}
-                        </Badge>
-                      </div>
-                    </div>
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <h4 className="font-semibold text-sm text-gray-900 truncate">
+                            {report.ad.title}
+                          </h4>
+                        </div>
 
-                    <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                      <p className="text-sm font-medium text-gray-700 mb-1">
-                        Description:
-                      </p>
-                      <p className="text-sm text-gray-600">{report.description}</p>
-                    </div>
+                        {/* Status Badges */}
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          {/* Review Status */}
+                          {report.is_reviewed ? (
+                            <Badge variant="success" size="sm">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Admin Reviewed
+                            </Badge>
+                          ) : (
+                            <Badge variant="warning" size="sm">
+                              <Clock className="h-3 w-3 mr-1" />
+                              Needs Review
+                            </Badge>
+                          )}
+                          
+                          {/* Ad Status */}
+                          <Badge
+                            variant={
+                              report.ad.status === "approved"
+                                ? "success"
+                                : report.ad.status === "rejected"
+                                ? "error"
+                                : "warning"
+                            }
+                            size="sm"
+                          >
+                            Ad: {report.ad.status.charAt(0).toUpperCase() + report.ad.status.slice(1)}
+                          </Badge>
+                          
+                          {/* Report Reason */}
+                          <Badge variant="error" size="sm">
+                            <Flag className="h-3 w-3 mr-1" />
+                            {REASON_LABELS[report.reason]}
+                          </Badge>
+                        </div>
+                        
+                        {/* Reporter Info */}
+                        <div className="flex items-center gap-2 text-xs text-gray-600 mb-1 flex-wrap">
+                          <span className="font-medium">Reported by:</span>
+                          <span>{report.reported_by.full_name}</span>
+                          <span>•</span>
+                          <span>{formatDate(report.created_at)}</span>
+                        </div>
 
-                    {report.is_reviewed && report.admin_notes && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                        <p className="text-sm font-medium text-blue-900 mb-1">
-                          Admin Notes:
+                        <p className="text-xs text-gray-700 line-clamp-1 mb-1">
+                          {report.description}
                         </p>
-                        <p className="text-sm text-blue-800">{report.admin_notes}</p>
-                        {report.reviewed_by && (
-                          <p className="text-xs text-blue-600 mt-2">
-                            Reviewed by {report.reviewed_by.email} on{" "}
-                            {formatDate(report.reviewed_at!)}
-                          </p>
+
+                        {/* Action Outcome Display */}
+                        {isProcessed && actionOutcome && (
+                          <div className="bg-green-50 border border-green-200 rounded p-1.5 mb-1">
+                            <p className="text-xs font-medium text-green-900">
+                              {actionOutcome}
+                            </p>
+                          </div>
+                        )}
+
+                        {report.is_reviewed && report.admin_notes && (
+                          <div className="bg-blue-50 border border-blue-200 rounded p-1.5">
+                            
+                            <p className="text-sm text-blue-800">Admin Notes</p>
+                            <p className="text-xs text-blue-800">{report.admin_notes}</p>
+                          </div>
                         )}
                       </div>
-                    )}
+
+                      {/* Actions */}
+                      <div className="flex gap-1.5 ml-3">
+                        {!report.is_reviewed ? (
+                          <>
+                            <button
+                              onClick={() => handleAction(report, "approve")}
+                              className="btn-primary px-2 py-1 text-xs flex items-center gap-1 whitespace-nowrap"
+                              title="Approve report and take action on ad"
+                            >
+                              <Ban className="h-3 w-3" />
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleAction(report, "dismiss")}
+                              className="btn-secondary px-2 py-1 text-xs flex items-center gap-1 whitespace-nowrap"
+                              title="Dismiss report without action"
+                            >
+                              <XCircle className="h-3 w-3" />
+                              Dismiss
+                            </button>
+                          </>
+                        ) : null}
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                {/* Actions */}
-                {!report.is_reviewed && (
-                  <div className="flex gap-3 pt-4 border-t border-gray-200">
-                    <button
-                      onClick={() => handleAction(report, "approve")}
-                      className="flex-1 btn-primary flex items-center justify-center gap-2"
-                    >
-                      <Ban className="h-4 w-4" />
-                      Approve & Take Action
-                    </button>
-                    <button
-                      onClick={() => handleAction(report, "dismiss")}
-                      className="flex-1 btn-secondary flex items-center justify-center gap-2"
-                    >
-                      <XCircle className="h-4 w-4" />
-                      Dismiss Report
-                    </button>
-                    <a
-                      href={`/ad/${report.ad.slug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-ghost px-4 flex items-center gap-2"
-                    >
-                      <Eye className="h-4 w-4" />
-                      View Ad
-                    </a>
-                  </div>
-                )}
               </div>
-            ))}
+            );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, filteredReports.length)} of {filteredReports.length} reports
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <div className="flex gap-1">
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`px-3 py-1.5 border rounded-lg text-sm font-medium ${
+                        currentPage === pageNum
+                          ? "bg-orange-500 text-white border-orange-500"
+                          : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Action Modal */}
       {showActionModal && selectedReport && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-lg w-full p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">
               {actionType === "approve" ? "Approve Report" : "Dismiss Report"}
@@ -411,11 +590,15 @@ const ReportsTab: React.FC = () => {
               </p>
             </div>
 
-            {actionType === "approve" && (
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
-                <p className="text-sm text-orange-800">
-                  <strong>Action:</strong> The ad will be rejected based on the
-                  report reason. The reporter will be notified.
+            {actionType === "approve" && getActionDescription(selectedReport.reason)}
+
+            {actionType === "dismiss" && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm font-semibold text-blue-900 mb-2">
+                  ℹ️ Dismiss Report:
+                </p>
+                <p className="text-sm text-blue-800">
+                  The ad will remain unchanged. You can add notes to explain your decision to the reporter.
                 </p>
               </div>
             )}

@@ -476,12 +476,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
                     </a>
                   )}
 
-                  <button
-                    className="btn-ghost px-4"
-                    aria-label="Add to favorites"
-                  >
-                    <Heart className="h-5 w-5" />
-                  </button>
+                 
 
                   {/* Report Button - Only show if not own ad */}
                   {!isOwnAd && (

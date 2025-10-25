@@ -31,6 +31,12 @@ function App() {
   const { isAuthenticated, user, logout } = useAuth();
 
   const handlePostAd = () => {
+    // Block admin users from posting ads
+    if (isAuthenticated && (user?.is_staff || user?.is_superuser)) {
+      toast.info("Admin users cannot post ads. Please use a regular user account.");
+      return;
+    }
+    
     if (isAuthenticated) {
       setIsPostAdModalOpen(true);
     } else {
@@ -135,7 +141,7 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute blockAdmin={true}>
               <UserDashboard />
             </ProtectedRoute>
           }

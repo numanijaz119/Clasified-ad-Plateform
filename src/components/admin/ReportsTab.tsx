@@ -351,14 +351,17 @@ const ReportsTab: React.FC = () => {
           </div>
 
           {/* Refresh Button */}
+    
           <button
-            onClick={() => fetchReports(true)}
-            disabled={isRefreshing}
-            className="btn-ghost px-4 py-2 flex items-center gap-2"
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
+                   onClick={() => fetchReports(true)}
+                      disabled={isRefreshing}
+                      className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
+                    >
+                      <RefreshCw
+                        className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+                      />
+                      <span>Refresh</span>
+                    </button>
         </div>
       </div>
 
@@ -422,7 +425,7 @@ const ReportsTab: React.FC = () => {
                           {report.is_reviewed ? (
                             <Badge variant="success" size="sm">
                               <CheckCircle className="h-3 w-3 mr-1" />
-                              Admin Reviewed
+                              Reviewed
                             </Badge>
                           ) : (
                             <Badge variant="warning" size="sm">

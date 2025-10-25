@@ -3,7 +3,6 @@ import { authService } from "../services/index";
 import { ProfileHeader } from "../components/profile";
 import { ProfileForm } from "../components/profile";
 import { PasswordChangeForm } from "../components/profile";
-import { AccountInfo } from "../components/profile";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import { useToast } from "../contexts/ToastContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -380,10 +379,7 @@ const ProfilePage: React.FC = () => {
           />
         </div>
 
-        {/* Account Information */}
-        <div className="mt-8">
-          <AccountInfo user={user} />
-        </div>
+       
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ import {
   Filter,
   FileText,
   RefreshCw,
+  Download,
 } from "lucide-react";
 import { adminService } from "../../services/adminService";
 import { useToast } from "../../contexts/ToastContext";
@@ -68,6 +69,7 @@ const ReportsTab: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [processedReports, setProcessedReports] = useState<Set<number>>(new Set());
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const toast = useToast();
   const ITEMS_PER_PAGE = 10;
 
@@ -147,6 +149,39 @@ const ReportsTab: React.FC = () => {
       toast.error("Failed to process report. Please try again.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const params: any = {};
+      
+      if (filter !== "all") {
+        params.status = filter;
+      }
+      if (searchTerm) {
+        params.search = searchTerm;
+      }
+
+      const blob = await adminService.exportReports(params);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `reports_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success("Reports exported successfully!");
+    } catch (error: any) {
+      console.error("Export error:", error);
+      toast.error("Failed to export reports");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -350,18 +385,28 @@ const ReportsTab: React.FC = () => {
             </select>
           </div>
 
-          {/* Refresh Button */}
-    
-          <button
-                   onClick={() => fetchReports(true)}
-                      disabled={isRefreshing}
-                      className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
-                    >
-                      <RefreshCw
-                        className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-                      />
-                      <span>Refresh</span>
-                    </button>
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleExport}
+              disabled={isExporting}
+              className="flex items-center space-x-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              <Download className="h-4 w-4" />
+              <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
+            </button>
+            
+            <button
+              onClick={() => fetchReports(true)}
+              disabled={isRefreshing}
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+              <span>Refresh</span>
+            </button>
+          </div>
         </div>
       </div>
 

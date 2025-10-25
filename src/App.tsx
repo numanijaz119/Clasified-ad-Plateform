@@ -18,6 +18,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useToast } from "./contexts/ToastContext";
 import MessagesPage from "./pages/MessagesPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
@@ -170,6 +171,8 @@ function App() {
     </ProtectedRoute>
   }
 />
+        {/* 404 Catch-all Route */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
       <Footer />

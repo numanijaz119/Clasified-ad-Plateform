@@ -36,8 +36,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const playNotificationSound = useCallback(() => {
     if (audioRef.current) {
-      audioRef.current.play().catch(err => {
-        console.log('Could not play notification sound:', err);
+      audioRef.current.play().catch(() => {
+        // Silently handle audio play errors (e.g., user interaction required)
       });
     }
   }, []);

@@ -97,8 +97,6 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         localStorage.setItem("user", JSON.stringify(updatedUser));
       }
 
-      console.log("User updated in context:", updatedUser);
-
       return {
         ...state,
         user: updatedUser,

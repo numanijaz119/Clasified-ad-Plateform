@@ -21,7 +21,6 @@ class AdsService extends BaseService {
    */
   async createAd(adData: CreateAdRequest): Promise<Ad> {
     try {
-      console.log("=== Creating Ad (Frontend-Only Fix) ===");
 
       // Step 1: Create ad WITHOUT images first
       const adPayload: Record<string, any> = {
@@ -59,8 +58,6 @@ class AdsService extends BaseService {
         adPayload.plan = adData.plan;
       }
 
-      console.log("Creating ad with payload:", adPayload);
-
       // Create ad (JSON, no images yet)
       const createResponse = await this.post<Ad>(
         API_CONFIG.ENDPOINTS.ADS.CREATE,
@@ -74,10 +71,6 @@ class AdsService extends BaseService {
 
       const createdAd = createResponse.data;
 
-      // Log what we actually received
-      console.log("Raw response from backend:", createdAd);
-      console.log("Response keys:", Object.keys(createdAd));
-
       // Backend may return different response structures
       // Check for id or slug to identify the ad
       const adIdentifier = createdAd.id || createdAd.slug;
@@ -90,11 +83,8 @@ class AdsService extends BaseService {
         return createdAd;
       }
 
-      console.log("✓ Ad created with identifier:", adIdentifier);
-
       // Step 2: Upload images separately to the dedicated images endpoint
       if (adData.images && adData.images.length > 0) {
-        console.log(`Uploading ${adData.images.length} images...`);
 
         // For image upload, we need the numeric ID
         // If we only have slug, we need to fetch the full ad details
@@ -104,7 +94,6 @@ class AdsService extends BaseService {
           adId = createdAd.id;
         } else if (createdAd.slug) {
           // Fetch full ad details to get the ID
-          console.log("Fetching ad details to get ID...");
           const fullAd = await this.getAd(createdAd.slug);
           adId = fullAd.id;
           // Update createdAd with full details
@@ -127,8 +116,6 @@ class AdsService extends BaseService {
           if (uploadedImages.length > 0) {
             createdAd.primary_image = uploadedImages[0];
           }
-
-          console.log(`✓ ${uploadedImages.length} images uploaded`);
         } catch (imageError: any) {
           console.warn("Image upload failed:", imageError);
           // Ad is created, but images failed
@@ -173,8 +160,6 @@ class AdsService extends BaseService {
       formData.append("sort_order", i.toString());
 
       try {
-        console.log(`Uploading image ${i + 1}/${images.length}...`);
-
         const response = await this.post<AdImage>(
           API_CONFIG.ENDPOINTS.ADS.IMAGES,
           formData,
@@ -183,7 +168,6 @@ class AdsService extends BaseService {
 
         if (response.data) {
           uploadedImages.push(response.data);
-          console.log(`✓ Image ${i + 1} uploaded`);
         }
       } catch (error: any) {
         console.error(`✗ Failed to upload image ${i + 1}:`, error);

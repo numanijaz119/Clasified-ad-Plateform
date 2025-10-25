@@ -72,7 +72,6 @@ const RecentListings: React.FC<RecentListingsProps> = () => {
               {ads.map((ad) => {
                 // Check if current user owns this ad
                 const isOwnAd = user && (ad.is_owner || ad.user_id === user.id);
-                console.log(isOwnAd);
                 
                 return (
                   <div

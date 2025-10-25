@@ -115,8 +115,6 @@ const MyReportsTab: React.FC = () => {
 
   // Safety check: ensure reports is an array
   const reportsArray = Array.isArray(reports) ? reports : [];
-  
-  console.log('🔍 MyReportsTab - reports type:', typeof reports, 'isArray:', Array.isArray(reports), 'data:', reports);
 
   if (reportsArray.length === 0) {
     return (

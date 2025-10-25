@@ -230,8 +230,6 @@ export const usePostAd = () => {
         createAdRequest.price = parseFloat(formData.price);
       }
 
-      console.log("Submitting ad:", createAdRequest);
-
       // Update progress for images
       if (images.length > 0) {
         setUploadProgress(
@@ -240,8 +238,6 @@ export const usePostAd = () => {
       }
 
       const adData = await adsService.createAd(createAdRequest);
-
-      console.log("✓ Ad created successfully:", adData);
 
       // Check if images were uploaded
       if (images.length > 0) {

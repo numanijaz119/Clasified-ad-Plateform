@@ -51,7 +51,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (blockAdmin && isAuthenticated) {
     const isAdmin = user?.is_staff || user?.is_superuser;
     if (isAdmin) {
-      console.log("Admin user redirected from user dashboard to admin panel");
       return <Navigate to="/admin" replace />;
     }
   }

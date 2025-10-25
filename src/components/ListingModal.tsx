@@ -78,15 +78,6 @@ const ListingModal: React.FC<ListingModalProps> = ({
       listing.user_id === user.id ||
       listing.user?.id === user.id);
 
-  console.log("🔍 Ownership Check:", {
-    hasUser: !!user,
-    userId: user?.id,
-    listingIsOwner: listing.is_owner,
-    listingUserId: listing.user_id,
-    listingUserObjId: listing.user?.id,
-    finalIsOwnAd: isOwnAd,
-  });
-
   // Use dynamic images from API, fallback to placeholder if none
   const displayImages =
     listing.images && listing.images.length > 0

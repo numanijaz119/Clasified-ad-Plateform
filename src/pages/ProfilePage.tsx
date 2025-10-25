@@ -196,11 +196,6 @@ const ProfilePage: React.FC = () => {
         setErrors({ general: errorMsg });
         toast.error(errorMsg);
       }
-
-      console.log("Full error:", error);
-      console.log("Error details:", error.details);
-      console.log("File size:", formData.avatar?.size);
-      console.log("File type:", formData.avatar?.type);
     } finally {
       // setUpdating(false);
       setProfileUpdating(false);

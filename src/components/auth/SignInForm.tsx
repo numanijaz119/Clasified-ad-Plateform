@@ -49,8 +49,6 @@ const SignInForm: React.FC<SignInFormProps> = ({
       const errorMessage =
         err.message || "Something went wrong. Please try again.";
 
-      console.log("Error message:", errorMessage);
-
       // Check if this is an email verification error
       if (
         errorMessage.toLowerCase().includes("verify your email") ||

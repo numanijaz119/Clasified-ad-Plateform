@@ -1,6 +1,6 @@
 // src/App.tsx
 import React, { useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
@@ -25,6 +25,7 @@ function App() {
   const [shouldOpenPostAdAfterLogin, setShouldOpenPostAdAfterLogin] =
     useState(false);
   const toast = useToast();
+  const navigate = useNavigate();
 
   // Get auth state from context
   const { isAuthenticated, user, logout } = useAuth();
@@ -41,6 +42,19 @@ function App() {
   // Handle successful sign-in
   const handleSignInSuccess = () => {
     setIsSignInModalOpen(false);
+    
+    // Get fresh user data from localStorage
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const userData = JSON.parse(userStr);
+      const isAdmin = userData.is_staff || userData.is_superuser;
+      
+      if (isAdmin) {
+        navigate("/admin");
+        return;
+      }
+    }
+    
     // Only open post ad modal if user was specifically trying to post an ad
     if (shouldOpenPostAdAfterLogin) {
       setIsPostAdModalOpen(true);
@@ -113,7 +127,7 @@ function App() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute requireAdmin={false}>
+            <ProtectedRoute requireAdmin={true}>
               <AdminDashboard />
             </ProtectedRoute>
           }

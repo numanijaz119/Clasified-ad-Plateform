@@ -178,7 +178,7 @@
   }
   
   .badge-error {
-    @apply bg-red-100 text-red-800 border border-red-200;
+    @apply bg-red-500 text-white;
   }
   
   .badge-info {

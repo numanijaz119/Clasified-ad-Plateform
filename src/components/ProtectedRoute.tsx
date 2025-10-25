@@ -45,17 +45,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // Check admin requirement (assuming admin check based on email or user properties)
-  // You can modify this logic based on your actual admin role implementation
+  // Check admin requirement - user must be staff or superuser
   if (requireAdmin && isAuthenticated) {
-    const isAdmin =
-      user?.email?.includes("admin") ||
-      user?.email?.endsWith("@admin.com") ||
-      // Add other admin detection logic here
-      false;
+    const isAdmin = user?.is_staff || user?.is_superuser;
 
     if (!isAdmin) {
-      return <Navigate to="/dashboard" replace />;
+      console.warn("Access denied: Admin privileges required");
+      return <Navigate to="/" replace />;
     }
   }
 

@@ -8,6 +8,8 @@ export interface User {
   full_name: string;
   email_verified: boolean;
   is_active: boolean;
+  is_staff?: boolean;
+  is_superuser?: boolean;
   created_at: string;
   updated_at: string;
   avatar?: string;

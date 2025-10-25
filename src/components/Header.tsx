@@ -12,6 +12,7 @@ import {
   UserCircle,
   Settings,
   BarChart3,
+  Shield,
 } from "lucide-react";
 import { Button } from "./";
 import { useAuth } from "../contexts/AuthContext";
@@ -178,11 +179,23 @@ const Header: React.FC<HeaderProps> = ({
                       <Link
                         to="/dashboard"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        onClick={() => setIsProfileDropdownOpen(false)}
                       >
                         <BarChart3 className="h-5 w-5 mr-3" />
                         Dashboard
                       </Link>
+
+                      {/* Admin Dashboard Link - Only show for admin users */}
+                      {(user?.is_staff || user?.is_superuser) && (
+                        <Link
+                          to="/admin"
+                          className="flex items-center px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          <Shield className="h-5 w-5 mr-3" />
+                          Admin Panel
+                        </Link>
+                      )}
 
                       {/* <Link
                         to="/settings"
@@ -294,6 +307,18 @@ const Header: React.FC<HeaderProps> = ({
                     <BarChart3 className="h-5 w-5 mr-3" />
                     Dashboard
                   </Link>
+
+                  {/* Admin Panel Link - Only show for admin users */}
+                  {(user?.is_staff || user?.is_superuser) && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center px-3 py-2 text-base font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Shield className="h-5 w-5 mr-3" />
+                      Admin Panel
+                    </Link>
+                  )}
 
                   {/* <Link
                     to="/settings"

@@ -154,7 +154,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                                     </div>
 
                                     {hasUnread && (
-                                        <span className="badge badge-error badge-sm flex-shrink-0">{conversation.unread_count}</span>
+                                        <span className="badge self-start badge-error badge-sm flex-shrink-0">{conversation.unread_count}</span>
                                     )}
                                 </button>
                             </div>
@@ -302,7 +302,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                                 }
                             `}
                         >
-                            <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-start justify-between mb-2 mr-6">
                                 <div className="flex items-center gap-3 flex-1 min-w-0">
                                     <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
                                         {userInfo.avatar ? (
@@ -343,13 +343,13 @@ const ConversationList: React.FC<ConversationListProps> = ({
                             )}
                         </button>
 
-                        <div className="absolute top-2 right-2">
+                        <div className="absolute top-3 right-2">
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setShowMenuFor(showMenuFor === userId ? null : userId);
                                 }}
-                                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="p-1.5 text-gray-400 text-gray-600 hover:bg-gray-100 rounded transition-opacity"
                             >
                                 <MoreVertical className="h-4 w-4" />
                             </button>

@@ -380,16 +380,6 @@ const ListingModal: React.FC<ListingModalProps> = ({
                   <BarChart3 className="h-5 w-5" />
                   <span>View Dashboard</span>
                 </button>
-                {/* <button
-                  onClick={() => {
-                    navigate(`/edit-ad/${listing.id}`);
-                    onClose();
-                  }}
-                  className="btn-secondary flex-1 flex items-center justify-center space-x-2"
-                >
-                  <Edit className="h-5 w-5" />
-                  <span>Edit Ad</span>
-                </button> */}
               </div>
             </div>
           </>

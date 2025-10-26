@@ -1,3 +1,4 @@
+// src/services/bannerService.ts
 import BaseApiService from "./baseApiService";
 import { API_CONFIG } from "../config/api";
 import type { PublicBanner, BannerListParams } from "../types/banners";
@@ -40,10 +41,16 @@ class BannerService extends BaseApiService {
    */
   async trackImpression(bannerId: number): Promise<void> {
     try {
-      // This would be an endpoint to track impressions
-      // For now, we'll just track it silently
+      const url = `${API_CONFIG.ENDPOINTS.CONTENT.BANNERS}track-impression/`;
+      const data = {
+        banner_id: bannerId,
+        page_url: window.location.href,
+      };
+
+      await this.post(url, data, false);
     } catch (error) {
       console.error("Track impression error:", error);
+      // Silently fail - don't disrupt user experience
     }
   }
 
@@ -52,10 +59,16 @@ class BannerService extends BaseApiService {
    */
   async trackClick(bannerId: number): Promise<void> {
     try {
-      // This would be an endpoint to track clicks
-      // For now, we'll just track it silently
+      const url = `${API_CONFIG.ENDPOINTS.CONTENT.BANNERS}track-click/`;
+      const data = {
+        banner_id: bannerId,
+        referrer: document.referrer,
+      };
+
+      await this.post(url, data, false);
     } catch (error) {
       console.error("Track click error:", error);
+      // Silently fail - don't disrupt user experience
     }
   }
 }

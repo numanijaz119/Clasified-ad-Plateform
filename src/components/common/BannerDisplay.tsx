@@ -85,11 +85,18 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
     );
   }
 
+  // Return null if no banners available
   if (banners.length === 0) {
     return null;
   }
 
   const currentBanner = banners[currentIndex];
+
+  // Additional safety check - if currentBanner is undefined, return null
+  if (!currentBanner) {
+    console.warn("Current banner is undefined at index:", currentIndex);
+    return null;
+  }
 
   // Get responsive dimensions based on position
   const getDimensionClasses = () => {
@@ -115,7 +122,7 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
     <div
       className={`banner-container relative w-full overflow-hidden ${getDimensionClasses()} ${className}`}
       role="complementary"
-      aria-label={`Advertisement: ${currentBanner.title}`}
+      aria-label={`Advertisement: ${currentBanner?.title || "Banner Ad"}`}
     >
       {currentBanner.banner_type === "image" && currentBanner.image && (
         <div
@@ -136,11 +143,11 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
           }}
           role={currentBanner.click_url ? "button" : "img"}
           tabIndex={currentBanner.click_url ? 0 : undefined}
-          aria-label={currentBanner.title}
+          aria-label={currentBanner.title || "Banner Advertisement"}
         >
           <img
             src={currentBanner.image}
-            alt={currentBanner.title}
+            alt={currentBanner.title || "Banner Advertisement"}
             className="w-full h-full object-cover"
             loading="lazy"
           />

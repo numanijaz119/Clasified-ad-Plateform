@@ -41,8 +41,7 @@ class BannerService extends BaseApiService {
   async trackImpression(bannerId: number): Promise<void> {
     try {
       // This would be an endpoint to track impressions
-      // For now, we'll just log it
-      console.log(`Banner ${bannerId} impression tracked`);
+      // For now, we'll just track it silently
     } catch (error) {
       console.error("Track impression error:", error);
     }
@@ -54,8 +53,7 @@ class BannerService extends BaseApiService {
   async trackClick(bannerId: number): Promise<void> {
     try {
       // This would be an endpoint to track clicks
-      // For now, we'll just log it
-      console.log(`Banner ${bannerId} click tracked`);
+      // For now, we'll just track it silently
     } catch (error) {
       console.error("Track click error:", error);
     }

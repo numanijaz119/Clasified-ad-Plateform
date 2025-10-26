@@ -4,6 +4,7 @@ export { adsService } from "./adsService";
 export { default as contentService } from "./contentService";
 export { default as BaseApiService } from "./baseApiService";
 export { adminService } from "./adminService";
+export { messagingService } from "./messagingService";
 
 // Re-export types for easy importing
 export type {

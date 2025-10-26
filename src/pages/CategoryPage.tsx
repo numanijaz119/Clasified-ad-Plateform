@@ -1,23 +1,21 @@
 // src/pages/CategoryPage.tsx
 import React, { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Eye, Clock, Star, Search } from "lucide-react";
+import { ArrowLeft, Search, MapPin } from "lucide-react";
 import {
   MobileBanner,
   FlippingAd,
   SideBanner,
-  InlineBanner,
-  BottomBanner,
   RecentListings,
 } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
+import AdCard from "../components/AdCard";
 import { useAds } from "../hooks/useAds";
 import { useCities } from "../hooks/useCities";
 import { useCategoryBySlug } from "../hooks/";
 import { adsService } from "../services";
 import { useAuth } from "../contexts/AuthContext";
 import {
-  AdDetailBanner,
   CategoryPageBanner,
   FooterBanner,
   HeaderBanner,
@@ -47,10 +45,9 @@ const CategoryPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  const [showFilters, setShowFilters] = useState(false);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   // Fetch cities dynamically
   const { cities: citiesData, loading: citiesLoading } = useCities();
@@ -83,29 +80,6 @@ const CategoryPage: React.FC = () => {
     return ["all", ...citiesData.map((city) => city.name)];
   }, [citiesData]);
 
-  // Transform backend ads to Listing interface
-  const mockListings: Listing[] = useMemo(() => {
-    return ads.map((ad) => ({
-      id: ad.id,
-      title: ad.title,
-      category: ad.category.name,
-      price: ad.display_price,
-      location: `${ad.city.name}, ${ad.state.code}`,
-      image: ad.primary_image?.image || "/placeholder.svg",
-      views: ad.view_count,
-      timeAgo: ad.time_since_posted,
-      postedDate: new Date(ad.created_at),
-      featured: ad.plan === "featured",
-      description: ad.description,
-      phone: "",
-      email: "",
-    }));
-  }, [ads]);
-
-  const filteredListings = useMemo(() => {
-    return mockListings;
-  }, [mockListings]);
-
   const getCategoryIcon = (category: string) => {
     const icons: { [key: string]: string } = {
       Jobs: "💼",
@@ -123,18 +97,31 @@ const CategoryPage: React.FC = () => {
     return icons[category] || "📋";
   };
 
-  const handleListingClick = async (listing: Listing) => {
+  const handleListingClick = async (ad: any) => {
     try {
+      // Transform ad data to Listing format
+      const listing: Listing = {
+        id: ad.id,
+        title: ad.title,
+        category: ad.category.name,
+        price: ad.display_price,
+        location: `${ad.city.name}, ${ad.state.code}`,
+        image: ad.primary_image?.image || "/placeholder.svg",
+        views: ad.view_count,
+        timeAgo: ad.time_since_posted,
+        postedDate: new Date(ad.created_at),
+        featured: ad.plan === "featured",
+        description: ad.description,
+        phone: "",
+        email: "",
+      };
+
       // Open modal immediately with basic data
       setSelectedListing(listing);
       setIsModalOpen(true);
 
-      // Find the original ad data to get the slug
-      const originalAd = ads.find((ad) => ad.id === listing.id);
-      if (!originalAd?.slug) return;
-
       // Fetch detailed ad data
-      const detailedAd = (await adsService.getAd(originalAd.slug)) as any;
+      const detailedAd = (await adsService.getAd(ad.slug)) as any;
 
       // Get all images from detailed response
       const images =
@@ -147,14 +134,13 @@ const CategoryPage: React.FC = () => {
         ...listing,
         images,
         description: detailedAd.description || listing.description,
-        phone: detailedAd.hide_phone ? undefined : detailedAd.contact_phone,
-        email: detailedAd.contact_email_display,
+        phone: detailedAd.hide_phone ? "" : detailedAd.contact_phone || "",
+        email: detailedAd.contact_email_display || "",
       };
 
       setSelectedListing(enhancedListing);
     } catch (error) {
       console.error("Error fetching ad details:", error);
-      // Modal already shows basic data, so user still sees something
     }
   };
 
@@ -165,66 +151,69 @@ const CategoryPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Ad Banner */}
-      <div className=" bg-white border-b border-gray-200">
-        <div className="px-4 py-2">
-          {/* <MobileBanner /> */}
-          <HeaderBanner />
-        </div>
+
+      {/* Header Banner (Desktop) */}
+      <div className="hidden md:block md:mx-4 mx-2 mt-2">
+        <HeaderBanner />
       </div>
 
-      {/* Mobile FlippingAd */}
-      {/* <div className=" md:hidden m-4 mb-0">
-        <FlippingAd size="medium" />
-      </div> */}
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex gap-2 md:gap-4 lg:gap-6">
-          {/* Left Sidebar with Ads */}
-          <div className="md:w-48 hidden md:block  xl:w-72 lg:w-64 flex-shrink-0">
-            <div className="sticky top-24 space-y-4 z-10">
-              <div className="block">
-                {/* <SideBanner /> */}
-                <SidebarBanner />
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Link
+                to="/"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Back to home"
+              >
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Link>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-3xl" role="img" aria-label={category?.name}>
+                    {getCategoryIcon(category?.name || "")}
+                  </span>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {category?.name || categoryName}
+                  </h1>
+                </div>
+                <p className="text-sm text-gray-600 mt-0.5">
+                  {category?.description || "Browse listings in this category"}
+                </p>
               </div>
-              <FlippingAd size="medium" />
             </div>
           </div>
+        </div>
+      </header>
 
-          {/* Main Content */}
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex gap-6">
+          {/* Sidebar Ads (Desktop Left) */}
+          <aside className="hidden lg:block lg:w-48 xl:w-60 flex-shrink-0">
+            <div className="sticky top-24 space-y-4">
+              {/* <SideBanner />
+              <SidebarBanner /> */}
+              <FlippingAd size="medium"/>
+            </div>
+          </aside>
+
+          {/* Main Content Area */}
           <div className="flex-1 min-w-0">
-            {/* Header */}
-            <div className="mb-6">
-              <div className="flex items-center mb-4">
-                <Link
-                  to="/"
-                  className="flex items-center text-orange-500 hover:text-orange-600 transition-colors mr-4 text-sm"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-1" />
-                  <span className="font-medium">Back</span>
-                </Link>
-              </div>
-
-              <div className="flex items-center mb-1">
-                <span className="text-3xl mr-3">
-                  {getCategoryIcon(categoryName || "")}
-                </span>
-                <h1 className="text-xl font-bold text-gray-900">
-                  {categoryName} Listings
-                </h1>
-              </div>
-              <p className="text-sm text-gray-600">
+            {/* Results Summary */}
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-gray-600" role="status">
                 {loading
                   ? "Loading..."
-                  : `${filteredListings.length} listings found`}{" "}
-                • Sorted by date posted
+                  : `${ads.length} listings found`}
+                {selectedCity !== "all" && (
+                  <span className="text-orange-600 ml-2">
+                    • Filtered by:{" "}
+                    {cities.find((c) => c === selectedCity) || selectedCity}
+                  </span>
+                )}
               </p>
-              {selectedCity !== "all" && (
-                <p className="text-sm text-orange-600">
-                  Filtered by:{" "}
-                  {cities.find((c) => c === selectedCity) || selectedCity}
-                </p>
-              )}
             </div>
 
             {/* Filters */}
@@ -232,41 +221,55 @@ const CategoryPage: React.FC = () => {
               {/* Search Bar */}
               <div className="mb-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                    aria-hidden="true"
+                  />
                   <input
-                    type="text"
+                    type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search listings..."
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                    aria-label="Search listings"
                   />
                 </div>
               </div>
 
-              {/* Filter Dropdowns - Single Line */}
+              {/* Filter Dropdowns */}
               <div className="flex flex-wrap gap-3 items-end">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="category-filter"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
                     Category
                   </label>
                   <select
-                    value={categoryName || "Jobs"}
+                    id="category-filter"
+                    value={categoryName || ""}
                     disabled
                     className="px-3 py-1.5 border border-gray-300 rounded-md bg-gray-100 text-gray-600 text-sm"
+                    aria-label="Category filter (disabled)"
                   >
-                    <option value={categoryName}>{categoryName}</option>
+                    <option value={categoryName}>{category?.name || categoryName}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="city-filter"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
                     City
                   </label>
                   <select
+                    id="city-filter"
                     value={selectedCity}
                     onChange={(e) => setSelectedCity(e.target.value)}
                     className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
                     disabled={citiesLoading}
+                    aria-label="Filter by city"
                   >
                     {cities.map((city) => (
                       <option key={city} value={city}>
@@ -277,148 +280,149 @@ const CategoryPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="sort-filter"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
                     Sort By
                   </label>
                   <select
+                    id="sort-filter"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                     className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                    aria-label="Sort listings"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
-                    <option value="alphabetical">Alphabetical</option>
+                    <option value="price_low">Price: Low to High</option>
+                    <option value="price_high">Price: High to Low</option>
+                    <option value="most_viewed">Most Viewed</option>
                   </select>
-                </div>
-
-                <div>
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setSelectedCity("all");
-                      setSortBy("newest");
-                    }}
-                    className="px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-                  >
-                    Clear Filters
-                  </button>
                 </div>
               </div>
             </div>
 
-            {/* Error Message */}
+            {/* Category Page Banner */}
+            <div className="mb-4">
+              <CategoryPageBanner />
+            </div>
+
+            {/* Error State */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                <p className="text-red-600 text-sm">{error}</p>
+              <div
+                className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
+                role="alert"
+              >
+                <p className="text-red-800 text-sm font-medium">
+                  Error loading listings
+                </p>
+                <p className="text-red-600 text-sm mt-1">{error}</p>
+                <button
+                  onClick={() => refetch()}
+                  className="mt-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm"
+                >
+                  Try Again
+                </button>
               </div>
             )}
 
-            {/* Listings List - Single Line Titles */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[80vh] overflow-y-auto">
-              <div className="divide-y divide-gray-200">
+            {/* Listings Grid */}
+            {!error && (
+              <div>
                 {loading ? (
-                  <div className="p-8 text-center">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-                    <p className="mt-2 text-sm text-gray-600">
+                  <div className="text-center py-12" role="status">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+                    <p className="text-sm text-gray-600 mt-4">
                       Loading listings...
                     </p>
                   </div>
+                ) : ads.length === 0 ? (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                    <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      No listings found
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Try adjusting your filters to see more results.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSelectedCity("all");
+                        setSortBy("newest");
+                      }}
+                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
                 ) : (
-                  filteredListings.map((listing, index) => (
-                    <div key={listing.id}>
-                      <div
-                        className="p-3 hover:bg-gray-50 cursor-pointer transition-colors group"
-                        onClick={() => handleListingClick(listing)}
-                      >
-                        <div className="flex flex-col lg:flex-row items-start gap-y-2 lg:gap-y-0 lg:items-center lg:justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-3">
-                              {listing.featured && (
-                                <Star className="h-4 w-4 text-orange-500 fill-current flex-shrink-0" />
-                              )}
-                              <h3 className="text-sm font-medium text-gray-900 group-hover:text-orange-600 transition-colors truncate">
-                                {listing.title}
-                              </h3>
-                            </div>
-                          </div>
-                          <div className="flex self-end lg:self-auto items-center space-x-4 text-xs text-gray-500 ml-4">
-                            <span className="font-semibold text-orange-600">
-                              {listing.price}
-                            </span>
-                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">
-                              {listing.location}
-                            </span>
-                            <div className="flex items-center space-x-1">
-                              <Eye className="h-3 w-3" />
-                              <span>{listing.views}</span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Clock className="h-3 w-3" />
-                              <span>{listing.timeAgo}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                  <>
+                    {/* Ads Grid with Banner Injection */}
+                    {Array.from({
+                      length: Math.ceil(ads.length / 6),
+                    }).map((_, chunkIndex) => {
+                      const startIndex = chunkIndex * 6;
+                      const endIndex = Math.min(startIndex + 6, ads.length);
+                      const chunkAds = ads.slice(startIndex, endIndex);
 
-                      {/* Inline Ad every 5 listings */}
-                      {/* Inline Ad every 5 listings */}
-                      {(index + 1) % 5 === 0 &&
-                        index < filteredListings.length - 1 && (
-                          <div className="p-2 bg-gray-50 border-t border-b border-gray-200">
-                            {/* <InlineBanner </> */}
-                            <BetweenAdsBanner />
+                      return (
+                        <React.Fragment key={chunkIndex}>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                            {chunkAds.map((ad) => (
+                              <AdCard
+                                key={ad.id}
+                                ad={ad}
+                                user={user}
+                                onClick={() => handleListingClick(ad)}
+                                showFeaturedBadge={true}
+                              />
+                            ))}
                           </div>
-                        )}
-                    </div>
-                  ))
+
+                          {/* Inject Banner Between Chunks */}
+                          {chunkIndex < Math.ceil(ads.length / 6) - 1 && (
+                            <div className="mb-6">
+                              <BetweenAdsBanner />
+                            </div>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </>
                 )}
               </div>
-
-              {/* No Results */}
-              {!loading && filteredListings.length === 0 && (
-                <div className="text-center py-8">
-                  <div className="text-gray-400 mb-4">
-                    <span className="text-3xl">
-                      {getCategoryIcon(categoryName || "")}
-                    </span>
-                  </div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-2">
-                    No listings found
-                  </h3>
-                  <p className="text-gray-600">
-                    Try adjusting your filters to see more results.
-                  </p>
-                </div>
-              )}
-            </div>
+            )}
           </div>
 
-          {/* Right Sidebar with Ads */}
-          <div className="md:w-48 xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
+          {/* Right Sidebar (Desktop) */}
+          <aside
+            className="hidden md:block md:w-48 xl:w-72 lg:w-60 flex-shrink-0"
+            aria-label="Sidebar"
+          >
             <div className="sticky top-24 space-y-4">
-              {/* <FlippingAd size="medium" />
-              <FlippingAd size="small" /> */}
+             
               <RecentListings />
             </div>
-          </div>
+          </aside>
         </div>
       </main>
 
-      {/* Mobile Bottom FlippingAd */}
-      <div className="md:hidden m-4 mt-0">
-        {/* <FlippingAd size="medium" /> */}
+   {/* Mobile Recent Listings */}
+      <div className="md:hidden mx-4 mb-4">
         <RecentListings />
       </div>
 
-      {/* Bottom FlippingAd */}
+      {/* Mobile Flipping Ad */}
       <div className="md:hidden m-4 mt-0">
         <FlippingAd size="medium" />
       </div>
 
-      {/* Bottom Banner Ad */}
-      <div className="mx-4">
-        {/* <BottomBanner /> */}
-        {/* <AdDetailBanner /> */}
+   
+
+      {/* Footer Banner */}
+      <div className="mx-4 mb-4">
         <FooterBanner />
       </div>
 

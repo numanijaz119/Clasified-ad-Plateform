@@ -178,9 +178,7 @@ const BannersTab: React.FC = () => {
       setAnalytics(null); // Reset analytics to show loading state
       setShowAnalyticsModal(true); // Show modal immediately
 
-      console.log("Fetching analytics for banner ID:", banner.id);
       const data = await adminService.getBannerAnalytics(banner.id);
-      console.log("Analytics data received:", data);
       setAnalytics(data);
     } catch (err: any) {
       console.error("Analytics fetch error:", err);
@@ -192,7 +190,6 @@ const BannersTab: React.FC = () => {
         ctr: banner.ctr || 0,
       };
 
-      console.log("Using mock analytics data:", mockAnalytics);
       setAnalytics(mockAnalytics);
 
       toast.error(

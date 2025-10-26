@@ -1,6 +1,6 @@
 // src/App.tsx
 import React, { useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
@@ -17,6 +17,8 @@ import ProfilePage from "./pages/ProfilePage";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useToast } from "./contexts/ToastContext";
+import MessagesPage from "./pages/MessagesPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
@@ -24,11 +26,18 @@ function App() {
   const [shouldOpenPostAdAfterLogin, setShouldOpenPostAdAfterLogin] =
     useState(false);
   const toast = useToast();
+  const navigate = useNavigate();
 
   // Get auth state from context
   const { isAuthenticated, user, logout } = useAuth();
 
   const handlePostAd = () => {
+    // Block admin users from posting ads
+    if (isAuthenticated && (user?.is_staff || user?.is_superuser)) {
+      toast.info("Admin users cannot post ads. Please use a regular user account.");
+      return;
+    }
+    
     if (isAuthenticated) {
       setIsPostAdModalOpen(true);
     } else {
@@ -40,6 +49,19 @@ function App() {
   // Handle successful sign-in
   const handleSignInSuccess = () => {
     setIsSignInModalOpen(false);
+    
+    // Get fresh user data from localStorage
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const userData = JSON.parse(userStr);
+      const isAdmin = userData.is_staff || userData.is_superuser;
+      
+      if (isAdmin) {
+        navigate("/admin");
+        return;
+      }
+    }
+    
     // Only open post ad modal if user was specifically trying to post an ad
     if (shouldOpenPostAdAfterLogin) {
       setIsPostAdModalOpen(true);
@@ -112,7 +134,7 @@ function App() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute requireAdmin={false}>
+            <ProtectedRoute requireAdmin={true}>
               <AdminDashboard />
             </ProtectedRoute>
           }
@@ -120,7 +142,7 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute blockAdmin={true}>
               <UserDashboard />
             </ProtectedRoute>
           }
@@ -133,6 +155,24 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/messages"
+          element={
+            <ProtectedRoute>
+              <MessagesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+  path="/messages/:conversationId"
+  element={
+    <ProtectedRoute>
+      <MessagesPage />
+    </ProtectedRoute>
+  }
+/>
+        {/* 404 Catch-all Route */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
       <Footer />

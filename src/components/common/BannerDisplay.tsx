@@ -55,9 +55,7 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
         state: stateCode,
         category: categoryId,
       };
-      console.log(`Loading banners for position: ${position}`, params);
       const data = await bannerService.getBanners(params);
-      console.log(`Loaded ${data.length} banners for position: ${position}`, data);
       setBanners(data);
     } catch (error) {
       console.error("Failed to load banners:", error);

@@ -1,3 +1,4 @@
+// src/hooks/useAdDetails.ts
 import { useState, useCallback } from 'react';
 import { adsService } from '../services';
 
@@ -59,6 +60,7 @@ export interface DetailedAd {
   created_at: string;
   updated_at: string;
   expires_at: string;
+  is_owner?: boolean;  // Backend ownership flag
 }
 
 // Interface for basic ad from search results
@@ -95,6 +97,8 @@ export interface BasicAd {
   time_since_posted: string;
   is_featured_active: boolean;
   created_at: string;
+  is_owner?: boolean;  // Backend ownership flag
+  user_id?: number;    // Owner's user ID
 }
 
 // Interface for modal listing (what ListingModal expects)
@@ -114,9 +118,12 @@ export interface ModalListing {
   email?: string;
   images: string[];
   user?: {
+    id?: number;
     full_name: string;
     avatar: string | null;
   };
+  is_owner?: boolean;  // CRITICAL: Ownership flag
+  user_id?: number;    // CRITICAL: Owner's user ID
 }
 
 export const useAdDetails = () => {
@@ -171,9 +178,13 @@ export const useAdDetails = () => {
       email: detailedAd.contact_email_display,
       images,
       user: {
+        id: detailedAd.user.id,
         full_name: detailedAd.user.full_name,
         avatar: detailedAd.user.avatar,
       },
+      // CRITICAL: Pass ownership data
+      is_owner: detailedAd.is_owner || fallbackAd?.is_owner,
+      user_id: detailedAd.user.id,
     };
   }, []);
 
@@ -195,6 +206,9 @@ export const useAdDetails = () => {
       phone: undefined,
       email: undefined,
       images: [fallbackImage],
+      // CRITICAL: Pass ownership data from basicAd
+      is_owner: basicAd.is_owner,
+      user_id: basicAd.user_id,
     };
   }, []);
 

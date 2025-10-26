@@ -109,7 +109,8 @@ export interface Ad {
   images: AdImage[];
   primary_image?: AdImage;
   is_favorite?: boolean;
-  is_owner?: boolean;
+  is_owner?: boolean;  // NEW: Indicates if current user owns this ad
+  user_id?: number;     // NEW: Owner's user ID for quick ownership checks
 }
 
 // FIXED: Updated CreateAdRequest to match backend serializer exactly

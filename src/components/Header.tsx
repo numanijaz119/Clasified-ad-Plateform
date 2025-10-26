@@ -12,9 +12,11 @@ import {
   UserCircle,
   Settings,
   BarChart3,
+  Shield,
 } from "lucide-react";
 import { Button } from "./";
 import { useAuth } from "../contexts/AuthContext";
+import { NotificationBell, MessageIcon } from './messaging';
 
 /**
  * Normalizes avatar URL to ensure it's absolute and includes cache-busting
@@ -95,34 +97,29 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center space-x-4">
             {isLoggedIn ? (
               <>
-                {/* Post Ad Button - Desktop only */}
-                <Button
-                  onClick={onPostAd}
-                  variant="primary"
-                  className="hidden sm:flex items-center space-x-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Post Ad</span>
-                </Button>
+                {/* Post Ad Button - Desktop only (Hidden for admin users) */}
+                {!user?.is_staff && !user?.is_superuser && (
+                  <Button
+                    onClick={onPostAd}
+                    variant="primary"
+                    className="hidden sm:flex items-center space-x-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Post Ad</span>
+                  </Button>
+                )}
 
                 {/* Notification & Chat Icons - Always visible when logged in */}
                 <div className="flex items-center space-x-2">
                   {/* Notifications */}
                   <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
-                    <Bell className="h-6 w-6" />
-                    {/* Notification badge - you can add logic for unread count */}
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      3
-                    </span>
+                  <NotificationBell />
+              
                   </button>
 
                   {/* Chat/Messages */}
                   <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
-                    <MessageCircle className="h-6 w-6" />
-                    {/* Message badge - you can add logic for unread count */}
-                    <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      2
-                    </span>
+                   <MessageIcon />
                   </button>
                 </div>
 
@@ -181,14 +178,26 @@ const Header: React.FC<HeaderProps> = ({
                         My Profile
                       </Link>
 
-                      <Link
-                        to="/dashboard"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <BarChart3 className="h-5 w-5 mr-3" />
-                        Dashboard
-                      </Link>
+                      {/* Show User Dashboard for regular users, Admin Panel for admins */}
+                      {(user?.is_staff || user?.is_superuser) ? (
+                        <Link
+                          to="/admin"
+                          className="flex items-center px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          <Shield className="h-5 w-5 mr-3" />
+                          Admin Panel
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/dashboard"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          <BarChart3 className="h-5 w-5 mr-3" />
+                          Dashboard
+                        </Link>
+                      )}
 
                       {/* <Link
                         to="/settings"
@@ -292,6 +301,7 @@ const Header: React.FC<HeaderProps> = ({
                     My Profile
                   </Link>
 
+ {(!user?.is_staff || !user?.is_superuser) && (
                   <Link
                     to="/dashboard"
                     className="flex items-center px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
@@ -300,6 +310,20 @@ const Header: React.FC<HeaderProps> = ({
                     <BarChart3 className="h-5 w-5 mr-3" />
                     Dashboard
                   </Link>
+
+ )}
+
+                  {/* Admin Panel Link - Only show for admin users */}
+                  {(user?.is_staff || user?.is_superuser) && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center px-3 py-2 text-base font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Shield className="h-5 w-5 mr-3" />
+                      Admin Panel
+                    </Link>
+                  )}
 
                   {/* <Link
                     to="/settings"

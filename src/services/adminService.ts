@@ -308,6 +308,11 @@ class AdminService extends BaseApiService {
     }
   }
 
+  // Alias for easier usage
+  async handleReport(id: number, data: AdminReportActionRequest) {
+    return this.performReportAction(id, data);
+  }
+
   // ============================================================================
   // BANNER MANAGEMENT
   // ============================================================================
@@ -713,6 +718,115 @@ class AdminService extends BaseApiService {
       await this.delete(url);
     } catch (error: any) {
       console.error("Delete city error:", error);
+      throw error;
+    }
+  }
+
+  // ============================================================================
+  // DATA EXPORT
+  // ============================================================================
+
+  async exportAds(params?: any): Promise<Blob> {
+    try {
+      let url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ADMIN.EXPORT_ADS}`;
+      
+      if (params) {
+        const queryParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            queryParams.append(key, String(value));
+          }
+        });
+        const queryString = queryParams.toString();
+        if (queryString) {
+          url += `?${queryString}`;
+        }
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+
+      return await response.blob();
+    } catch (error: any) {
+      console.error("Export ads error:", error);
+      throw error;
+    }
+  }
+
+  async exportUsers(params?: any): Promise<Blob> {
+    try {
+      let url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ADMIN.EXPORT_USERS}`;
+      
+      if (params) {
+        const queryParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            queryParams.append(key, String(value));
+          }
+        });
+        const queryString = queryParams.toString();
+        if (queryString) {
+          url += `?${queryString}`;
+        }
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+
+      return await response.blob();
+    } catch (error: any) {
+      console.error("Export users error:", error);
+      throw error;
+    }
+  }
+
+  async exportReports(params?: any): Promise<Blob> {
+    try {
+      let url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ADMIN.EXPORT_REPORTS}`;
+      
+      if (params) {
+        const queryParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            queryParams.append(key, String(value));
+          }
+        });
+        const queryString = queryParams.toString();
+        if (queryString) {
+          url += `?${queryString}`;
+        }
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+
+      return await response.blob();
+    } catch (error: any) {
+      console.error("Export reports error:", error);
       throw error;
     }
   }

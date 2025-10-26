@@ -9,6 +9,7 @@ interface ProtectedRouteProps {
   requireAuth?: boolean;
   requireAdmin?: boolean;
   fallbackPath?: string;
+  blockAdmin?: boolean; // New: Block admin users from accessing this route
 }
 
 /**
@@ -20,6 +21,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAuth = true,
   requireAdmin = false,
   fallbackPath = "/",
+  blockAdmin = false,
 }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
@@ -45,17 +47,21 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // Check admin requirement (assuming admin check based on email or user properties)
-  // You can modify this logic based on your actual admin role implementation
+  // Block admin users from accessing user-only routes (like user dashboard)
+  if (blockAdmin && isAuthenticated) {
+    const isAdmin = user?.is_staff || user?.is_superuser;
+    if (isAdmin) {
+      return <Navigate to="/admin" replace />;
+    }
+  }
+
+  // Check admin requirement - user must be staff or superuser
   if (requireAdmin && isAuthenticated) {
-    const isAdmin =
-      user?.email?.includes("admin") ||
-      user?.email?.endsWith("@admin.com") ||
-      // Add other admin detection logic here
-      false;
+    const isAdmin = user?.is_staff || user?.is_superuser;
 
     if (!isAdmin) {
-      return <Navigate to="/dashboard" replace />;
+      console.warn("Access denied: Admin privileges required");
+      return <Navigate to="/" replace />;
     }
   }
 

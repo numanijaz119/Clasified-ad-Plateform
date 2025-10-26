@@ -265,8 +265,6 @@ class AuthService extends BaseApiService {
 
       // Clear all stored auth data after successful deletion
       await this.logout();
-
-      console.log("Account deleted successfully");
     } catch (error: any) {
       console.error("Delete account error:", error);
       throw error;
@@ -304,8 +302,6 @@ class AuthService extends BaseApiService {
 
       // Dispatch logout event
       window.dispatchEvent(new CustomEvent("auth:logout"));
-
-      console.log("User logged out successfully");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -361,8 +357,6 @@ class AuthService extends BaseApiService {
 
       // Dispatch login event
       window.dispatchEvent(new CustomEvent("auth:login", { detail: user }));
-
-      console.log("Auth data stored successfully");
     } catch (error) {
       console.error("Error storing auth data:", error);
       throw new Error("Failed to store authentication data");

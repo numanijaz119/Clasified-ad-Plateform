@@ -10,6 +10,7 @@ export type BannerPosition =
 export interface PublicBanner {
   id: number;
   title: string;
+  description?: string;
   banner_type: BannerType;
   image?: string;
   html_content?: string;
@@ -18,6 +19,8 @@ export interface PublicBanner {
   click_url?: string;
   open_new_tab: boolean;
   priority: number;
+  target_states?: string[];
+  target_categories?: string[];
 }
 
 export interface BannerListParams {

@@ -20,6 +20,7 @@ export interface City {
   state: number;
   state_name?: string;
   state_code?: string;
+  photo?: string;
   latitude?: number;
   longitude?: number;
   is_major: boolean;

@@ -19,6 +19,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { useToast } from "./contexts/ToastContext";
 import MessagesPage from "./pages/MessagesPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import { AdDetailBanner } from "./components/common/BannerLayouts";
 
 function App() {
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);

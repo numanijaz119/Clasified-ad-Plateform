@@ -18,7 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { useToast } from "../../contexts/ToastContext";
-import { adminService } from "../../services/adminService";
+import { adminBannerService } from "../../services/adminBannerService";
 import { contentService } from "../../services/contentService";
 import {
   AdminBanner,
@@ -101,7 +101,7 @@ const BannersTab: React.FC = () => {
   const loadBanners = async () => {
     try {
       setLoading(true);
-      const response = await adminService.getBanners(filters);
+      const response = await adminBannerService.getBanners(filters);
       setBanners(response.results);
       setPagination({
         count: response.count,
@@ -151,7 +151,7 @@ const BannersTab: React.FC = () => {
 
   const handleToggle = async (banner: AdminBanner) => {
     try {
-      const response = await adminService.toggleBanner(banner.id);
+      const response = await adminBannerService.toggleBanner(banner.id);
       toast.success(response.message);
       loadBanners();
     } catch (err: any) {
@@ -162,7 +162,7 @@ const BannersTab: React.FC = () => {
   const handleDelete = async () => {
     if (!selectedBanner) return;
     try {
-      await adminService.deleteBanner(selectedBanner.id);
+      await adminBannerService.deleteBanner(selectedBanner.id);
       toast.success("Banner deleted successfully");
       setShowDeleteModal(false);
       setSelectedBanner(null);
@@ -178,16 +178,26 @@ const BannersTab: React.FC = () => {
       setAnalytics(null); // Reset analytics to show loading state
       setShowAnalyticsModal(true); // Show modal immediately
 
-      const data = await adminService.getBannerAnalytics(banner.id);
+      const data = await adminBannerService.getBannerAnalytics(banner.id);
       setAnalytics(data);
     } catch (err: any) {
       console.error("Analytics fetch error:", err);
 
       // For now, show mock data if API fails (for development/testing)
       const mockAnalytics = {
-        total_impressions: banner.impressions || 0,
-        total_clicks: banner.clicks || 0,
-        ctr: banner.ctr || 0,
+        banner_info: {
+          id: banner.id,
+          title: banner.title,
+          total_impressions: banner.impressions || 0,
+          total_clicks: banner.clicks || 0,
+          ctr: banner.ctr || 0,
+        },
+        daily_impressions: banner.impressions > 0 ? [
+          { day: new Date().toISOString().split('T')[0], impressions: banner.impressions }
+        ] : [],
+        daily_clicks: banner.clicks > 0 ? [
+          { day: new Date().toISOString().split('T')[0], clicks: banner.clicks }
+        ] : [],
       };
 
       setAnalytics(mockAnalytics);
@@ -332,7 +342,7 @@ const BannersTab: React.FC = () => {
         if (formData.banner_type === "text")
           updateData.text_content = formData.text_content;
 
-        await adminService.updateBanner(selectedBanner.id, updateData);
+        await adminBannerService.updateBanner(selectedBanner.id, updateData);
         toast.success("Banner updated successfully");
         setShowEditModal(false);
       } else {
@@ -361,7 +371,7 @@ const BannersTab: React.FC = () => {
           createData.text_content = formData.text_content;
         }
 
-        await adminService.createBanner(createData);
+        await adminBannerService.createBanner(createData);
         toast.success("Banner created successfully");
         setShowCreateModal(false);
       }
@@ -1844,7 +1854,7 @@ const BannersTab: React.FC = () => {
                     Total Impressions
                   </p>
                   <p className="text-2xl font-bold text-blue-900 mt-1">
-                    {(analytics.total_impressions || 0).toLocaleString()}
+                    {(analytics.banner_info?.total_impressions || 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="bg-green-50 rounded-lg p-4">
@@ -1852,7 +1862,7 @@ const BannersTab: React.FC = () => {
                     Total Clicks
                   </p>
                   <p className="text-2xl font-bold text-green-900 mt-1">
-                    {(analytics.total_clicks || 0).toLocaleString()}
+                    {(analytics.banner_info?.total_clicks || 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-4">
@@ -1860,10 +1870,170 @@ const BannersTab: React.FC = () => {
                     Click-Through Rate
                   </p>
                   <p className="text-2xl font-bold text-purple-900 mt-1">
-                    {((analytics.ctr || 0) * 100).toFixed(2)}%
+                    {(analytics.banner_info?.ctr || 0).toFixed(2)}%
                   </p>
                 </div>
               </div>
+
+              {/* Daily Performance Chart */}
+              {(analytics.daily_impressions?.length > 0 || analytics.daily_clicks?.length > 0) && (
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Daily Performance (Last 30 Days)
+                  </h3>
+                  
+                  {/* Daily Stats Table */}
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                          </th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Impressions
+                          </th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Clicks
+                          </th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            CTR
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {(() => {
+                          // Merge daily impressions and clicks data
+                          const dailyData = new Map();
+                          
+                          // Add impressions data
+                          analytics.daily_impressions?.forEach(item => {
+                            dailyData.set(item.day, { 
+                              date: item.day, 
+                              impressions: item.impressions, 
+                              clicks: 0 
+                            });
+                          });
+                          
+                          // Add clicks data
+                          analytics.daily_clicks?.forEach(item => {
+                            const existing = dailyData.get(item.day) || { 
+                              date: item.day, 
+                              impressions: 0, 
+                              clicks: 0 
+                            };
+                            existing.clicks = item.clicks;
+                            dailyData.set(item.day, existing);
+                          });
+                          
+                          // Convert to array and sort by date (newest first)
+                          const sortedData = Array.from(dailyData.values())
+                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                          
+                          return sortedData.map((day, index) => {
+                            const ctr = day.impressions > 0 ? (day.clicks / day.impressions * 100) : 0;
+                            return (
+                              <tr key={day.date} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                <td className="px-4 py-2 text-sm text-gray-900">
+                                  {new Date(day.date).toLocaleDateString()}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-gray-900">
+                                  {day.impressions.toLocaleString()}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-gray-900">
+                                  {day.clicks.toLocaleString()}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-gray-900">
+                                  {ctr.toFixed(2)}%
+                                </td>
+                              </tr>
+                            );
+                          });
+                        })()}
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  {/* Visual Performance Bars */}
+                  <div className="mt-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">Daily Performance Trend</h4>
+                    <div className="space-y-2">
+                      {(() => {
+                        // Get the last 7 days of data for visualization
+                        const last7Days = Array.from(new Set([
+                          ...(analytics.daily_impressions?.map(d => d.day) || []),
+                          ...(analytics.daily_clicks?.map(d => d.day) || [])
+                        ]))
+                        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+                        .slice(0, 7);
+                        
+                        const maxImpressions = Math.max(...(analytics.daily_impressions?.map(d => d.impressions) || [1]));
+                        const maxClicks = Math.max(...(analytics.daily_clicks?.map(d => d.clicks) || [1]));
+                        
+                        return last7Days.map(day => {
+                          const impressions = analytics.daily_impressions?.find(d => d.day === day)?.impressions || 0;
+                          const clicks = analytics.daily_clicks?.find(d => d.day === day)?.clicks || 0;
+                          
+                          return (
+                            <div key={day} className="flex items-center space-x-3">
+                              <div className="w-20 text-xs text-gray-600">
+                                {new Date(day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </div>
+                              <div className="flex-1 space-y-1">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-16 text-xs text-blue-600">Impressions</div>
+                                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div 
+                                      className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                                      style={{ width: `${maxImpressions > 0 ? (impressions / maxImpressions) * 100 : 0}%` }}
+                                    ></div>
+                                  </div>
+                                  <div className="w-8 text-xs text-gray-600 text-right">{impressions}</div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-16 text-xs text-green-600">Clicks</div>
+                                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div 
+                                      className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                                      style={{ width: `${maxClicks > 0 ? (clicks / maxClicks) * 100 : 0}%` }}
+                                    ></div>
+                                  </div>
+                                  <div className="w-8 text-xs text-gray-600 text-right">{clicks}</div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
+                  </div>
+                  
+                  {/* Summary for daily data */}
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <p className="text-blue-600 font-medium">Days with Activity</p>
+                      <p className="text-lg font-bold text-blue-900">
+                        {Math.max(
+                          analytics.daily_impressions?.length || 0,
+                          analytics.daily_clicks?.length || 0
+                        )}
+                      </p>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-3">
+                      <p className="text-green-600 font-medium">Peak Day Impressions</p>
+                      <p className="text-lg font-bold text-green-900">
+                        {Math.max(...(analytics.daily_impressions?.map(d => d.impressions) || [0]))}
+                      </p>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-3">
+                      <p className="text-purple-600 font-medium">Peak Day Clicks</p>
+                      <p className="text-lg font-bold text-purple-900">
+                        {Math.max(...(analytics.daily_clicks?.map(d => d.clicks) || [0]))}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-white border border-gray-200 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">

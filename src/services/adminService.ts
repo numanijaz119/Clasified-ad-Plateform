@@ -2,6 +2,7 @@
 
 import BaseApiService from "./baseApiService";
 import { API_CONFIG } from "../config/api";
+import { City } from "../types/content";
 import {
   AdminDashboardStats,
   AdminAdListParams,
@@ -684,11 +685,32 @@ class AdminService extends BaseApiService {
 
   async createCity(data: AdminCityCreateRequest) {
     try {
-      const response = await this.post(
-        API_CONFIG.ENDPOINTS.ADMIN.CITY_CREATE,
-        data
-      );
-      return response.data;
+      // If there's a photo, use FormData
+      if (data.photo) {
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            if (key === 'photo' && value instanceof File) {
+              formData.append(key, value);
+            } else {
+              formData.append(key, value.toString());
+            }
+          }
+        });
+        
+        const response = await this.post(
+          API_CONFIG.ENDPOINTS.ADMIN.CITY_CREATE,
+          formData
+        );
+        return response.data;
+      } else {
+        // No photo, use regular JSON
+        const response = await this.post(
+          API_CONFIG.ENDPOINTS.ADMIN.CITY_CREATE,
+          data
+        );
+        return response.data;
+      }
     } catch (error: any) {
       console.error("Create city error:", error);
       throw error;
@@ -701,10 +723,59 @@ class AdminService extends BaseApiService {
         ":id",
         id.toString()
       );
-      const response = await this.put(url, data);
-      return response.data;
+      
+      // If there's a photo, use FormData
+      if (data.photo) {
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            if (key === 'photo' && value instanceof File) {
+              formData.append(key, value);
+            } else {
+              formData.append(key, value.toString());
+            }
+          }
+        });
+        
+        const response = await this.put(url, formData);
+        return response.data;
+      } else {
+        // No photo, use regular JSON
+        const response = await this.put(url, data);
+        return response.data;
+      }
     } catch (error: any) {
       console.error("Update city error:", error);
+      throw error;
+    }
+  }
+
+  async getCities(params?: { state?: string; is_active?: boolean; is_major?: boolean }) {
+    try {
+      let url = API_CONFIG.ENDPOINTS.ADMIN.CITIES_LIST;
+      
+      if (params) {
+        const queryParams = new URLSearchParams();
+        if (params.state && params.state !== 'all') {
+          queryParams.append('state', params.state);
+        }
+        if (params.is_active !== undefined) {
+          queryParams.append('is_active', params.is_active.toString());
+        }
+        if (params.is_major !== undefined) {
+          queryParams.append('is_major', params.is_major.toString());
+        }
+        
+        const queryString = queryParams.toString();
+        if (queryString) {
+          url += `?${queryString}`;
+        }
+      }
+      
+      const response = await this.get<City[]>(url);
+      return response.data || [];
+    } catch (error: any) {
+      console.error("Get admin cities error:", error);
       throw error;
     }
   }

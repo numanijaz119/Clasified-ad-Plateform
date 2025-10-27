@@ -1,3 +1,4 @@
+// src/services/bannerService.ts
 import BaseApiService from "./baseApiService";
 import { API_CONFIG } from "../config/api";
 import type { PublicBanner, BannerListParams } from "../types/banners";
@@ -18,14 +19,21 @@ class BannerService extends BaseApiService {
         });
       }
 
-      const url = `${API_CONFIG.ENDPOINTS.CONTENT.BANNERS}${
-        queryParams.toString() ? "?" + queryParams.toString() : ""
-      }`;
+      const url = `${API_CONFIG.ENDPOINTS.CONTENT.BANNERS}${queryParams.toString() ? "?" + queryParams.toString() : ""
+        }`;
 
       const response = await this.get<PublicBanner[]>(url, false);
+      console.log("Fetching banners from:", url);
+
 
       if (response.data) {
-        return response.data;
+        // Ensure image URLs are absolute
+        return response.data.map(banner => ({
+          ...banner,
+          image: banner.image && !banner.image.startsWith('http')
+            ? `${API_CONFIG.BASE_URL}${banner.image}`
+            : banner.image
+        }));
       }
 
       return [];
@@ -40,10 +48,16 @@ class BannerService extends BaseApiService {
    */
   async trackImpression(bannerId: number): Promise<void> {
     try {
-      // This would be an endpoint to track impressions
-      // For now, we'll just track it silently
+      const url = `${API_CONFIG.ENDPOINTS.CONTENT.BANNERS}track-impression/`;
+      const data = {
+        banner_id: bannerId,
+        page_url: window.location.href,
+      };
+
+      await this.post(url, data, false);
     } catch (error) {
       console.error("Track impression error:", error);
+      // Silently fail - don't disrupt user experience
     }
   }
 
@@ -52,10 +66,16 @@ class BannerService extends BaseApiService {
    */
   async trackClick(bannerId: number): Promise<void> {
     try {
-      // This would be an endpoint to track clicks
-      // For now, we'll just track it silently
+      const url = `${API_CONFIG.ENDPOINTS.CONTENT.BANNERS}track-click/`;
+      const data = {
+        banner_id: bannerId,
+        referrer: document.referrer,
+      };
+
+      await this.post(url, data, false);
     } catch (error) {
       console.error("Track click error:", error);
+      // Silently fail - don't disrupt user experience
     }
   }
 }

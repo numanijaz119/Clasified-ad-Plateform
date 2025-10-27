@@ -11,6 +11,7 @@ import {
   Image,
   TrendingUp,
   Flag,
+  MapPin,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -22,6 +23,7 @@ import ReportsTab from "../components/admin/ReportsTab";
 import CategoriesTab from "../components/admin/CategoriesTab";
 import AnalyticsTab from "../components/admin/AnalyticsTab";
 import BannersTab from "../components/admin/BannersTab";
+import CitiesTab from "../components/admin/CitiesTab";
 import EarningsTab from "../components/admin/EarningTab";
 
 type TabId =
@@ -30,6 +32,7 @@ type TabId =
   | "users"
   | "reports"
   | "categories"
+  | "cities"
   | "earnings"
   | "analytics"
   | "banners";
@@ -46,6 +49,7 @@ const tabs: Tab[] = [
   { id: "users", name: "Users", icon: Users },
   { id: "reports", name: "Reports", icon: Flag },
   { id: "categories", name: "Categories", icon: Settings },
+  { id: "cities", name: "Cities", icon: MapPin },
   { id: "earnings", name: "Earnings", icon: DollarSign },
   { id: "analytics", name: "Analytics", icon: TrendingUp },
   { id: "banners", name: "Banner Ads", icon: Image },
@@ -94,6 +98,8 @@ const AdminDashboard: React.FC = () => {
         return <ReportsTab />;
       case "categories":
         return <CategoriesTab />;
+      case "cities":
+        return <CitiesTab />;
       case "earnings":
         return <EarningsTab />;
       case "analytics":

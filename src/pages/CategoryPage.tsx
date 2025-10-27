@@ -305,7 +305,7 @@ const CategoryPage: React.FC = () => {
 
             {/* Category Page Banner */}
             <div className="mb-4">
-              <CategoryPageBanner />
+              <CategoryPageBanner categoryId={category?.id} />
             </div>
 
             {/* Error State */}

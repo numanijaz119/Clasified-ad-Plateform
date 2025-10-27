@@ -18,7 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { useToast } from "../../contexts/ToastContext";
-import { adminService } from "../../services/adminService";
+import { adminBannerService } from "../../services/adminBannerService";
 import { contentService } from "../../services/contentService";
 import {
   AdminBanner,
@@ -101,7 +101,7 @@ const BannersTab: React.FC = () => {
   const loadBanners = async () => {
     try {
       setLoading(true);
-      const response = await adminService.getBanners(filters);
+      const response = await adminBannerService.getBanners(filters);
       setBanners(response.results);
       setPagination({
         count: response.count,
@@ -151,7 +151,7 @@ const BannersTab: React.FC = () => {
 
   const handleToggle = async (banner: AdminBanner) => {
     try {
-      const response = await adminService.toggleBanner(banner.id);
+      const response = await adminBannerService.toggleBanner(banner.id);
       toast.success(response.message);
       loadBanners();
     } catch (err: any) {
@@ -162,7 +162,7 @@ const BannersTab: React.FC = () => {
   const handleDelete = async () => {
     if (!selectedBanner) return;
     try {
-      await adminService.deleteBanner(selectedBanner.id);
+      await adminBannerService.deleteBanner(selectedBanner.id);
       toast.success("Banner deleted successfully");
       setShowDeleteModal(false);
       setSelectedBanner(null);
@@ -178,7 +178,7 @@ const BannersTab: React.FC = () => {
       setAnalytics(null); // Reset analytics to show loading state
       setShowAnalyticsModal(true); // Show modal immediately
 
-      const data = await adminService.getBannerAnalytics(banner.id);
+      const data = await adminBannerService.getBannerAnalytics(banner.id);
       setAnalytics(data);
     } catch (err: any) {
       console.error("Analytics fetch error:", err);
@@ -332,7 +332,7 @@ const BannersTab: React.FC = () => {
         if (formData.banner_type === "text")
           updateData.text_content = formData.text_content;
 
-        await adminService.updateBanner(selectedBanner.id, updateData);
+        await adminBannerService.updateBanner(selectedBanner.id, updateData);
         toast.success("Banner updated successfully");
         setShowEditModal(false);
       } else {
@@ -361,7 +361,7 @@ const BannersTab: React.FC = () => {
           createData.text_content = formData.text_content;
         }
 
-        await adminService.createBanner(createData);
+        await adminBannerService.createBanner(createData);
         toast.success("Banner created successfully");
         setShowCreateModal(false);
       }

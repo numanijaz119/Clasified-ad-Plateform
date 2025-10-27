@@ -98,6 +98,7 @@ export const buildQueryParams = (params: Record<string, any>): string => {
 };
 
 export { bannerService } from "./bannerService";
+export { adminBannerService } from "./adminBannerService";
 
 // Also export types if needed
 export type {

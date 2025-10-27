@@ -1,7 +1,7 @@
 // src/components/common/BannerDisplay.tsx
 import React, { useEffect, useState, useRef } from "react";
 import type { PublicBanner, BannerPosition } from "../../types/banners";
-import { bannerService } from "../../services/bannerService";
+import { useBanners, useBannerTracking } from "../../hooks/useBanners";
 import { ExternalLink } from "lucide-react";
 
 interface BannerDisplayProps {
@@ -9,6 +9,8 @@ interface BannerDisplayProps {
   stateCode?: string;
   categoryId?: number;
   className?: string;
+  autoRotate?: boolean;
+  rotationInterval?: number;
 }
 
 const BannerDisplay: React.FC<BannerDisplayProps> = ({
@@ -16,56 +18,48 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
   stateCode,
   categoryId,
   className = "",
+  autoRotate = true,
+  rotationInterval = 10000,
 }) => {
-  const [banners, setBanners] = useState<PublicBanner[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { banners, loading, error } = useBanners({
+    position,
+    stateCode,
+    categoryId,
+  });
+  const { trackImpression, trackClick } = useBannerTracking();
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const impressionTracked = useRef<Set<number>>(new Set());
-
-  useEffect(() => {
-    loadBanners();
-  }, [position, stateCode, categoryId]);
 
   // Track impressions when banner is visible
   useEffect(() => {
     if (banners.length > 0) {
       const currentBanner = banners[currentIndex];
       if (currentBanner && !impressionTracked.current.has(currentBanner.id)) {
-        bannerService.trackImpression(currentBanner.id);
+        trackImpression(currentBanner.id);
         impressionTracked.current.add(currentBanner.id);
       }
     }
-  }, [banners, currentIndex]);
+  }, [banners, currentIndex, trackImpression]);
 
-  // Auto-rotate banners every 10 seconds
+  // Auto-rotate banners
   useEffect(() => {
-    if (banners.length > 1) {
+    if (autoRotate && banners.length > 1) {
       const interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % banners.length);
-      }, 10000);
+      }, rotationInterval);
       return () => clearInterval(interval);
     }
-  }, [banners.length]);
+  }, [banners.length, autoRotate, rotationInterval]);
 
-  const loadBanners = async () => {
-    try {
-      setLoading(true);
-      const params = {
-        position,
-        state: stateCode,
-        category: categoryId,
-      };
-      const data = await bannerService.getBanners(params);
-      setBanners(data);
-    } catch (error) {
-      console.error("Failed to load banners:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Reset current index when banners change
+  useEffect(() => {
+    setCurrentIndex(0);
+    impressionTracked.current.clear();
+  }, [banners]);
 
-  const handleBannerClick = (banner: PublicBanner) => {
-    bannerService.trackClick(banner.id);
+  const handleBannerClick = async (banner: PublicBanner) => {
+    await trackClick(banner.id);
     if (banner.click_url) {
       if (banner.open_new_tab) {
         window.open(banner.click_url, "_blank", "noopener,noreferrer");
@@ -85,8 +79,8 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
     );
   }
 
-  // Return null if no banners available
-  if (banners.length === 0) {
+  // Return null if no banners available or error occurred
+  if (banners.length === 0 || error) {
     return null;
   }
 

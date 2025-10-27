@@ -1,6 +1,7 @@
 // src/components/common/BannerLayouts.tsx
 import React from "react";
 import BannerDisplay from "./BannerDisplay";
+import { useBannerContext } from "../../hooks/useBannerContext";
 
 interface BannerLayoutProps {
   stateCode?: string;
@@ -12,12 +13,15 @@ export const HeaderBanner: React.FC<BannerLayoutProps> = ({
   stateCode,
   categoryId,
 }) => {
+  const { stateCode: contextStateCode } = useBannerContext();
+  const effectiveStateCode = stateCode || contextStateCode;
+
   return (
     <div className="w-full bg-gray-50 border-b border-gray-200 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         <BannerDisplay
           position="header"
-          stateCode={stateCode}
+          stateCode={effectiveStateCode}
           categoryId={categoryId}
           className="mx-auto"
         />
@@ -31,12 +35,15 @@ export const SidebarBanner: React.FC<BannerLayoutProps> = ({
   stateCode,
   categoryId,
 }) => {
+  const { stateCode: contextStateCode } = useBannerContext();
+  const effectiveStateCode = stateCode || contextStateCode;
+
   return (
     <aside className="hidden lg:block w-64 xl:w-72 flex-shrink-0 overflow-hidden">
       <div className="sticky top-20 space-y-4">
         <BannerDisplay
           position="sidebar"
-          stateCode={stateCode}
+          stateCode={effectiveStateCode}
           categoryId={categoryId}
           className="w-full"
         />
@@ -50,12 +57,15 @@ export const FooterBanner: React.FC<BannerLayoutProps> = ({
   stateCode,
   categoryId,
 }) => {
+  const { stateCode: contextStateCode } = useBannerContext();
+  const effectiveStateCode = stateCode || contextStateCode;
+
   return (
     <div className="w-full bg-gray-50 border-t border-gray-200 mt-8 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <BannerDisplay
           position="footer"
-          stateCode={stateCode}
+          stateCode={effectiveStateCode}
           categoryId={categoryId}
           className="mx-auto"
         />
@@ -68,6 +78,9 @@ export const FooterBanner: React.FC<BannerLayoutProps> = ({
 export const BetweenAdsBanner: React.FC<
   BannerLayoutProps & { index?: number }
 > = ({ stateCode, categoryId, index }) => {
+  const { stateCode: contextStateCode } = useBannerContext();
+  const effectiveStateCode = stateCode || contextStateCode;
+
   // If index is provided, only show between every 6 ads (but not at index 0)
   if (index !== undefined && (index % 6 !== 0 || index === 0)) return null;
 
@@ -75,7 +88,7 @@ export const BetweenAdsBanner: React.FC<
     <div className="col-span-full my-4 overflow-hidden">
       <BannerDisplay
         position="between_ads"
-        stateCode={stateCode}
+        stateCode={effectiveStateCode}
         categoryId={categoryId}
         className="max-w-4xl mx-auto"
       />
@@ -88,11 +101,14 @@ export const CategoryPageBanner: React.FC<BannerLayoutProps> = ({
   stateCode,
   categoryId,
 }) => {
+  const { stateCode: contextStateCode } = useBannerContext();
+  const effectiveStateCode = stateCode || contextStateCode;
+
   return (
     <div className="mb-4 overflow-hidden">
       <BannerDisplay
         position="category_page"
-        stateCode={stateCode}
+        stateCode={effectiveStateCode}
         categoryId={categoryId}
         className="w-full mx-auto"
       />
@@ -105,11 +121,14 @@ export const AdDetailBanner: React.FC<BannerLayoutProps> = ({
   stateCode,
   categoryId,
 }) => {
+  const { stateCode: contextStateCode } = useBannerContext();
+  const effectiveStateCode = stateCode || contextStateCode;
+
   return (
     <div className="my-4 overflow-hidden">
       <BannerDisplay
         position="ad_detail"
-        stateCode={stateCode}
+        stateCode={effectiveStateCode}
         categoryId={categoryId}
         className="w-full mx-auto"
       />
@@ -122,6 +141,8 @@ export const MobileBottomBanner: React.FC<BannerLayoutProps> = ({
   stateCode,
   categoryId,
 }) => {
+  const { stateCode: contextStateCode } = useBannerContext();
+  const effectiveStateCode = stateCode || contextStateCode;
   const [isVisible, setIsVisible] = React.useState(true);
 
   if (!isVisible) return null;
@@ -150,7 +171,7 @@ export const MobileBottomBanner: React.FC<BannerLayoutProps> = ({
         </button>
         <BannerDisplay
           position="footer"
-          stateCode={stateCode}
+          stateCode={effectiveStateCode}
           categoryId={categoryId}
           className="w-full"
         />

@@ -19,14 +19,21 @@ class BannerService extends BaseApiService {
         });
       }
 
-      const url = `${API_CONFIG.ENDPOINTS.CONTENT.BANNERS}${
-        queryParams.toString() ? "?" + queryParams.toString() : ""
-      }`;
+      const url = `${API_CONFIG.ENDPOINTS.CONTENT.BANNERS}${queryParams.toString() ? "?" + queryParams.toString() : ""
+        }`;
 
       const response = await this.get<PublicBanner[]>(url, false);
+      console.log("Fetching banners from:", url);
+
 
       if (response.data) {
-        return response.data;
+        // Ensure image URLs are absolute
+        return response.data.map(banner => ({
+          ...banner,
+          image: banner.image && !banner.image.startsWith('http')
+            ? `${API_CONFIG.BASE_URL}${banner.image}`
+            : banner.image
+        }));
       }
 
       return [];

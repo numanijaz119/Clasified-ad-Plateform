@@ -343,9 +343,21 @@ export interface AdminBannerToggleResponse {
 }
 
 export interface AdminBannerAnalytics {
-  total_impressions: number;
-  total_clicks: number;
-  ctr: number;
+  banner_info: {
+    id: number;
+    title: string;
+    total_impressions: number;
+    total_clicks: number;
+    ctr: number;
+  };
+  daily_impressions: Array<{
+    day: string;
+    impressions: number;
+  }>;
+  daily_clicks: Array<{
+    day: string;
+    clicks: number;
+  }>;
 }
 
 // ============================================================================

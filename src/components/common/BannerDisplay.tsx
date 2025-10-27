@@ -1,7 +1,8 @@
 // src/components/common/BannerDisplay.tsx
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import type { PublicBanner, BannerPosition } from "../../types/banners";
 import { useBanners, useBannerTracking } from "../../hooks/useBanners";
+import { bannerTracker } from "../../utils/bannerTracker";
 import { ExternalLink } from "lucide-react";
 
 interface BannerDisplayProps {
@@ -29,18 +30,17 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
   const { trackImpression, trackClick } = useBannerTracking();
   
   const [currentIndex, setCurrentIndex] = useState(0);
-  const impressionTracked = useRef<Set<number>>(new Set());
 
   // Track impressions when banner is visible
   useEffect(() => {
     if (banners.length > 0) {
       const currentBanner = banners[currentIndex];
-      if (currentBanner && !impressionTracked.current.has(currentBanner.id)) {
+      if (currentBanner && bannerTracker.shouldTrackImpression(currentBanner.id, position)) {
         trackImpression(currentBanner.id);
-        impressionTracked.current.add(currentBanner.id);
+        bannerTracker.markImpressionTracked(currentBanner.id, position);
       }
     }
-  }, [banners, currentIndex, trackImpression]);
+  }, [banners, currentIndex, trackImpression, position]);
 
   // Auto-rotate banners
   useEffect(() => {
@@ -55,11 +55,15 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
   // Reset current index when banners change
   useEffect(() => {
     setCurrentIndex(0);
-    impressionTracked.current.clear();
   }, [banners]);
 
   const handleBannerClick = async (banner: PublicBanner) => {
-    await trackClick(banner.id);
+    // Only track click if it should be tracked (prevents rapid duplicates)
+    if (bannerTracker.shouldTrackClick(banner.id)) {
+      await trackClick(banner.id);
+      bannerTracker.markClickTracked(banner.id);
+    }
+    
     if (banner.click_url) {
       if (banner.open_new_tab) {
         window.open(banner.click_url, "_blank", "noopener,noreferrer");

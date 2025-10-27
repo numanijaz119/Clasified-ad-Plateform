@@ -213,6 +213,9 @@ MESSAGING: {
       CATEGORY_UPDATE: "/api/administrator/categories/:id/",
       CATEGORY_DELETE: "/api/administrator/categories/:id/",
 
+      CITIES_LIST: "/api/administrator/cities/",
+      // Query params: ?state=IL&is_active=true&is_major=true
+      
       CITY_CREATE: "/api/administrator/cities/create/",
       CITY_DETAIL: "/api/administrator/cities/:id/",
       CITY_UPDATE: "/api/administrator/cities/:id/",

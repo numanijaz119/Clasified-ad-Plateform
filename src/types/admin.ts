@@ -486,9 +486,11 @@ export interface AdminCityCreateRequest {
   name: string;
   state: number;
   slug?: string;
+  photo?: File;
   latitude?: number;
   longitude?: number;
   is_major?: boolean;
+  is_active?: boolean;
 }
 
 export interface AdminCityUpdateRequest

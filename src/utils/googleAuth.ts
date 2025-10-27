@@ -40,11 +40,12 @@ export const initializeGoogleAuth = async (
       throw new Error("Google Client ID not configured");
     }
 
+    // Simple initialization without One Tap to avoid policy issues
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: (response: any) => handleGoogleCallback(response, onGoogleLogin),
+      ux_mode: 'popup', // Use popup mode for better compatibility
       auto_select: false,
-      cancel_on_tap_outside: true,
     });
   } catch (error) {
     console.error("Error initializing Google Auth:", error);
@@ -59,18 +60,19 @@ const handleGoogleCallback = async (
 ) => {
   try {
     if (response.credential) {
-      // response.credential is the ID token (JWT)
       await onGoogleLogin({
-        id_token: response.credential, // Correctly sending id_token
+        id_token: response.credential,
       });
+    } else {
+      throw new Error('No credential received from Google');
     }
   } catch (error) {
-    console.error("Google login callback error:", error);
+    console.error("Google login error:", error);
     throw error;
   }
 };
 
-// Trigger Google Sign-In
+// Trigger Google Sign-In - Direct popup approach
 export const signInWithGoogle = (
   onGoogleLogin: (tokenData: { id_token: string }) => Promise<void>
 ): Promise<void> => {
@@ -81,19 +83,11 @@ export const signInWithGoogle = (
     }
 
     try {
-      // Try One Tap first
-      window.google.accounts.id.prompt((notification: any) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // Fallback to popup
-          showGooglePopup(resolve, reject, onGoogleLogin);
-        } else if (notification.isDismissedMoment()) {
-          reject(new Error("Google sign-in was dismissed"));
-        } else {
-          resolve();
-        }
-      });
-    } catch (error) {
+      // Use direct popup method - more reliable and policy-compliant
       showGooglePopup(resolve, reject, onGoogleLogin);
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      reject(error);
     }
   });
 };

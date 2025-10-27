@@ -19,8 +19,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { useToast } from "./contexts/ToastContext";
 import MessagesPage from "./pages/MessagesPage";
 import NotFoundPage from "./pages/NotFoundPage";
-import { AdDetailBanner } from "./components/common/BannerLayouts";
-
 function App() {
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
@@ -38,7 +36,7 @@ function App() {
       toast.info("Admin users cannot post ads. Please use a regular user account.");
       return;
     }
-    
+
     if (isAuthenticated) {
       setIsPostAdModalOpen(true);
     } else {
@@ -50,19 +48,19 @@ function App() {
   // Handle successful sign-in
   const handleSignInSuccess = () => {
     setIsSignInModalOpen(false);
-    
+
     // Get fresh user data from localStorage
     const userStr = localStorage.getItem("user");
     if (userStr) {
       const userData = JSON.parse(userStr);
       const isAdmin = userData.is_staff || userData.is_superuser;
-      
+
       if (isAdmin) {
         navigate("/admin");
         return;
       }
     }
-    
+
     // Only open post ad modal if user was specifically trying to post an ad
     if (shouldOpenPostAdAfterLogin) {
       setIsPostAdModalOpen(true);
@@ -165,13 +163,13 @@ function App() {
           }
         />
         <Route
-  path="/messages/:conversationId"
-  element={
-    <ProtectedRoute>
-      <MessagesPage />
-    </ProtectedRoute>
-  }
-/>
+          path="/messages/:conversationId"
+          element={
+            <ProtectedRoute>
+              <MessagesPage />
+            </ProtectedRoute>
+          }
+        />
         {/* 404 Catch-all Route */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

@@ -328,7 +328,7 @@ const CitiesTab: React.FC = () => {
 
         <button
           onClick={openCreateModal}
-          className="flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors"
+          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 rounded-lg font-medium transition-colors"
         >
           <Plus className="h-4 w-4" />
           <span>Add City</span>
@@ -497,7 +497,7 @@ const CitiesTab: React.FC = () => {
                           <img
                             src={city.photo}
                             alt={city.name}
-                            className="h-10 w-10 object-cover rounded-lg border border-gray-200"
+                            className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                           />
                         ) : (
                           <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -750,7 +750,7 @@ const CitiesTab: React.FC = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting
                 ? "Saving..."
@@ -758,6 +758,7 @@ const CitiesTab: React.FC = () => {
                 ? "Update City"
                 : "Add City"}
             </button>
+        
           </div>
         </form>
       </BaseModal>

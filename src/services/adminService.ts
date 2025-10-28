@@ -631,6 +631,40 @@ class AdminService extends BaseApiService {
     }
   }
 
+  async createState(data: FormData) {
+    try {
+      const response = await this.post(
+        API_CONFIG.ENDPOINTS.ADMIN.STATES_LIST,
+        data
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error("Create state error:", error);
+      throw error;
+    }
+  }
+
+  async updateState(id: number, data: FormData) {
+    try {
+      const url = `${API_CONFIG.ENDPOINTS.ADMIN.STATES_LIST}${id}/`;
+      const response = await this.put(url, data);
+      return response.data;
+    } catch (error: any) {
+      console.error("Update state error:", error);
+      throw error;
+    }
+  }
+
+  async deleteState(id: number): Promise<void> {
+    try {
+      const url = `${API_CONFIG.ENDPOINTS.ADMIN.STATES_LIST}${id}/`;
+      await this.delete(url);
+    } catch (error: any) {
+      console.error("Delete state error:", error);
+      throw error;
+    }
+  }
+
   async getCategoryStats(): Promise<AdminCategoryStatsResponse> {
     try {
       const response = await this.get<AdminCategoryStatsResponse>(

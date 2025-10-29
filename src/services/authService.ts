@@ -377,6 +377,26 @@ class AuthService extends BaseApiService {
       return { user: null, isAuthenticated: false };
     }
   }
+
+  /**
+   * Update privacy settings
+   */
+  async updatePrivacySettings(settings: {
+    show_email?: boolean;
+    show_phone?: boolean;
+  }): Promise<{ show_email: boolean; show_phone: boolean }> {
+    try {
+      const response = await this.put<{ settings: { show_email: boolean; show_phone: boolean }; message: string }>(
+        API_CONFIG.ENDPOINTS.AUTH.PRIVACY_SETTINGS,
+        settings,
+        true
+      );
+      return response.data!.settings;
+    } catch (error: any) {
+      console.error("Update privacy settings error:", error);
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance

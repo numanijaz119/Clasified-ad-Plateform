@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { authService } from "../services/index";
-import { ProfileHeader } from "../components/profile";
-import { ProfileForm } from "../components/profile";
-import { PasswordChangeForm } from "../components/profile";
+import { ProfileHeader, ProfileForm, PasswordChangeForm, PrivacySettings } from "../components/profile";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import { useToast } from "../contexts/ToastContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -20,6 +18,8 @@ interface User {
   created_at: string;
   updated_at: string;
   avatar?: string;
+  show_email?: boolean;
+  show_phone?: boolean;
 }
 
 interface ProfileFormData {
@@ -40,10 +40,10 @@ const ProfilePage: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
 
   const [profileUpdating, setProfileUpdating] = useState(false);
   const [passwordUpdating, setPasswordUpdating] = useState(false);
+  const [privacyUpdating, setPrivacyUpdating] = useState(false);
 
   const { updateUser } = useAuth();
 
@@ -160,7 +160,6 @@ const ProfilePage: React.FC = () => {
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setProfileUpdating(true);
-    setUpdating(true);
     setErrors({});
 
     try {
@@ -205,7 +204,6 @@ const ProfilePage: React.FC = () => {
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordUpdating(true);
-    setUpdating(true);
     setErrors({});
 
     try {
@@ -294,6 +292,58 @@ const ProfilePage: React.FC = () => {
     setErrors({});
   };
 
+  const handleToggleEmail = async () => {
+    if (!user) return;
+    
+    try {
+      setPrivacyUpdating(true);
+      const updatedSettings = await authService.updatePrivacySettings({
+        show_email: !user.show_email,
+      });
+      
+      // Update user with new settings
+      const updatedUser = { ...user, ...updatedSettings };
+      setUser(updatedUser);
+      updateUser(updatedUser);
+      
+      toast.success(
+        updatedSettings.show_email 
+          ? "Email is now visible on your ads" 
+          : "Email is now hidden from your ads"
+      );
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update privacy settings");
+    } finally {
+      setPrivacyUpdating(false);
+    }
+  };
+
+  const handleTogglePhone = async () => {
+    if (!user) return;
+    
+    try {
+      setPrivacyUpdating(true);
+      const updatedSettings = await authService.updatePrivacySettings({
+        show_phone: !user.show_phone,
+      });
+      
+      // Update user with new settings
+      const updatedUser = { ...user, ...updatedSettings };
+      setUser(updatedUser);
+      updateUser(updatedUser);
+      
+      toast.success(
+        updatedSettings.show_phone 
+          ? "Phone is now visible on your ads" 
+          : "Phone is now hidden from your ads"
+      );
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update privacy settings");
+    } finally {
+      setPrivacyUpdating(false);
+    }
+  };
+
   if (loading) {
     return;
     <div className="min-h-screen">
@@ -374,7 +424,16 @@ const ProfilePage: React.FC = () => {
           />
         </div>
 
-       
+        {/* Privacy Settings */}
+        <div className="mt-8">
+          <PrivacySettings
+            showEmail={user.show_email || false}
+            showPhone={user.show_phone !== false}
+            onToggleEmail={handleToggleEmail}
+            onTogglePhone={handleTogglePhone}
+            updating={privacyUpdating}
+          />
+        </div>
       </div>
     </div>
   );

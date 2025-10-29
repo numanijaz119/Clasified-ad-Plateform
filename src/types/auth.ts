@@ -14,6 +14,8 @@ export interface User {
   updated_at: string;
   avatar?: string;
   google_id?: number;
+  show_email?: boolean;
+  show_phone?: boolean;
 }
 
 export interface AuthTokens {

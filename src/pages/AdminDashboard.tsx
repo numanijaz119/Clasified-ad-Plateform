@@ -25,6 +25,7 @@ import AnalyticsTab from "../components/admin/AnalyticsTab";
 import BannersTab from "../components/admin/BannersTab";
 import CitiesTab from "../components/admin/CitiesTab";
 import StatesTab from "../components/admin/StatesTab";
+import SettingsTab from "../components/admin/SettingsTab";
 import EarningsTab from "../components/admin/EarningTab";
 
 type TabId =
@@ -35,6 +36,7 @@ type TabId =
   | "categories"
   | "cities"
   | "states"
+  | "settings"
   | "earnings"
   | "analytics"
   | "banners";
@@ -47,16 +49,21 @@ interface Tab {
 
 const tabs: Tab[] = [
   { id: "overview", name: "Overview", icon: BarChart3 },
+  { id: "analytics", name: "Analytics", icon: TrendingUp },
+  { id: "earnings", name: "Earnings", icon: DollarSign },
+  
   { id: "posts", name: "Posts Review", icon: FileText },
   { id: "users", name: "Users", icon: Users },
   { id: "reports", name: "Reports", icon: Flag },
+  
   { id: "categories", name: "Categories", icon: Settings },
   { id: "cities", name: "Cities", icon: MapPin },
   { id: "states", name: "States", icon: MapPin },
-  { id: "earnings", name: "Earnings", icon: DollarSign },
-  { id: "analytics", name: "Analytics", icon: TrendingUp },
+  
   { id: "banners", name: "Banner Ads", icon: Image },
+  { id: "settings", name: "Settings", icon: Settings },
 ];
+
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -105,6 +112,8 @@ const AdminDashboard: React.FC = () => {
         return <CitiesTab />;
       case "states":
         return <StatesTab />;
+      case "settings":
+        return <SettingsTab />;
       case "earnings":
         return <EarningsTab />;
       case "analytics":

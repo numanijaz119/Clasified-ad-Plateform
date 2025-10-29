@@ -506,3 +506,18 @@ export interface AdminAnalyticsParams {
   state?: string;
   days?: number;
 }
+
+// ============================================================================
+// SYSTEM SETTINGS
+// ============================================================================
+
+export interface AdminSettings {
+  site_name: string;
+  contact_email: string;
+  support_phone: string;
+  allow_registration: boolean;
+  require_email_verification: boolean;
+  auto_approve_ads: boolean;
+  featured_ad_price: number;
+  featured_ad_duration_days: number;
+}

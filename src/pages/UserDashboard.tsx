@@ -57,8 +57,18 @@ const UserDashboard: React.FC = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [adToDelete, setAdToDelete] = useState<{ id: number; slug: string; title: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [featuredPricing, setFeaturedPricing] = useState({ price: 9.99, duration_days: 30 });
 
   const toast = useToast();
+  
+  // Fetch featured pricing
+  useEffect(() => {
+    adsService.getFeaturedPricing().then(pricing => {
+      setFeaturedPricing(pricing);
+    }).catch(err => {
+      console.error('Failed to load pricing:', err);
+    });
+  }, []);
 
   const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } =
     useListingModal();
@@ -365,7 +375,7 @@ const UserDashboard: React.FC = () => {
                 {stats.featuredAds}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                ${(stats.featuredAds * 9.99).toFixed(2)} invested
+                ${(stats.featuredAds * featuredPricing.price).toFixed(2)} invested
               </p>
             </div>
           </div>
@@ -806,7 +816,7 @@ const UserDashboard: React.FC = () => {
           </div>
         </div>
         <div className="mt-4 text-lg font-semibold text-gray-900">
-          Only $9.99 per ad for 30 days
+          Only ${featuredPricing.price} per ad for {featuredPricing.duration_days} days
         </div>
       </div>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -857,7 +867,7 @@ const UserDashboard: React.FC = () => {
                     className="ml-4 inline-flex items-center gap-2 self-end md:self-auto"
                   >
                     <Star className="h-4 w-4" />
-                    Promote - $9.99
+                    Promote - ${featuredPricing.price}
                   </Button>
                 </div>
               </div>
@@ -901,7 +911,7 @@ const UserDashboard: React.FC = () => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600 mb-1">
-                ${(stats.featuredAds * 9.99).toFixed(2)}
+                ${(stats.featuredAds * featuredPricing.price).toFixed(2)}
               </div>
               <div className="text-sm text-gray-600">Total Investment</div>
             </div>

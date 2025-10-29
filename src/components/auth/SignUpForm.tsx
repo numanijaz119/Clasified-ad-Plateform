@@ -15,11 +15,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   onGoogleSuccess,
 }) => {
   const { register, isLoading, error, clearError } = useAuth();
-  const [email, setEmail] = useState("mrwhite0798@gmail.com");
-  const [password, setPassword] = useState("abc@12345");
-  const [confirmPassword, setConfirmPassword] = useState("abc@12345");
-  const [firstName, setFirstName] = useState("Numan");
-  const [lastName, setLastName] = useState("Ijaz");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -62,11 +62,19 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 
       const response = await register(registerData);
 
-      // Registration successful - switch to verification step
-      onSuccess(
-        email,
-        response.message || "Registration successful! Please check your email."
-      );
+      // Check if verification is required
+      if (response.requires_verification === false) {
+        // Auto-verified, trigger success callback which will close modal
+        if (onGoogleSuccess) {
+          onGoogleSuccess();
+        }
+      } else {
+        // Registration successful - switch to verification step
+        onSuccess(
+          email,
+          response.message || "Registration successful! Please check your email."
+        );
+      }
     } catch (err: any) {
       console.error("Registration error:", err);
 

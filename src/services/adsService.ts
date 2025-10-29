@@ -579,6 +579,23 @@ class AdsService extends BaseService {
       throw error;
     }
   }
+
+  /**
+   * Get featured ad pricing and duration from settings
+   */
+  async getFeaturedPricing(): Promise<{ price: number; duration_days: number; currency: string }> {
+    try {
+      const response = await this.get<{ price: number; duration_days: number; currency: string }>(
+        `${API_CONFIG.ENDPOINTS.ADS.LIST}featured_pricing/`,
+        false
+      );
+      return response.data!;
+    } catch (error: any) {
+      console.error("Get featured pricing error:", error);
+      // Return defaults if error
+      return { price: 9.99, duration_days: 30, currency: 'USD' };
+    }
+  }
 }
 
 export const adsService = new AdsService();

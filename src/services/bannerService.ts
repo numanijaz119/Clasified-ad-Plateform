@@ -23,8 +23,6 @@ class BannerService extends BaseApiService {
         }`;
 
       const response = await this.get<PublicBanner[]>(url, false);
-      console.log("Fetching banners from:", url);
-
 
       if (response.data) {
         // Ensure image URLs are absolute

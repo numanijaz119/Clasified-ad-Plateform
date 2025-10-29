@@ -49,6 +49,7 @@ export interface RegisterResponse {
   user: User;
   tokens: AuthTokens;
   message: string;
+  requires_verification?: boolean;
 }
 
 export interface EmailVerificationRequest {

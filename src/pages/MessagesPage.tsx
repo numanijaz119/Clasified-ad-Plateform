@@ -52,15 +52,21 @@ const MessagesPage: React.FC = () => {
     sendMessage,
     markAsRead: markMessagesRead,
     refetch: refetchMessages,
+    refetchIncremental,
   } = useMessages(selectedConversation?.id || null);
 
   // Initial fetch and auto-refresh setup
   useEffect(() => {
     let isMounted = true;
-    let refreshTimer: NodeJS.Timeout;
+    let refreshTimer: ReturnType<typeof setTimeout>;
     
     const fetchData = async (isBackgroundRefresh = false) => {
       if (!isMounted) return;
+      
+      // Only refresh if page is visible
+      if (document.visibilityState !== 'visible' && isBackgroundRefresh) {
+        return;
+      }
       
       try {
         await refetchConversations(isBackgroundRefresh);
@@ -70,7 +76,7 @@ const MessagesPage: React.FC = () => {
       
       // Schedule next refresh only if component is still mounted
       if (isMounted) {
-        refreshTimer = setTimeout(() => fetchData(true), 10000); // 10 seconds
+        refreshTimer = setTimeout(() => fetchData(true), 30000); // 30 seconds (increased from 10)
       }
     };
     
@@ -96,16 +102,19 @@ const MessagesPage: React.FC = () => {
     };
   }, [refetchConversations]);
 
-  // Auto-refresh messages every 5 seconds when conversation is selected
+  // Auto-refresh messages when conversation is selected (incremental)
   useEffect(() => {
-    if (selectedConversation?.id) {
+    if (selectedConversation?.id && refetchIncremental) {
       const interval = setInterval(() => {
-        refetchMessages();
-      }, 5000); // 5 seconds
+        // Only refresh if page is visible
+        if (document.visibilityState === 'visible') {
+          refetchIncremental(); // Use incremental fetch instead of full refetch
+        }
+      }, 10000); // 10 seconds
 
       return () => clearInterval(interval);
     }
-  }, [selectedConversation?.id, refetchMessages]);
+  }, [selectedConversation?.id, refetchIncremental]);
 
   // Refetch list when switching between views
   useEffect(() => {

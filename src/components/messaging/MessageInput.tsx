@@ -1,5 +1,5 @@
 // src/components/messaging/MessageInput.tsx
-import React, { useState, useRef, KeyboardEvent } from 'react';
+import React, { useState, useRef, KeyboardEvent, useEffect } from 'react';
 import { Send, Loader } from 'lucide-react';
 
 interface MessageInputProps {
@@ -15,6 +15,22 @@ const MessageInput: React.FC<MessageInputProps> = ({
 }) => {
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const shouldRefocus = useRef(false);
+
+  // Auto-focus input when component mounts
+  useEffect(() => {
+    if (textareaRef.current && !disabled) {
+      textareaRef.current.focus();
+    }
+  }, [disabled]);
+
+  // Keep focus after sending message successfully
+  useEffect(() => {
+    if (shouldRefocus.current && textareaRef.current) {
+      textareaRef.current.focus();
+      shouldRefocus.current = false;
+    }
+  });
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -24,9 +40,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
     const success = await onSend(message);
     if (success) {
       setMessage('');
+      shouldRefocus.current = true;
       // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
+        // Keep focus on input after sending
+        textareaRef.current.focus();
       }
     }
   };

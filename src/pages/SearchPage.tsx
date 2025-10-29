@@ -114,13 +114,20 @@ const SearchPage: React.FC = () => {
         params.search = searchQuery;
       }
 
-      if (selectedCategory !== "all") {
-        params.category = selectedCategory;
+       if (selectedCategory !== "all") {
+        const categoryId = parseInt(selectedCategory, 10);
+        if (!isNaN(categoryId)) {
+          params.category = categoryId;
+        }
       }
 
       if (selectedCity !== "all") {
-        params.city = selectedCity;
+        const cityId = parseInt(selectedCity, 10);
+        if (!isNaN(cityId)) {
+          params.city = cityId;
+        }
       }
+  
 
       // Map sort options to API format
       const sortMapping: Record<string, string> = {

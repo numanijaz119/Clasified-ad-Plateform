@@ -1,5 +1,5 @@
 // src/App.tsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import Header from "./components/Header";
@@ -70,7 +70,6 @@ function App() {
 
   // Handle successful ad creation
   const handlePostAdSuccess = () => {
-    console.log("Ad created successfully!");
     toast.success("Ad created successfully!");
   };
 

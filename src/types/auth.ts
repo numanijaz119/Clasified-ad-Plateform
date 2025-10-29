@@ -14,6 +14,10 @@ export interface User {
   updated_at: string;
   avatar?: string;
   google_id?: number;
+  show_email?: boolean;
+  show_phone?: boolean;
+  email_notifications?: boolean;
+  email_message_notifications?: boolean;
 }
 
 export interface AuthTokens {
@@ -49,6 +53,7 @@ export interface RegisterResponse {
   user: User;
   tokens: AuthTokens;
   message: string;
+  requires_verification?: boolean;
 }
 
 export interface EmailVerificationRequest {

@@ -17,6 +17,7 @@ import {
 import { adminService, contentService } from "../../services";
 import { AdminDashboardStats } from "../../types/admin";
 import { State } from "../../types/content";
+import { useSettings } from "../../contexts/SettingsContext";
 
 const EarningsTab: React.FC = () => {
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
@@ -24,9 +25,10 @@ const EarningsTab: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedState, setSelectedState] = useState<string>("all");
+  const { settings } = useSettings();
 
-  // Hardcoded featured ad price (should come from backend settings)
-  const FEATURED_AD_PRICE = 9.99;
+  // Get featured ad price from settings
+  const FEATURED_AD_PRICE = settings?.featured_ad_price || 9.99;
 
   // Fetch states
   const fetchStates = useCallback(async () => {

@@ -39,6 +39,7 @@ import {
   AdminCategoryUpdateRequest,
   AdminCityCreateRequest,
   AdminCityUpdateRequest,
+  AdminSettings,
 } from "../types/admin";
 
 class AdminService extends BaseApiService {
@@ -631,6 +632,40 @@ class AdminService extends BaseApiService {
     }
   }
 
+  async createState(data: FormData) {
+    try {
+      const response = await this.post(
+        API_CONFIG.ENDPOINTS.ADMIN.STATES_LIST,
+        data
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error("Create state error:", error);
+      throw error;
+    }
+  }
+
+  async updateState(id: number, data: FormData) {
+    try {
+      const url = `${API_CONFIG.ENDPOINTS.ADMIN.STATES_LIST}${id}/`;
+      const response = await this.put(url, data);
+      return response.data;
+    } catch (error: any) {
+      console.error("Update state error:", error);
+      throw error;
+    }
+  }
+
+  async deleteState(id: number): Promise<void> {
+    try {
+      const url = `${API_CONFIG.ENDPOINTS.ADMIN.STATES_LIST}${id}/`;
+      await this.delete(url);
+    } catch (error: any) {
+      console.error("Delete state error:", error);
+      throw error;
+    }
+  }
+
   async getCategoryStats(): Promise<AdminCategoryStatsResponse> {
     try {
       const response = await this.get<AdminCategoryStatsResponse>(
@@ -697,7 +732,7 @@ class AdminService extends BaseApiService {
             }
           }
         });
-        
+
         const response = await this.post(
           API_CONFIG.ENDPOINTS.ADMIN.CITY_CREATE,
           formData
@@ -723,7 +758,7 @@ class AdminService extends BaseApiService {
         ":id",
         id.toString()
       );
-      
+
       // If there's a photo, use FormData
       if (data.photo) {
         const formData = new FormData();
@@ -736,7 +771,7 @@ class AdminService extends BaseApiService {
             }
           }
         });
-        
+
         const response = await this.put(url, formData);
         return response.data;
       } else {
@@ -753,7 +788,7 @@ class AdminService extends BaseApiService {
   async getCities(params?: { state?: string; is_active?: boolean; is_major?: boolean }) {
     try {
       let url = API_CONFIG.ENDPOINTS.ADMIN.CITIES_LIST;
-      
+
       if (params) {
         const queryParams = new URLSearchParams();
         if (params.state && params.state !== 'all') {
@@ -765,13 +800,13 @@ class AdminService extends BaseApiService {
         if (params.is_major !== undefined) {
           queryParams.append('is_major', params.is_major.toString());
         }
-        
+
         const queryString = queryParams.toString();
         if (queryString) {
           url += `?${queryString}`;
         }
       }
-      
+
       const response = await this.get<City[]>(url);
       return response.data || [];
     } catch (error: any) {
@@ -800,7 +835,7 @@ class AdminService extends BaseApiService {
   async exportAds(params?: any): Promise<Blob> {
     try {
       let url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ADMIN.EXPORT_ADS}`;
-      
+
       if (params) {
         const queryParams = new URLSearchParams();
         Object.entries(params).forEach(([key, value]) => {
@@ -835,7 +870,7 @@ class AdminService extends BaseApiService {
   async exportUsers(params?: any): Promise<Blob> {
     try {
       let url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ADMIN.EXPORT_USERS}`;
-      
+
       if (params) {
         const queryParams = new URLSearchParams();
         Object.entries(params).forEach(([key, value]) => {
@@ -870,7 +905,7 @@ class AdminService extends BaseApiService {
   async exportReports(params?: any): Promise<Blob> {
     try {
       let url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ADMIN.EXPORT_REPORTS}`;
-      
+
       if (params) {
         const queryParams = new URLSearchParams();
         Object.entries(params).forEach(([key, value]) => {
@@ -901,8 +936,37 @@ class AdminService extends BaseApiService {
       throw error;
     }
   }
+
+  // ============================================================================
+  // SYSTEM SETTINGS
+  // ============================================================================
+
+  async getSettings(): Promise<AdminSettings> {
+    try {
+      const response = await this.get<AdminSettings>(API_CONFIG.ENDPOINTS.ADMIN.SETTINGS);
+      return response.data!;
+    } catch (error: any) {
+      console.error("Get settings error:", error);
+      throw error;
+    }
+  }
+
+  async updateSettings(settings: Partial<AdminSettings>): Promise<AdminSettings> {
+    try {
+      const response = await this.put<AdminSettings>(
+        API_CONFIG.ENDPOINTS.ADMIN.SETTINGS_UPDATE,
+        settings
+      );
+      return response.data!;
+    } catch (error: any) {
+      console.error("Update settings error:", error);
+      throw error;
+    }
+  }
+
+
 }
 
-// Export singleton instance
+// Export singleton instance  
 const adminService = new AdminService();
 export { adminService };

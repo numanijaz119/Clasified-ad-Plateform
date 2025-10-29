@@ -71,7 +71,6 @@ const CitiesTab: React.FC = () => {
       ]);
       setCities(citiesData);
       setStates(statesData);
-      console.log("Loaded cities:", citiesData.length, "states:", statesData.length);
     } catch (err) {
       toast.error("Failed to load cities data");
       console.error("Load data error:", err);
@@ -216,9 +215,7 @@ const CitiesTab: React.FC = () => {
           updateData.photo = formData.photo;
         }
         
-        console.log("Updating city with data:", updateData);
-        const result = await adminService.updateCity(selectedCity.id, updateData);
-        console.log("Update result:", result);
+        await adminService.updateCity(selectedCity.id, updateData);
         toast.success("City updated successfully");
         setShowEditModal(false);
       } else {
@@ -235,9 +232,7 @@ const CitiesTab: React.FC = () => {
           cityData.photo = formData.photo;
         }
         
-        console.log("Creating city with data:", cityData);
-        const result = await adminService.createCity(cityData);
-        console.log("Create result:", result);
+        await adminService.createCity(cityData);
         toast.success("City created successfully");
         setShowCreateModal(false);
       }
@@ -262,9 +257,7 @@ const CitiesTab: React.FC = () => {
   const handleDelete = async () => {
     if (!selectedCity) return;
     try {
-      console.log("Deleting city:", selectedCity.name, "ID:", selectedCity.id);
       await adminService.deleteCity(selectedCity.id);
-      console.log("Delete successful");
       toast.success("City deleted successfully");
       setShowDeleteModal(false);
       setSelectedCity(null);
@@ -278,13 +271,11 @@ const CitiesTab: React.FC = () => {
 
   const toggleCityStatus = async (city: City) => {
     try {
-      console.log("Toggling city status for:", city.name, "Current status:", city.is_active);
       const newStatus = !city.is_active;
       const updateData: AdminCityUpdateRequest = {
         is_active: newStatus,
       };
-      const result = await adminService.updateCity(city.id, updateData);
-      console.log("Update result:", result);
+      await adminService.updateCity(city.id, updateData);
       
       // Reload data
       await loadData();
@@ -298,13 +289,11 @@ const CitiesTab: React.FC = () => {
 
   const toggleMajorStatus = async (city: City) => {
     try {
-      console.log("Toggling major status for:", city.name, "Current major status:", city.is_major);
       const newMajorStatus = !city.is_major;
       const updateData: AdminCityUpdateRequest = {
         is_major: newMajorStatus,
       };
-      const result = await adminService.updateCity(city.id, updateData);
-      console.log("Update result:", result);
+      await adminService.updateCity(city.id, updateData);
       
       // Reload data
       await loadData();
@@ -328,7 +317,7 @@ const CitiesTab: React.FC = () => {
 
         <button
           onClick={openCreateModal}
-          className="flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors"
+          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 rounded-lg font-medium transition-colors"
         >
           <Plus className="h-4 w-4" />
           <span>Add City</span>
@@ -497,7 +486,7 @@ const CitiesTab: React.FC = () => {
                           <img
                             src={city.photo}
                             alt={city.name}
-                            className="h-10 w-10 object-cover rounded-lg border border-gray-200"
+                            className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                           />
                         ) : (
                           <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -750,7 +739,7 @@ const CitiesTab: React.FC = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting
                 ? "Saving..."
@@ -758,6 +747,7 @@ const CitiesTab: React.FC = () => {
                 ? "Update City"
                 : "Add City"}
             </button>
+        
           </div>
         </form>
       </BaseModal>

@@ -2,24 +2,26 @@
 import React, { useState } from "react";
 import { Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSettings } from "../../contexts/SettingsContext";
 import GoogleSignInButton from "./GoogleSignInButton";
 
 interface SignInFormProps {
   onSuccess: () => void;
   onSwitchToSignUp: () => void;
   onSwitchToVerification: (email: string) => void;
-  onForgotPassword: () => void; // New prop for forgot password
+  onForgotPassword: () => void;
 }
 
 const SignInForm: React.FC<SignInFormProps> = ({
   onSuccess,
   onSwitchToSignUp,
   onSwitchToVerification,
-  onForgotPassword, // New prop
+  onForgotPassword,
 }) => {
   const { login, isLoading, resendVerification, error, clearError } = useAuth();
-  const [email, setEmail] = useState("mrwhite0798@gmail.com");
-  const [password, setPassword] = useState("abc@12345");
+  const { settings } = useSettings();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,7 +59,6 @@ const SignInForm: React.FC<SignInFormProps> = ({
           .toLowerCase()
           .includes("please verify your email address before logging in")
       ) {
-        console.log("EMAIL_NOT_VERIFIED detected - switching to verification");
         onSwitchToVerification(email);
         sendVerificationOtp();
         return; // Don't show error, just switch to verification
@@ -161,16 +162,18 @@ const SignInForm: React.FC<SignInFormProps> = ({
         </button>
       </form>
 
-      {/* Toggle to Sign Up */}
-      <div className="text-center">
-        <button
-          onClick={onSwitchToSignUp}
-          className="text-orange-500 hover:text-orange-600 font-medium"
-          disabled={isLoading}
-        >
-          Don't have an account? Sign Up
-        </button>
-      </div>
+      {/* Toggle to Sign Up - Only show if registration is allowed */}
+      {settings?.allow_registration !== false && (
+        <div className="text-center">
+          <button
+            onClick={onSwitchToSignUp}
+            className="text-orange-500 hover:text-orange-600 font-medium"
+            disabled={isLoading}
+          >
+            Don't have an account? Sign Up
+          </button>
+        </div>
+      )}
     </div>
   );
 };

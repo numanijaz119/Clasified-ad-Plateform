@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Star,
   Clock,
@@ -20,6 +20,7 @@ import BaseModal from "./modals/BaseModal";
 import { useAuth } from "../contexts/AuthContext";
 import { usePostAd } from "../hooks/usePostAd";
 import { useToast } from "../contexts/ToastContext";
+import { adsService } from "../services/adsService";
 
 interface PostAdModalProps {
   isOpen: boolean;
@@ -34,6 +35,8 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
 }) => {
   const { isAuthenticated } = useAuth();
   const toast = useToast();
+  const [featuredPricing, setFeaturedPricing] = useState({ price: 9.99, duration_days: 30 });
+  
   const {
     // State
     formData,
@@ -59,10 +62,16 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
     formatPhoneDisplay,
   } = usePostAd();
 
-  // Load data when modal opens
+  // Load data and pricing when modal opens
   useEffect(() => {
     if (isOpen && isAuthenticated) {
       loadData();
+      // Fetch featured pricing
+      adsService.getFeaturedPricing().then(pricing => {
+        setFeaturedPricing(pricing);
+      }).catch(err => {
+        console.error('Failed to load pricing:', err);
+      });
     }
   }, [isOpen, isAuthenticated, loadData]);
 
@@ -208,12 +217,12 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                 <h4 className="text-xl font-semibold text-gray-900">
                   Featured Ad
                 </h4>
-                <div className="text-3xl font-bold text-orange-600">$9.99</div>
+                <div className="text-3xl font-bold text-orange-600">${featuredPricing.price}</div>
               </div>
               <ul className="space-y-3 text-sm text-gray-600">
                 <li className="flex items-center">
                   <Clock className="h-4 w-4 mr-3 text-orange-500" />
-                  30 days duration
+                  {featuredPricing.duration_days} days duration
                 </li>
                 <li className="flex items-center">
                   <ImageIcon className="h-4 w-4 mr-3 text-orange-500" />
@@ -277,7 +286,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                   </span>
                 </div>
                 <div className="font-semibold text-gray-900">
-                  {selectedPlan === "free" ? "$0" : "$9.99"}
+                  {selectedPlan === "free" ? "$0" : `$${featuredPricing.price}`}
                 </div>
               </div>
             </div>
@@ -776,7 +785,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                 <>
                   Create Ad
                   {selectedPlan === "featured" && (
-                    <span className="ml-2 text-sm opacity-90">($9.99)</span>
+                    <span className="ml-2 text-sm opacity-90">(${featuredPricing.price})</span>
                   )}
                 </>
               )}

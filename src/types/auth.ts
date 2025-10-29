@@ -16,6 +16,8 @@ export interface User {
   google_id?: number;
   show_email?: boolean;
   show_phone?: boolean;
+  email_notifications?: boolean;
+  email_message_notifications?: boolean;
 }
 
 export interface AuthTokens {

@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Edit3, Mail, Phone, Check, X, Camera } from "lucide-react";
+import { User, Edit3, Mail, Phone, Camera } from "lucide-react";
 import Button from "../ui/Button";
 import Badge from "../ui/Badge";
 
@@ -24,22 +24,26 @@ interface ProfileHeaderProps {
   avatarPreview: string;
   onEditClick: () => void;
   onAvatarChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onAvatarDelete: () => void;
+  avatarDeleting: boolean;
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   user,
   isEditing,
-  isChangingPassword,
   avatarPreview,
   onEditClick,
   onAvatarChange,
+  onAvatarDelete,
+  avatarDeleting,
 }) => {
+  const hasAvatar = !!(avatarPreview || user.avatar);
   return (
     <div className="bg-white rounded-lg shadow mb-8">
       <div className="px-6 py-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
           {/* Avatar */}
-          <div className="relative">
+          <div className="relative flex flex-col items-center gap-2">
             <div className="w-24 h-24 bg-gray-200 rounded-full overflow-hidden">
               {avatarPreview || user.avatar ? (
                 <img
@@ -54,15 +58,26 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               )}
             </div>
             {isEditing && (
-              <label className="absolute bottom-0 right-0 bg-gradient-to-r from-orange-500 to-red-500 text-white p-2 rounded-full cursor-pointer hover:from-orange-600 hover:to-red-600 transition-all duration-200">
-                <Camera className="w-4 h-4" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={onAvatarChange}
-                  className="hidden"
-                />
-              </label>
+              <>
+                <label className="absolute bottom-8 right-0 bg-gradient-to-r from-orange-500 to-red-500 text-white p-2 rounded-full cursor-pointer hover:from-orange-600 hover:to-red-600 transition-all duration-200">
+                  <Camera className="w-4 h-4" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={onAvatarChange}
+                    className="hidden"
+                  />
+                </label>
+                {hasAvatar && (
+                  <button
+                    onClick={onAvatarDelete}
+                    disabled={avatarDeleting}
+                    className="text-xs text-red-600 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {avatarDeleting ? "Removing..." : "Remove"}
+                  </button>
+                )}
+              </>
             )}
           </div>
 

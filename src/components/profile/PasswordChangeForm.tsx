@@ -13,7 +13,7 @@ interface PasswordChangeData {
 
 interface PasswordChangeFormProps {
   user: User;
-  google_id: Number;
+  google_id?: number;
   isChangingPassword: boolean;
   passwordData: PasswordChangeData;
   showPassword: {

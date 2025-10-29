@@ -15,6 +15,7 @@ export const API_CONFIG = {
       PROFILE: "/api/auth/profile/",
       PROFILE_UPDATE: "/api/auth/profile/update/",
       PRIVACY_SETTINGS: "/api/auth/profile/privacy/",
+      NOTIFICATION_SETTINGS: "/api/auth/profile/notifications/",
       DELETE_AVATAR: "/api/auth/profile/avatar/delete/",
       FORGOT_PASSWORD: "/api/auth/password/forgot/",
       RESET_PASSWORD: "/api/auth/password/reset/",

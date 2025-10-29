@@ -257,6 +257,25 @@ class AuthService extends BaseApiService {
   }
 
   /**
+   * Delete user avatar
+   */
+  async deleteAvatar(): Promise<User> {
+    try {
+      await this.delete<{ message: string }>(
+        API_CONFIG.ENDPOINTS.AUTH.DELETE_AVATAR,
+        true
+      );
+
+      // Reload profile to get updated user data
+      const updatedUser = await this.getProfile();
+      return updatedUser;
+    } catch (error: any) {
+      console.error("Delete avatar error:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Delete user account
    */
   async deleteAccount(): Promise<void> {
@@ -386,14 +405,38 @@ class AuthService extends BaseApiService {
     show_phone?: boolean;
   }): Promise<{ show_email: boolean; show_phone: boolean }> {
     try {
-      const response = await this.put<{ settings: { show_email: boolean; show_phone: boolean }; message: string }>(
-        API_CONFIG.ENDPOINTS.AUTH.PRIVACY_SETTINGS,
-        settings,
-        true
-      );
+      const response = await this.put<{
+        settings: { show_email: boolean; show_phone: boolean };
+        message: string;
+      }>(API_CONFIG.ENDPOINTS.AUTH.PRIVACY_SETTINGS, settings, true);
       return response.data!.settings;
     } catch (error: any) {
       console.error("Update privacy settings error:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update notification settings
+   */
+  async updateNotificationSettings(settings: {
+    email_notifications?: boolean;
+    email_message_notifications?: boolean;
+  }): Promise<{
+    email_notifications: boolean;
+    email_message_notifications: boolean;
+  }> {
+    try {
+      const response = await this.put<{
+        settings: {
+          email_notifications: boolean;
+          email_message_notifications: boolean;
+        };
+        message: string;
+      }>(API_CONFIG.ENDPOINTS.AUTH.NOTIFICATION_SETTINGS, settings, true);
+      return response.data!.settings;
+    } catch (error: any) {
+      console.error("Update notification settings error:", error);
       throw error;
     }
   }

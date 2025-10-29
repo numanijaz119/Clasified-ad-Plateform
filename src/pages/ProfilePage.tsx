@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { authService } from "../services/index";
-import { ProfileHeader, ProfileForm, PasswordChangeForm, PrivacySettings } from "../components/profile";
+import {
+  ProfileHeader,
+  ProfileForm,
+  PasswordChangeForm,
+  PrivacySettings,
+  AccountDeletion,
+  NotificationSettings,
+} from "../components/profile";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import { useToast } from "../contexts/ToastContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -18,8 +26,11 @@ interface User {
   created_at: string;
   updated_at: string;
   avatar?: string;
+  google_id?: number;
   show_email?: boolean;
   show_phone?: boolean;
+  email_notifications?: boolean;
+  email_message_notifications?: boolean;
 }
 
 interface ProfileFormData {
@@ -44,8 +55,12 @@ const ProfilePage: React.FC = () => {
   const [profileUpdating, setProfileUpdating] = useState(false);
   const [passwordUpdating, setPasswordUpdating] = useState(false);
   const [privacyUpdating, setPrivacyUpdating] = useState(false);
+  const [notificationUpdating, setNotificationUpdating] = useState(false);
+  const [accountDeleting, setAccountDeleting] = useState(false);
+  const [avatarDeleting, setAvatarDeleting] = useState(false);
 
-  const { updateUser } = useAuth();
+  const { updateUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState({
     old: false,
@@ -344,11 +359,95 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      setAccountDeleting(true);
+      await authService.deleteAccount();
+      
+      toast.success("Account deleted successfully");
+      
+      // Logout and redirect to home
+      logout();
+      navigate("/");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete account");
+    } finally {
+      setAccountDeleting(false);
+    }
+  };
+
+  const handleAvatarDelete = async () => {
+    try {
+      setAvatarDeleting(true);
+      const updatedUser = await authService.deleteAvatar();
+      setUser(updatedUser);
+      updateUser(updatedUser);
+      setAvatarPreview("");
+
+      toast.success("Profile picture removed successfully!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to remove profile picture");
+    } finally {
+      setAvatarDeleting(false);
+    }
+  };
+
+  const handleToggleEmailNotifications = async () => {
+    if (!user) return;
+
+    try {
+      setNotificationUpdating(true);
+      const updatedSettings = await authService.updateNotificationSettings({
+        email_notifications: !user.email_notifications,
+      });
+
+      const updatedUser = { ...user, ...updatedSettings };
+      setUser(updatedUser);
+      updateUser(updatedUser);
+
+      toast.success(
+        updatedSettings.email_notifications
+          ? "Email notifications enabled"
+          : "Email notifications disabled"
+      );
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update notification settings");
+    } finally {
+      setNotificationUpdating(false);
+    }
+  };
+
+  const handleToggleEmailMessageNotifications = async () => {
+    if (!user) return;
+
+    try {
+      setNotificationUpdating(true);
+      const updatedSettings = await authService.updateNotificationSettings({
+        email_message_notifications: !user.email_message_notifications,
+      });
+
+      const updatedUser = { ...user, ...updatedSettings };
+      setUser(updatedUser);
+      updateUser(updatedUser);
+
+      toast.success(
+        updatedSettings.email_message_notifications
+          ? "Message notifications enabled"
+          : "Message notifications disabled"
+      );
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update notification settings");
+    } finally {
+      setNotificationUpdating(false);
+    }
+  };
+
   if (loading) {
-    return;
-    <div className="min-h-screen">
-      <LoadingSpinner message="Loading profile..." fullScreen />
-    </div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner text="Loading profile..." size="large" />
+      </div>
+    );
   }
 
   if (!user) {
@@ -378,6 +477,8 @@ const ProfilePage: React.FC = () => {
           avatarPreview={avatarPreview}
           onEditClick={handleEditProfile}
           onAvatarChange={handleAvatarChange}
+          onAvatarDelete={handleAvatarDelete}
+          avatarDeleting={avatarDeleting}
         />
 
         {/* Only show general errors that aren't handled by toast */}
@@ -411,6 +512,7 @@ const ProfilePage: React.FC = () => {
           {/* Password Change Form */}
           <PasswordChangeForm
             user={user}
+            google_id={user.google_id}
             isChangingPassword={isChangingPassword}
             passwordData={passwordData}
             showPassword={showPassword}
@@ -432,6 +534,29 @@ const ProfilePage: React.FC = () => {
             onToggleEmail={handleToggleEmail}
             onTogglePhone={handleTogglePhone}
             updating={privacyUpdating}
+          />
+        </div>
+
+        {/* Notification Settings */}
+        <div className="mt-8">
+          <NotificationSettings
+            emailNotifications={user.email_notifications !== false}
+            emailMessageNotifications={
+              user.email_message_notifications !== false
+            }
+            onToggleEmailNotifications={handleToggleEmailNotifications}
+            onToggleEmailMessageNotifications={
+              handleToggleEmailMessageNotifications
+            }
+            updating={notificationUpdating}
+          />
+        </div>
+
+        {/* Account Deletion */}
+        <div className="mt-8">
+          <AccountDeletion
+            onDelete={handleDeleteAccount}
+            updating={accountDeleting}
           />
         </div>
       </div>

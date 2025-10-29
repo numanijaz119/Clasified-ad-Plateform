@@ -30,30 +30,30 @@ export const useConversations = (options?: { status?: 'active' | 'archived' | 'b
       if (!isRefreshing && (!conversations || conversations.length === 0)) {
         setLoading(true);
       }
-      
+
       const response = await messagingService.getConversations({ status });
-      
+
       // Use functional update to ensure we have the latest state
       setConversations(prevConversations => {
         // Only update if there are actual changes to prevent unnecessary re-renders
         const newConversations = response.results;
-        
+
         // Check if the data has actually changed
         const hasChanges = JSON.stringify(prevConversations) !== JSON.stringify(newConversations);
-        
+
         if (hasChanges) {
           return newConversations;
         }
         return prevConversations;
       });
-      
+
       // Update unread count
       const newUnreadCount = response.results.reduce(
-        (count: number, conv: any) => count + (conv.unread_count || 0), 
+        (count: number, conv: any) => count + (conv.unread_count || 0),
         0
       );
       setUnreadCount(newUnreadCount);
-      
+
     } catch (err: any) {
       const errorMsg = err.message || 'Failed to load conversations';
       setError(errorMsg);
@@ -143,59 +143,59 @@ export const useConversations = (options?: { status?: 'active' | 'archived' | 'b
     }
   }, [toast]);
 
- const blockConversation = useCallback(async (conversationId: number) => {
-  try {
-    const response = await messagingService.blockConversation(conversationId);
-    
-    // Remove all conversations from the list (backend blocks all)
-    setConversations(prev => prev.filter(conv => conv.id !== conversationId));
-    
-    // Refresh unread count immediately to clear badges from blocked conversations
-    fetchUnreadCount();
-    
-    // Emit event to refresh global notification counts
-    eventBus.emit('conversations:refresh', { reason: 'user_blocked' });
-    
-    // Show count if available
-    const count = (response as any)?.blocked_count || 1;
-    const userName = (response as any)?.blocked_user_name || 'User';
-    
-    if (count > 1) {
-      toast.success(`${userName} blocked. ${count} conversations blocked.`);
-    } else {
-      toast.success(`${userName} blocked.`);
-    }
-  } catch (err: any) {
-    toast.error('Failed to block user');
-  }
-}, [toast, fetchUnreadCount]);
+  const blockConversation = useCallback(async (conversationId: number) => {
+    try {
+      const response = await messagingService.blockConversation(conversationId);
 
-const unblockConversation = useCallback(async (conversationId: number) => {
-  try {
-    const response = await messagingService.unblockConversation(conversationId);
-    
-    // Remove from blocked list
-    setConversations(prev => prev.filter(conv => conv.id !== conversationId));
-    
-    // Refresh unread count to restore badges if there are unread messages
-    fetchUnreadCount();
-    
-    // Emit event to refresh global notification counts
-    eventBus.emit('conversations:refresh', { reason: 'user_unblocked' });
-    
-    // Show count if available
-    const count = (response as any)?.unblocked_count || 1;
-    const userName = (response as any)?.unblocked_user_name || 'User';
-    
-    if (count > 1) {
-      toast.success(`${userName} unblocked. ${count} conversations restored.`);
-    } else {
-      toast.success(`${userName} unblocked.`);
+      // Remove all conversations from the list (backend blocks all)
+      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+
+      // Refresh unread count immediately to clear badges from blocked conversations
+      fetchUnreadCount();
+
+      // Emit event to refresh global notification counts
+      eventBus.emit('conversations:refresh', { reason: 'user_blocked' });
+
+      // Show count if available
+      const count = (response as any)?.blocked_count || 1;
+      const userName = (response as any)?.blocked_user_name || 'User';
+
+      if (count > 1) {
+        toast.success(`${userName} blocked. ${count} conversations blocked.`);
+      } else {
+        toast.success(`${userName} blocked.`);
+      }
+    } catch (err: any) {
+      toast.error('Failed to block user');
     }
-  } catch (err: any) {
-    toast.error('Failed to unblock user');
-  }
-}, [toast, fetchUnreadCount]);
+  }, [toast, fetchUnreadCount]);
+
+  const unblockConversation = useCallback(async (conversationId: number) => {
+    try {
+      const response = await messagingService.unblockConversation(conversationId);
+
+      // Remove from blocked list
+      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+
+      // Refresh unread count to restore badges if there are unread messages
+      fetchUnreadCount();
+
+      // Emit event to refresh global notification counts
+      eventBus.emit('conversations:refresh', { reason: 'user_unblocked' });
+
+      // Show count if available
+      const count = (response as any)?.unblocked_count || 1;
+      const userName = (response as any)?.unblocked_user_name || 'User';
+
+      if (count > 1) {
+        toast.success(`${userName} unblocked. ${count} conversations restored.`);
+      } else {
+        toast.success(`${userName} unblocked.`);
+      }
+    } catch (err: any) {
+      toast.error('Failed to unblock user');
+    }
+  }, [toast, fetchUnreadCount]);
 
   // Wrap the refetch function to handle the refreshing state
   const refetch = useCallback(async (isRefreshing = false) => {
@@ -225,42 +225,72 @@ export const useMessages = (conversationId: number | null) => {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastFetchTime, setLastFetchTime] = useState<string | null>(null);
   const toast = useToast();
 
-  const fetchMessages = useCallback(async () => {
+  const fetchMessages = useCallback(async (incremental = false) => {
     if (!conversationId) return;
-    
+
     try {
-      setLoading(true);
+      if (!incremental) {
+        setLoading(true);
+      }
       setError(null);
-      const response = await messagingService.getMessages({
+
+      // For incremental fetch, only get messages after the last fetch
+      const params: any = {
         conversation_id: conversationId,
-      });
-      setMessages(response.results);
-      // Emit preview update using the last message received
-      const last = response.results[response.results.length - 1];
-      if (last) {
+      };
+
+      if (incremental && lastFetchTime) {
+        params.since = lastFetchTime;
+      }
+
+      const response = await messagingService.getMessages(params);
+
+      if (incremental && lastFetchTime) {
+        // Append new messages to existing ones
+        if (response.results.length > 0) {
+          setMessages(prev => [...prev, ...response.results]);
+          console.log(`Fetched ${response.results.length} new messages incrementally`);
+        }
+      } else {
+        // Replace all messages (initial load)
+        setMessages(response.results);
+      }
+
+      // Update last fetch time to the most recent message timestamp
+      if (response.results.length > 0) {
+        const lastMessage = response.results[response.results.length - 1];
+        setLastFetchTime(lastMessage.created_at);
+
+        // Emit preview update using the last message received
         eventBus.emit<ConversationPreviewUpdate>('conversation:update', {
           conversationId: conversationId,
-          lastMessage: last,
-          lastMessageAt: last.created_at,
-          // unreadDelta will be handled by server counts; do not bump here
+          lastMessage: lastMessage,
+          lastMessageAt: lastMessage.created_at,
         });
       }
     } catch (err: any) {
       const errorMsg = err.message || 'Failed to load messages';
       setError(errorMsg);
-      toast.error(errorMsg);
+      if (!incremental) {
+        toast.error(errorMsg);
+      }
     } finally {
-      setLoading(false);
+      if (!incremental) {
+        setLoading(false);
+      }
     }
-  }, [conversationId, toast]);
+  }, [conversationId, lastFetchTime, toast]);
 
   useEffect(() => {
     if (conversationId) {
-      fetchMessages();
+      // Reset last fetch time when conversation changes
+      setLastFetchTime(null);
+      fetchMessages(false);
     }
-  }, [conversationId, fetchMessages]);
+  }, [conversationId]);
 
   const sendMessage = useCallback(async (content: string) => {
     if (!conversationId || !content.trim()) return false;
@@ -274,7 +304,7 @@ export const useMessages = (conversationId: number | null) => {
       };
 
       const newMessage = await messagingService.sendMessage(messageData);
-      
+
       // Add new message to list
       setMessages(prev => [...prev, newMessage]);
       // Emit immediate preview update (no unread delta for self send)
@@ -284,18 +314,18 @@ export const useMessages = (conversationId: number | null) => {
         lastMessageAt: newMessage.created_at,
         unreadDelta: 0,
       });
-      
+
       return true;
     } catch (err: any) {
       // Parse error message from backend
       let errorMessage = 'Failed to send message';
-      
+
       if (err.details?.conversation) {
         // Handle conversation-level errors (e.g., blocked)
-        const conversationError = Array.isArray(err.details.conversation) 
-          ? err.details.conversation[0] 
+        const conversationError = Array.isArray(err.details.conversation)
+          ? err.details.conversation[0]
           : err.details.conversation;
-        
+
         if (conversationError.includes('blocked')) {
           errorMessage = 'Cannot send message. This conversation is blocked.';
         } else {
@@ -304,7 +334,7 @@ export const useMessages = (conversationId: number | null) => {
       } else if (err.message) {
         errorMessage = err.message;
       }
-      
+
       toast.error(errorMessage);
       return false;
     } finally {
@@ -334,6 +364,7 @@ export const useMessages = (conversationId: number | null) => {
     sendMessage,
     markAsRead,
     refetch: fetchMessages,
+    refetchIncremental: () => fetchMessages(true), // New method for incremental fetching
   };
 };
 

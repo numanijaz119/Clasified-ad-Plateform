@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "./";
 import { useAuth } from "../contexts/AuthContext";
+import { useStateContext } from "../contexts/StateContext";
 import { NotificationBell, MessageIcon } from './messaging';
 
 /**
@@ -55,6 +56,7 @@ const Header: React.FC<HeaderProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { user } = useAuth();
+  const { currentState } = useStateContext();
 
   const handleProfileClick = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen);
@@ -69,21 +71,23 @@ const Header: React.FC<HeaderProps> = ({
     <header className="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
+          {/* Logo - Dynamic based on state */}
           <div className="flex items-center">
             <Link to="/">
               <div className="flex-shrink-0 flex items-center">
-                <img
-                  src="/DesiloginILlogo.webp"
-                  className="h-16 w-auto object-contain hover:opacity-90 transition-opacity"
-                  alt="DesiLogin Logo"
-                />
-                <div
-                  className="w-24 h-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center mr-3"
-                  style={{ display: "none" }}
-                >
-                  <span className="text-white font-bold text-3xl">DL</span>
-                </div>
+                {currentState?.logo ? (
+                  <img
+                    src={currentState.logo}
+                    className="h-16 w-auto object-contain hover:opacity-90 transition-opacity"
+                    alt={`${currentState.name} Logo`}
+                  />
+                ) : (
+                  <img
+                    src="/DesiloginILlogo.webp"
+                    className="h-16 w-auto object-contain hover:opacity-90 transition-opacity"
+                    alt="DesiLogin Logo"
+                  />
+                )}
               </div>
             </Link>
           </div>

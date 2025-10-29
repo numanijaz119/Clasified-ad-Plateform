@@ -199,12 +199,11 @@ MESSAGING: {
       BANNER_TOGGLE: "/api/administrator/banners/:id/toggle/",
       BANNER_ANALYTICS: "/api/administrator/banners/:id/analytics/",
 
-      // Content Management
+      // Content Management - States
       STATES_LIST: "/api/administrator/states/",
       STATE_DETAIL: "/api/administrator/states/:id/",
-      STATE_UPDATE: "/api/administrator/states/:id/",
-      STATE_DELETE: "/api/administrator/states/:id/",
-
+      
+      // Content Management - Categories
       CATEGORIES_LIST: "/api/administrator/categories/",
       CATEGORIES_STATS: "/api/administrator/categories/stats/",
       // Query params: ?state=IL (or 'all')
@@ -214,6 +213,7 @@ MESSAGING: {
       CATEGORY_UPDATE: "/api/administrator/categories/:id/",
       CATEGORY_DELETE: "/api/administrator/categories/:id/",
 
+      // Content Management - Cities
       CITIES_LIST: "/api/administrator/cities/",
       // Query params: ?state=IL&is_active=true&is_major=true
       

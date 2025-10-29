@@ -10,11 +10,13 @@ import {
   Heart,
 } from "lucide-react";
 import { useSettings } from "../contexts/SettingsContext";
+import { useStateContext } from "../contexts/StateContext";
 import { contentService } from "../services";
 import type { Category, City } from "../types/content";
 
 const Footer = () => {
   const { settings } = useSettings();
+  const { currentState } = useStateContext();
   const [categories, setCategories] = useState<Category[]>([]);
   const [cities, setCities] = useState<City[]>([]);
 
@@ -57,19 +59,29 @@ const Footer = () => {
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Company Info */}
+          {/* Company Info - Dynamic based on state */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">IC</span>
-              </div>
+              {currentState?.logo ? (
+                <img 
+                  src={currentState.logo} 
+                  alt={`${currentState.name} Logo`}
+                  className="h-10 w-auto object-contain"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">IC</span>
+                </div>
+              )}
               <div className="ml-3">
-                <h3 className="text-xl font-bold">Illinois Connect</h3>
+                <h3 className="text-xl font-bold">
+                  DesiLogin {currentState?.code || 'IL'}
+                </h3>
                 <p className="text-sm text-gray-400">Indian Community Hub</p>
               </div>
             </Link>
             <p className="text-gray-300 mb-6 leading-relaxed">
-              Connecting the Indian community across Illinois. Find jobs, homes,
+              Connecting the Indian community across {currentState?.name || 'Illinois'}. Find jobs, homes,
               services, and build meaningful connections with fellow Indians in
               your area.
             </p>
@@ -194,15 +206,15 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar */}
+        {/* Bottom Bar - Dynamic based on state */}
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row items-center justify-between">
           <div className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} DesiLogInIL.com. All rights reserved.
+            © {new Date().getFullYear()} {currentState?.domain || 'DesiLogInIL.com'}. All rights reserved.
           </div>
           <div className="flex items-center text-gray-400 text-sm">
             <span>Made with</span>
             <Heart className="h-4 w-4 mx-1 text-red-500 fill-current" />
-            <span>for the Desi community in Illinois</span>
+            <span>for the Desi community in {currentState?.name || 'Illinois'}</span>
           </div>
         </div>
       </div>

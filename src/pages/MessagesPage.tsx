@@ -77,7 +77,7 @@ const MessagesPage: React.FC = () => {
 
       // Schedule next refresh only if component is still mounted
       if (isMounted) {
-        refreshTimer = setTimeout(() => fetchData(true), 30000); // 30 seconds (increased from 10)
+        refreshTimer = setTimeout(() => fetchData(true), 3000); // 3 seconds for faster notifications
       }
     };
 
@@ -111,7 +111,7 @@ const MessagesPage: React.FC = () => {
         if (document.visibilityState === "visible") {
           refetchIncremental(); // Use incremental fetch instead of full refetch
         }
-      }, 10000); // 10 seconds
+      }, 2000); // 2 seconds for faster message delivery
 
       return () => clearInterval(interval);
     }

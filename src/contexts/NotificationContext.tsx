@@ -144,7 +144,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     const interval = setInterval(() => {
       refreshUnreadCounts();
-    }, 10000); // 10 seconds
+    }, 3000); // 3 seconds for faster notification updates
 
     return () => clearInterval(interval);
   }, [isAuthenticated, refreshUnreadCounts]);

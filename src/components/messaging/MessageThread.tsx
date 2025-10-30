@@ -19,10 +19,18 @@ const MessageThread: React.FC<MessageThreadProps> = ({ messages, loading, conver
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Sort chronologically
-  const sortedMessages = [...messages].sort(
-    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-  );
+  // Sort chronologically and deduplicate
+  const sortedMessages = React.useMemo(() => {
+    // Deduplicate messages by ID (safety check for duplicate keys)
+    const uniqueMessages = messages.filter(
+      (msg, index, self) => index === self.findIndex(m => m.id === msg.id)
+    );
+
+    // Sort chronologically
+    return uniqueMessages.sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+  }, [messages]);
 
   /** Scroll instantly to bottom when conversation changes */
   useEffect(() => {
@@ -51,7 +59,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({ messages, loading, conver
         // User is at bottom → auto scroll
         container.scrollTo({
           top: container.scrollHeight,
-          behavior: isOwnMessage ? "smooth" : "auto",
+          behavior: isOwnMessage ? "instant" : "auto",
         });
         setIsAtBottom(true);
         setUnreadCount(0);
@@ -84,7 +92,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({ messages, loading, conver
   const scrollToBottom = () => {
     const container = containerRef.current;
     if (container) {
-      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
       setIsAtBottom(true);
       setUnreadCount(0);
     }

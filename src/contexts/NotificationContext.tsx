@@ -30,8 +30,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Initialize notification sound
   useEffect(() => {
-    audioRef.current = new Audio("/notification.mp3");
-    audioRef.current.volume = 0.5;
+    try {
+      audioRef.current = new Audio("/notification.mp3");
+      audioRef.current.volume = 0.5;
+    } catch (error) {
+      console.warn("Notification sound not available:", error);
+    }
   }, []);
 
   const playNotificationSound = useCallback(() => {

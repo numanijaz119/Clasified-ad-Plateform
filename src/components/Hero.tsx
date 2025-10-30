@@ -5,6 +5,7 @@ import SearchBar from "./SearchBar";
 import { useCities } from "../hooks/useCities";
 import { useCategories } from "../hooks/useCategories";
 import { HeaderBanner } from "./common/BannerLayouts";
+import { MapPin } from "lucide-react";
 
 const Hero: React.FC = () => {
   const { cities: citiesData, loading: citiesLoading, error: citiesError } = useCities();

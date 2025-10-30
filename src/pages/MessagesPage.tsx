@@ -111,7 +111,7 @@ const MessagesPage: React.FC = () => {
         if (document.visibilityState === "visible") {
           refetchIncremental(); // Use incremental fetch instead of full refetch
         }
-      }, 10000); // 10 seconds
+      }, 2000); // 2 seconds for faster message delivery
 
       return () => clearInterval(interval);
     }

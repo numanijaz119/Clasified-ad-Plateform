@@ -59,7 +59,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             </div>
             {isEditing && (
               <>
-                <label className="absolute bottom-8 right-0 bg-gradient-to-r from-orange-500 to-red-500 text-white p-2 rounded-full cursor-pointer hover:from-orange-600 hover:to-red-600 transition-all duration-200">
+                <label className="absolute bottom-4 -right-[10px] bg-gradient-to-r from-orange-500 to-red-500 text-white p-2 rounded-full cursor-pointer hover:from-orange-600 hover:to-red-600 transition-all duration-200">
                   <Camera className="w-4 h-4" />
                   <input
                     type="file"
@@ -86,15 +86,17 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             <h1 className="text-3xl font-bold text-gray-900">
               {user.full_name}
             </h1>
-            <div className="flex items-center space-x-2 mt-2">
-              <Mail className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-600">{user.email}</span>
-              {user.email_verified ? (
-                <Badge variant="success">Verified</Badge>
-              ) : (
-                <Badge variant="error">Not Verified</Badge>
-              )}
-            </div>
+       
+              <div className="flex items-center space-x-2 mt-2">
+                <Mail className="w-4 h-4 text-gray-500" />
+                <span className="text-gray-600">{user.email}</span>
+                {user.email_verified ? (
+                  <Badge variant="success">Verified</Badge>
+                ) : (
+                  <Badge variant="error">Not Verified</Badge>
+                )}
+              </div>
+            
             {user.phone && (
               <div className="flex items-center space-x-2 mt-1">
                 <Phone className="w-4 h-4 text-gray-500" />

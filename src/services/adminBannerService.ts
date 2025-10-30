@@ -34,7 +34,6 @@ class AdminBannerService extends BaseApiService {
       const response = await this.get<AdminBannerListResponse>(url);
       return response.data || { count: 0, next: null, previous: null, results: [] };
     } catch (error: any) {
-      console.error("Get admin banners error:", error);
       throw error;
     }
   }
@@ -53,7 +52,6 @@ class AdminBannerService extends BaseApiService {
       
       return response.data;
     } catch (error: any) {
-      console.error("Get admin banner error:", error);
       throw error;
     }
   }
@@ -92,7 +90,6 @@ class AdminBannerService extends BaseApiService {
 
       return response.data;
     } catch (error: any) {
-      console.error("Create admin banner error:", error);
       throw error;
     }
   }
@@ -130,7 +127,6 @@ class AdminBannerService extends BaseApiService {
 
       return response.data;
     } catch (error: any) {
-      console.error("Update admin banner error:", error);
       throw error;
     }
   }
@@ -143,7 +139,6 @@ class AdminBannerService extends BaseApiService {
       const url = buildUrl(API_CONFIG.ENDPOINTS.ADMIN.BANNER_DELETE, { id: id.toString() });
       await this.delete(url);
     } catch (error: any) {
-      console.error("Delete admin banner error:", error);
       throw error;
     }
   }
@@ -162,7 +157,6 @@ class AdminBannerService extends BaseApiService {
 
       return response.data;
     } catch (error: any) {
-      console.error("Toggle admin banner error:", error);
       throw error;
     }
   }
@@ -181,7 +175,6 @@ class AdminBannerService extends BaseApiService {
 
       return response.data;
     } catch (error: any) {
-      console.error("Get banner analytics error:", error);
       throw error;
     }
   }

@@ -36,7 +36,6 @@ class BannerService extends BaseApiService {
 
       return [];
     } catch (error: any) {
-      console.error("Get banners error:", error);
       return []; // Return empty array on error instead of throwing
     }
   }
@@ -54,7 +53,6 @@ class BannerService extends BaseApiService {
 
       await this.post(url, data, false);
     } catch (error) {
-      console.error("Track impression error:", error);
       // Silently fail - don't disrupt user experience
     }
   }
@@ -72,7 +70,6 @@ class BannerService extends BaseApiService {
 
       await this.post(url, data, false);
     } catch (error) {
-      console.error("Track click error:", error);
       // Silently fail - don't disrupt user experience
     }
   }

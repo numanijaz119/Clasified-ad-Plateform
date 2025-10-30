@@ -327,3 +327,61 @@
     @apply outline-none ring-0;
   }
 }
+
+/* ==
+==========================================================================
+   RANGE SLIDER STYLES
+   ============================================================================ */
+
+/* Custom range slider for priority */
+input[type="range"].slider-orange {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  border-radius: 6px;
+  outline: none;
+}
+
+input[type="range"].slider-orange::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f97316;
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+input[type="range"].slider-orange::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f97316;
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+input[type="range"].slider-orange::-webkit-slider-thumb:hover {
+  background: #ea580c;
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+input[type="range"].slider-orange::-moz-range-thumb:hover {
+  background: #ea580c;
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+input[type="range"].slider-orange::-webkit-slider-thumb:active {
+  transform: scale(1.05);
+}
+
+input[type="range"].slider-orange::-moz-range-thumb:active {
+  transform: scale(1.05);
+}

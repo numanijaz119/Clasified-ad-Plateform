@@ -383,10 +383,17 @@ const UserProfile: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Email Address
                     </label>
-                    <p className="text-gray-900 flex items-center">
-                      <Mail className="w-4 h-4 mr-2 text-gray-400" />
-                      {profileData.email}
-                    </p>
+                    {profileData.show_email !== false ? (
+                      <p className="text-gray-900 flex items-center">
+                        <Mail className="w-4 h-4 mr-2 text-gray-400" />
+                        {profileData.email}
+                      </p>
+                    ) : (
+                      <p className="text-gray-500 flex items-center">
+                        <Mail className="w-4 h-4 mr-2 text-gray-400" />
+                        Hidden by user
+                      </p>
+                    )}
                   </div>
 
                   <div>

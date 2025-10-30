@@ -27,6 +27,8 @@ interface User {
   created_at: string;
   updated_at: string;
   avatar?: string;
+  show_email?: boolean;
+  show_phone?: boolean;
 }
 
 interface ProfileFormData {
@@ -303,21 +305,23 @@ const ProfilePage: React.FC = () => {
                 <h1 className="text-3xl font-bold text-gray-900">
                   {user.full_name}
                 </h1>
-                <div className="flex items-center space-x-2 mt-2">
-                  <Mail className="w-4 h-4 text-gray-500" />
-                  <span className="text-gray-600">{user.email}</span>
-                  {user.email_verified ? (
-                    <div className="flex items-center space-x-1">
-                      <Check className="w-4 h-4 text-green-500" />
-                      <span className="text-green-600 text-sm">Verified</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-1">
-                      <X className="w-4 h-4 text-red-500" />
-                      <span className="text-red-600 text-sm">Not Verified</span>
-                    </div>
-                  )}
-                </div>
+                {user.show_email !== false && (
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Mail className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-600">{user.email}</span>
+                    {user.email_verified ? (
+                      <div className="flex items-center space-x-1">
+                        <Check className="w-4 h-4 text-green-500" />
+                        <span className="text-green-600 text-sm">Verified</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-1">
+                        <X className="w-4 h-4 text-red-500" />
+                        <span className="text-red-600 text-sm">Not Verified</span>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {user.phone && (
                   <div className="flex items-center space-x-2 mt-1">
                     <Phone className="w-4 h-4 text-gray-500" />
@@ -461,12 +465,14 @@ const ProfilePage: React.FC = () => {
                   </label>
                   <p className="text-gray-900 mt-1">{user.last_name}</p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <p className="text-gray-900 mt-1">{user.email}</p>
-                </div>
+                {user.show_email !== false && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Email
+                    </label>
+                    <p className="text-gray-900 mt-1">{user.email}</p>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Phone Number

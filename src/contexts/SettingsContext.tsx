@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { adminService } from '../services/adminService';
+import { useAuth } from './AuthContext';
 
 interface Settings {
   site_name: string;
@@ -23,13 +24,20 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
+  const { user, isAuthenticated } = useAuth();
 
   const refreshSettings = async () => {
+    // Only fetch settings if user is authenticated and is an admin
+    if (!isAuthenticated || !user?.is_staff) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await adminService.getSettings();
       setSettings(data);
     } catch (error) {
-      console.error('Failed to load settings:', error);
+      // Silently fail - settings are optional
     } finally {
       setLoading(false);
     }
@@ -37,12 +45,13 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   useEffect(() => {
     refreshSettings();
-    
-    // Refresh settings every 30 seconds
-    const interval = setInterval(refreshSettings, 30000);
-    
-    return () => clearInterval(interval);
-  }, []);
+
+    // Only set up interval if user is admin
+    if (isAuthenticated && user?.is_staff) {
+      const interval = setInterval(refreshSettings, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, user?.is_staff]);
 
   return (
     <SettingsContext.Provider value={{ settings, loading, refreshSettings }}>

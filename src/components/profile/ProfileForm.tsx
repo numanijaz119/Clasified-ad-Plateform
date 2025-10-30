@@ -168,12 +168,14 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             </label>
             <p className="text-gray-900 mt-1 py-2">{user.last_name}</p>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <p className="text-gray-900 mt-1 py-2">{user.email}</p>
-          </div>
+          {user.show_email !== false && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <p className="text-gray-900 mt-1 py-2">{user.email}</p>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Phone Number

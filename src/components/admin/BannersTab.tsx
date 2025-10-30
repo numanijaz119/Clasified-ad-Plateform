@@ -41,7 +41,6 @@ const BannersTab: React.FC = () => {
   const [states, setStates] = useState<State[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [pagination, setPagination] = useState({
     count: 0,
     next: null as string | null,
@@ -110,7 +109,6 @@ const BannersTab: React.FC = () => {
       });
     } catch (err) {
       toast.error("Failed to load banners");
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -121,7 +119,7 @@ const BannersTab: React.FC = () => {
       const response = await contentService.getStates();
       setStates(response);
     } catch (err) {
-      console.error("Failed to load states:", err);
+      // Silently fail - states are optional
     }
   };
 
@@ -130,14 +128,12 @@ const BannersTab: React.FC = () => {
       const response = await contentService.getCategories();
       setCategories(response);
     } catch (err) {
-      console.error("Failed to load categories:", err);
+      // Silently fail - categories are optional
     }
   };
 
   const handleRefresh = async () => {
-    setRefreshing(true);
     await loadBanners();
-    setRefreshing(false);
     toast.success("Banners refreshed");
   };
 
@@ -181,8 +177,6 @@ const BannersTab: React.FC = () => {
       const data = await adminBannerService.getBannerAnalytics(banner.id);
       setAnalytics(data);
     } catch (err: any) {
-      console.error("Analytics fetch error:", err);
-
       // For now, show mock data if API fails (for development/testing)
       const mockAnalytics = {
         banner_info: {
@@ -1715,8 +1709,8 @@ const BannersTab: React.FC = () => {
 
             {/* Priority Slider */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Priority (Higher = Shows First)
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Display Priority
               </label>
               <div className="flex items-center space-x-4">
                 <input
@@ -1730,24 +1724,38 @@ const BannersTab: React.FC = () => {
                       priority: Number(e.target.value),
                     }))
                   }
-                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  className="flex-1 h-3 rounded-lg appearance-none cursor-pointer slider-orange"
                   style={{
                     background: `linear-gradient(to right, #f97316 0%, #f97316 ${formData.priority}%, #e5e7eb ${formData.priority}%, #e5e7eb 100%)`,
                   }}
                 />
-                <span className="text-lg font-semibold text-gray-900 w-12 text-right">
-                  {formData.priority}
-                </span>
+                <div className="flex flex-col items-center">
+                  <span className="text-2xl font-bold text-orange-600 w-16 text-center">
+                    {formData.priority}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {formData.priority === 0 && "Lowest"}
+                    {formData.priority > 0 && formData.priority < 30 && "Low"}
+                    {formData.priority >= 30 && formData.priority < 70 && "Medium"}
+                    {formData.priority >= 70 && formData.priority < 100 && "High"}
+                    {formData.priority === 100 && "Highest"}
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>Low (0)</span>
-                <span>Medium (50)</span>
-                <span>High (100)</span>
+              <div className="flex justify-between text-xs text-gray-500 mt-2">
+                <span>0</span>
+                <span>25</span>
+                <span>50</span>
+                <span>75</span>
+                <span>100</span>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Banners with higher priority appear first. Same priority? Newer
-                shows first.
-              </p>
+              <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-xs text-blue-800">
+                  <strong>How it works:</strong> Banners with higher priority values display first. 
+                  If multiple banners have the same priority, newer ones appear first. 
+                  Set to 100 for maximum visibility, 0 for lowest.
+                </p>
+              </div>
             </div>
 
             {/* Schedule */}

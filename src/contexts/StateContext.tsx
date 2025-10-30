@@ -52,7 +52,7 @@ export const StateProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         updateBranding(data);
       }
     } catch (error) {
-      console.error('Failed to load current state:', error);
+      // Silently fail - state detection is optional
     } finally {
       setLoading(false);
     }

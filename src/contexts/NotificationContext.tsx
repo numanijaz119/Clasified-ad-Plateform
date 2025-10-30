@@ -103,7 +103,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setLastMessageCount(messageCount);
       setLastNotificationCount(notificationCount);
     } catch (error) {
-      console.error('Failed to fetch unread counts:', error);
+      // Silently fail - notifications are not critical
     }
   }, [isAuthenticated, isInitialized, lastMessageCount, lastNotificationCount, activeConversationId, toast, playNotificationSound]);
 

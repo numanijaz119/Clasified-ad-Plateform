@@ -21,8 +21,7 @@ const Button: React.FC<ButtonProps> = ({
     primary:
       "bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600",
     secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50",
-    outline:
-      "bg-transparent text-orange-600 border border-orange-500 hover:bg-orange-50",
+    outline: "bg-transparent text-orange-600 border border-orange-500 hover:bg-orange-50",
     ghost: "text-gray-700 hover:text-orange-500",
     danger: "bg-red-600 text-white hover:bg-red-700",
   };

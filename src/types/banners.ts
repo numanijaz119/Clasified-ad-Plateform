@@ -27,4 +27,5 @@ export interface BannerListParams {
   position?: BannerPosition;
   state?: string;
   category?: number;
+  city?: number;
 }

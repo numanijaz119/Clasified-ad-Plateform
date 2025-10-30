@@ -28,15 +28,11 @@ interface PostAdModalProps {
   onSuccess?: () => void;
 }
 
-const PostAdModal: React.FC<PostAdModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess,
-}) => {
+const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSuccess }) => {
   const { isAuthenticated } = useAuth();
   const toast = useToast();
   const [featuredPricing, setFeaturedPricing] = useState({ price: 9.99, duration_days: 30 });
-  
+
   const {
     // State
     formData,
@@ -67,11 +63,14 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
     if (isOpen && isAuthenticated) {
       loadData();
       // Fetch featured pricing
-      adsService.getFeaturedPricing().then(pricing => {
-        setFeaturedPricing(pricing);
-      }).catch(err => {
-        console.error('Failed to load pricing:', err);
-      });
+      adsService
+        .getFeaturedPricing()
+        .then(pricing => {
+          setFeaturedPricing(pricing);
+        })
+        .catch(err => {
+          console.error("Failed to load pricing:", err);
+        });
     }
   }, [isOpen, isAuthenticated, loadData]);
 
@@ -89,9 +88,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
       if (errors.submit) {
         toast.error(errors.submit);
       } else {
-        toast.error(
-          "Failed to create ad. Please check the form and try again."
-        );
+        toast.error("Failed to create ad. Please check the form and try again.");
       }
     }
   };
@@ -105,22 +102,15 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
   // Login required screen
   if (!isAuthenticated) {
     return (
-      <BaseModal
-        isOpen={isOpen}
-        onClose={onClose}
-        maxWidth="max-w-md"
-        showCloseButton={false}
-      >
+      <BaseModal isOpen={isOpen} onClose={onClose} maxWidth="max-w-md" showCloseButton={false}>
         <div className="p-6 text-center">
           <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <User className="h-8 w-8 text-orange-500" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Sign In Required
-          </h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Sign In Required</h2>
           <p className="text-gray-600 mb-6">
-            You need to sign in to post an advertisement. This helps us maintain
-            quality and security for all users.
+            You need to sign in to post an advertisement. This helps us maintain quality and
+            security for all users.
           </p>
           <div className="flex space-x-3">
             <button
@@ -147,12 +137,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
   // Loading state
   if (loadingData) {
     return (
-      <BaseModal
-        isOpen={isOpen}
-        onClose={onClose}
-        title="Post Your Ad"
-        maxWidth="max-w-4xl"
-      >
+      <BaseModal isOpen={isOpen} onClose={onClose} title="Post Your Ad" maxWidth="max-w-4xl">
         <div className="p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading categories and cities...</p>
@@ -214,9 +199,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                 Recommended
               </div>
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-xl font-semibold text-gray-900">
-                  Featured Ad
-                </h4>
+                <h4 className="text-xl font-semibold text-gray-900">Featured Ad</h4>
                 <div className="text-3xl font-bold text-orange-600">${featuredPricing.price}</div>
               </div>
               <ul className="space-y-3 text-sm text-gray-600">
@@ -261,12 +244,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
 
   // Main form
   return (
-    <BaseModal
-      isOpen={isOpen}
-      onClose={handleClose}
-      title="Create Your Ad"
-      maxWidth="max-w-5xl"
-    >
+    <BaseModal isOpen={isOpen} onClose={handleClose} title="Create Your Ad" maxWidth="max-w-5xl">
       <form onSubmit={handleSubmit} className="p-6">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {/* Left Column - Basic Info */}
@@ -275,9 +253,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
             <div className="bg-gray-50 rounded-lg p-4 border">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  {selectedPlan === "featured" && (
-                    <Star className="h-5 w-5 text-orange-500" />
-                  )}
+                  {selectedPlan === "featured" && <Star className="h-5 w-5 text-orange-500" />}
                   <span className="font-medium text-gray-900">
                     {selectedPlan === "free" ? "Free Ad" : "Featured Ad"}
                   </span>
@@ -301,17 +277,14 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
               <div className="space-y-4">
                 {/* Title */}
                 <div>
-                  <label
-                    htmlFor="title"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
+                  <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
                     Ad Title *
                   </label>
                   <input
                     id="title"
                     type="text"
                     value={formData.title}
-                    onChange={(e) => updateField("title", e.target.value)}
+                    onChange={e => updateField("title", e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
                       errors.title ? "border-red-500" : "border-gray-300"
                     }`}
@@ -342,13 +315,13 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                     <select
                       id="category"
                       value={formData.category}
-                      onChange={(e) => updateField("category", e.target.value)}
+                      onChange={e => updateField("category", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
                         errors.category ? "border-red-500" : "border-gray-300"
                       }`}
                     >
                       <option value="">Select category</option>
-                      {categories.map((category) => (
+                      {categories.map(category => (
                         <option key={category.id} value={category.id}>
                           {category.name}
                         </option>
@@ -364,23 +337,20 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
 
                   {/* City */}
                   <div>
-                    <label
-                      htmlFor="city"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
+                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
                       <MapPin className="h-4 w-4 inline mr-1" />
                       City *
                     </label>
                     <select
                       id="city"
                       value={formData.city}
-                      onChange={(e) => updateField("city", e.target.value)}
+                      onChange={e => updateField("city", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
                         errors.city ? "border-red-500" : "border-gray-300"
                       }`}
                     >
                       <option value="">Select city</option>
-                      {cities.map((city) => (
+                      {cities.map(city => (
                         <option key={city.id} value={city.id}>
                           {city.name}
                           {city.state_code && `, ${city.state_code}`}
@@ -407,7 +377,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                   <textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => updateField("description", e.target.value)}
+                    onChange={e => updateField("description", e.target.value)}
                     rows={4}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors resize-vertical ${
                       errors.description ? "border-red-500" : "border-gray-300"
@@ -448,7 +418,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                       { value: "contact", label: "Contact for Price" },
                       { value: "free", label: "Free" },
                       { value: "swap", label: "Swap/Trade" },
-                    ].map((option) => (
+                    ].map(option => (
                       <label
                         key={option.value}
                         className={`flex items-center justify-center p-2 border rounded-lg cursor-pointer transition-colors text-sm ${
@@ -462,9 +432,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                           name="price_type"
                           value={option.value}
                           checked={formData.price_type === option.value}
-                          onChange={(e) =>
-                            updateField("price_type", e.target.value)
-                          }
+                          onChange={e => updateField("price_type", e.target.value)}
                           className="sr-only"
                         />
                         {option.label}
@@ -476,8 +444,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                 {/* Price Input & Condition Row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Price */}
-                  {(formData.price_type === "fixed" ||
-                    formData.price_type === "negotiable") && (
+                  {(formData.price_type === "fixed" || formData.price_type === "negotiable") && (
                     <div>
                       <label
                         htmlFor="price"
@@ -489,7 +456,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                         id="price"
                         type="number"
                         value={formData.price}
-                        onChange={(e) => updateField("price", e.target.value)}
+                        onChange={e => updateField("price", e.target.value)}
                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
                           errors.price ? "border-red-500" : "border-gray-300"
                         }`}
@@ -525,7 +492,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                     <select
                       id="condition"
                       value={formData.condition}
-                      onChange={(e) => updateField("condition", e.target.value)}
+                      onChange={e => updateField("condition", e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
                     >
                       <option value="not_applicable">Not Applicable</option>
@@ -551,7 +518,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                     id="keywords"
                     type="text"
                     value={formData.keywords}
-                    onChange={(e) => updateField("keywords", e.target.value)}
+                    onChange={e => updateField("keywords", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
                     placeholder="e.g., iPhone, Apple, smartphone, unlocked"
                     maxLength={500}
@@ -589,9 +556,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                   <p className="text-sm text-gray-600 mb-2">
                     Drag & drop images or click to browse
                   </p>
-                  <p className="text-xs text-gray-500 mb-4">
-                    PNG, JPG, GIF up to 5MB each
-                  </p>
+                  <p className="text-xs text-gray-500 mb-4">PNG, JPG, GIF up to 5MB each</p>
                   <label className="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 cursor-pointer transition-colors">
                     <Upload className="h-4 w-4 mr-2" />
                     Choose Images
@@ -599,7 +564,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                       type="file"
                       multiple
                       accept="image/*"
-                      onChange={(e) => handleImageUpload(e.target.files)}
+                      onChange={e => handleImageUpload(e.target.files)}
                       className="hidden"
                     />
                   </label>
@@ -663,13 +628,9 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                     id="contact_email"
                     type="email"
                     value={formData.contact_email}
-                    onChange={(e) =>
-                      updateField("contact_email", e.target.value)
-                    }
+                    onChange={e => updateField("contact_email", e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
-                      errors.contact_email
-                        ? "border-red-500"
-                        : "border-gray-300"
+                      errors.contact_email ? "border-red-500" : "border-gray-300"
                     }`}
                     placeholder="your.email@example.com"
                   />
@@ -693,16 +654,14 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                     id="contact_phone"
                     type="tel"
                     value={formatPhoneDisplay(formData.contact_phone)}
-                    onChange={(e) => {
+                    onChange={e => {
                       const cleaned = e.target.value.replace(/\D/g, "");
                       if (cleaned.length <= 10) {
                         updateField("contact_phone", cleaned);
                       }
                     }}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
-                      errors.contact_phone
-                        ? "border-red-500"
-                        : "border-gray-300"
+                      errors.contact_phone ? "border-red-500" : "border-gray-300"
                     }`}
                     placeholder="(555) 123-4567"
                   />
@@ -719,9 +678,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
                       <input
                         type="checkbox"
                         checked={formData.hide_phone}
-                        onChange={(e) =>
-                          updateField("hide_phone", e.target.checked)
-                        }
+                        onChange={e => updateField("hide_phone", e.target.checked)}
                         className="text-orange-500 focus:ring-orange-500 rounded mr-2"
                       />
                       <EyeOff className="h-4 w-4 mr-1 text-gray-500" />
@@ -798,17 +755,11 @@ const PostAdModal: React.FC<PostAdModalProps> = ({
           <div className="flex items-start">
             <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" />
             <div>
-              <h4 className="text-sm font-medium text-blue-800 mb-2">
-                Before you submit
-              </h4>
+              <h4 className="text-sm font-medium text-blue-800 mb-2">Before you submit</h4>
               <ul className="text-sm text-blue-700 space-y-1">
-                <li>
-                  • Your ad will be reviewed within 24 hours before going live
-                </li>
+                <li>• Your ad will be reviewed within 24 hours before going live</li>
                 <li>• Use clear, high-quality images for better engagement</li>
-                <li>
-                  • Write a detailed description to attract serious buyers
-                </li>
+                <li>• Write a detailed description to attract serious buyers</li>
                 <li>• Check your contact information is correct</li>
               </ul>
             </div>

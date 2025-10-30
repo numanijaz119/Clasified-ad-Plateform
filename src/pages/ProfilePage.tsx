@@ -113,25 +113,25 @@ const ProfilePage: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
     // Clear field-specific error when user starts typing
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+      setErrors(prev => ({ ...prev, [name]: "" }));
     }
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setPasswordData((prev) => ({
+    setPasswordData(prev => ({
       ...prev,
       [name]: value,
     }));
     // Clear field-specific error when user starts typing
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+      setErrors(prev => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -142,7 +142,7 @@ const ProfilePage: React.FC = () => {
       if (!file.type.startsWith("image/")) {
         const errorMsg = "Please select a valid image file";
         toast.error(errorMsg);
-        setErrors((prev) => ({ ...prev, avatar: errorMsg }));
+        setErrors(prev => ({ ...prev, avatar: errorMsg }));
         return;
       }
 
@@ -150,13 +150,13 @@ const ProfilePage: React.FC = () => {
       if (file.size > 5 * 1024 * 1024) {
         const errorMsg = "Image size must be less than 5MB";
         toast.error(errorMsg);
-        setErrors((prev) => ({ ...prev, avatar: errorMsg }));
+        setErrors(prev => ({ ...prev, avatar: errorMsg }));
         return;
       }
 
       // Truncate filename if too long
       const processedFile = truncateFilename(file);
-      setFormData((prev) => ({ ...prev, avatar: processedFile }));
+      setFormData(prev => ({ ...prev, avatar: processedFile }));
 
       // Create preview
       const reader = new FileReader();
@@ -167,7 +167,7 @@ const ProfilePage: React.FC = () => {
 
       // Clear avatar error
       if (errors.avatar) {
-        setErrors((prev) => ({ ...prev, avatar: "" }));
+        setErrors(prev => ({ ...prev, avatar: "" }));
       }
     }
   };
@@ -268,7 +268,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const togglePasswordVisibility = (field: "old" | "new" | "confirm") => {
-    setShowPassword((prev) => ({
+    setShowPassword(prev => ({
       ...prev,
       [field]: !prev[field],
     }));
@@ -309,21 +309,21 @@ const ProfilePage: React.FC = () => {
 
   const handleToggleEmail = async () => {
     if (!user) return;
-    
+
     try {
       setPrivacyUpdating(true);
       const updatedSettings = await authService.updatePrivacySettings({
         show_email: !user.show_email,
       });
-      
+
       // Update user with new settings
       const updatedUser = { ...user, ...updatedSettings };
       setUser(updatedUser);
       updateUser(updatedUser);
-      
+
       toast.success(
-        updatedSettings.show_email 
-          ? "Email is now visible on your ads" 
+        updatedSettings.show_email
+          ? "Email is now visible on your ads"
           : "Email is now hidden from your ads"
       );
     } catch (error: any) {
@@ -335,21 +335,21 @@ const ProfilePage: React.FC = () => {
 
   const handleTogglePhone = async () => {
     if (!user) return;
-    
+
     try {
       setPrivacyUpdating(true);
       const updatedSettings = await authService.updatePrivacySettings({
         show_phone: !user.show_phone,
       });
-      
+
       // Update user with new settings
       const updatedUser = { ...user, ...updatedSettings };
       setUser(updatedUser);
       updateUser(updatedUser);
-      
+
       toast.success(
-        updatedSettings.show_phone 
-          ? "Phone is now visible on your ads" 
+        updatedSettings.show_phone
+          ? "Phone is now visible on your ads"
           : "Phone is now hidden from your ads"
       );
     } catch (error: any) {
@@ -363,9 +363,9 @@ const ProfilePage: React.FC = () => {
     try {
       setAccountDeleting(true);
       await authService.deleteAccount();
-      
+
       toast.success("Account deleted successfully");
-      
+
       // Logout and redirect to home
       logout();
       navigate("/");
@@ -487,7 +487,7 @@ const ProfilePage: React.FC = () => {
             <div className="flex items-center">
               <div className="text-red-800 text-sm">{errors.general}</div>
               <button
-                onClick={() => setErrors((prev) => ({ ...prev, general: "" }))}
+                onClick={() => setErrors(prev => ({ ...prev, general: "" }))}
                 className="ml-auto text-red-500 hover:text-red-700"
               >
                 ×
@@ -541,23 +541,16 @@ const ProfilePage: React.FC = () => {
         <div className="mt-8">
           <NotificationSettings
             emailNotifications={user.email_notifications !== false}
-            emailMessageNotifications={
-              user.email_message_notifications !== false
-            }
+            emailMessageNotifications={user.email_message_notifications !== false}
             onToggleEmailNotifications={handleToggleEmailNotifications}
-            onToggleEmailMessageNotifications={
-              handleToggleEmailMessageNotifications
-            }
+            onToggleEmailMessageNotifications={handleToggleEmailMessageNotifications}
             updating={notificationUpdating}
           />
         </div>
 
         {/* Account Deletion */}
         <div className="mt-8">
-          <AccountDeletion
-            onDelete={handleDeleteAccount}
-            updating={accountDeleting}
-          />
+          <AccountDeletion onDelete={handleDeleteAccount} updating={accountDeleting} />
         </div>
       </div>
     </div>

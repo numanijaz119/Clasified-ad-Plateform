@@ -54,23 +54,11 @@ export interface AdUser {
 }
 
 // FIXED: Updated condition type to match backend exactly
-export type AdCondition =
-  | "new"
-  | "like_new"
-  | "good"
-  | "fair"
-  | "poor"
-  | "not_applicable";
+export type AdCondition = "new" | "like_new" | "good" | "fair" | "poor" | "not_applicable";
 
 export type AdPriceType = "fixed" | "negotiable" | "contact" | "free" | "swap";
 
-export type AdStatus =
-  | "draft"
-  | "pending"
-  | "approved"
-  | "rejected"
-  | "expired"
-  | "sold";
+export type AdStatus = "draft" | "pending" | "approved" | "rejected" | "expired" | "sold";
 
 export type AdPlan = "free" | "featured";
 
@@ -109,8 +97,8 @@ export interface Ad {
   images: AdImage[];
   primary_image?: AdImage;
   is_favorite?: boolean;
-  is_owner?: boolean;  // NEW: Indicates if current user owns this ad
-  user_id?: number;     // NEW: Owner's user ID for quick ownership checks
+  is_owner?: boolean; // NEW: Indicates if current user owns this ad
+  user_id?: number; // NEW: Owner's user ID for quick ownership checks
 }
 
 // FIXED: Updated CreateAdRequest to match backend serializer exactly
@@ -168,13 +156,7 @@ export interface AdListParams {
   condition?: AdCondition[];
   plan?: AdPlan;
   status?: AdStatus;
-  sort_by?:
-    | "newest"
-    | "oldest"
-    | "alphabetical"
-    | "price_low"
-    | "price_high"
-    | "relevance";
+  sort_by?: "newest" | "oldest" | "alphabetical" | "price_low" | "price_high" | "relevance";
   has_images?: boolean;
   has_phone?: boolean;
   is_featured?: boolean;

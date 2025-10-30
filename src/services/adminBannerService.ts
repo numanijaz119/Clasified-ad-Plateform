@@ -45,11 +45,11 @@ class AdminBannerService extends BaseApiService {
     try {
       const url = buildUrl(API_CONFIG.ENDPOINTS.ADMIN.BANNER_DETAIL, { id: id.toString() });
       const response = await this.get<AdminBanner>(url);
-      
+
       if (!response.data) {
         throw new Error("Banner not found");
       }
-      
+
       return response.data;
     } catch (error: any) {
       throw error;
@@ -62,10 +62,10 @@ class AdminBannerService extends BaseApiService {
   async createBanner(data: AdminBannerCreateRequest): Promise<AdminBanner> {
     try {
       const formData = new FormData();
-      
+
       // Add text fields
       Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && key !== 'image') {
+        if (value !== undefined && value !== null && key !== "image") {
           if (Array.isArray(value)) {
             value.forEach(item => formData.append(key, item.toString()));
           } else {
@@ -76,7 +76,7 @@ class AdminBannerService extends BaseApiService {
 
       // Add image file if present
       if (data.image) {
-        formData.append('image', data.image);
+        formData.append("image", data.image);
       }
 
       const response = await this.post<AdminBanner>(
@@ -100,12 +100,12 @@ class AdminBannerService extends BaseApiService {
   async updateBanner(id: number, data: AdminBannerUpdateRequest): Promise<AdminBanner> {
     try {
       const url = buildUrl(API_CONFIG.ENDPOINTS.ADMIN.BANNER_UPDATE, { id: id.toString() });
-      
+
       const formData = new FormData();
-      
+
       // Add text fields
       Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && key !== 'image') {
+        if (value !== undefined && value !== null && key !== "image") {
           if (Array.isArray(value)) {
             value.forEach(item => formData.append(key, item.toString()));
           } else {
@@ -116,7 +116,7 @@ class AdminBannerService extends BaseApiService {
 
       // Add image file if present
       if (data.image) {
-        formData.append('image', data.image);
+        formData.append("image", data.image);
       }
 
       const response = await this.put<AdminBanner>(url, formData);

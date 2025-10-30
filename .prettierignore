@@ -1,0 +1,9 @@
+node_modules
+build
+dist
+.env
+*.lock
+Classified-Ad-Plateform-Backend/
+\Classified-Ad-Plateform-Backend
+Classified-Ad-Plateform-Backend\
+/Classified-Ad-Plateform-Backend

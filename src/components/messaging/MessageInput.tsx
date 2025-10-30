@@ -1,6 +1,6 @@
 // src/components/messaging/MessageInput.tsx
-import React, { useState, useRef, KeyboardEvent, useEffect } from 'react';
-import { Send, Loader } from 'lucide-react';
+import React, { useState, useRef, KeyboardEvent, useEffect } from "react";
+import { Send, Loader } from "lucide-react";
 
 interface MessageInputProps {
   onSend: (message: string) => Promise<boolean>;
@@ -8,12 +8,8 @@ interface MessageInputProps {
   sending?: boolean;
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({
-  onSend,
-  disabled,
-  sending,
-}) => {
-  const [message, setMessage] = useState('');
+const MessageInput: React.FC<MessageInputProps> = ({ onSend, disabled, sending }) => {
+  const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const shouldRefocus = useRef(false);
 
@@ -39,11 +35,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
     const success = await onSend(message);
     if (success) {
-      setMessage('');
+      setMessage("");
       shouldRefocus.current = true;
       // Reset textarea height
       if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
+        textareaRef.current.style.height = "auto";
         // Keep focus on input after sending
         textareaRef.current.focus();
       }
@@ -52,7 +48,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     // Send on Enter, new line on Shift+Enter
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
@@ -63,7 +59,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
     // Auto-resize textarea
     const textarea = e.target;
-    textarea.style.height = 'auto';
+    textarea.style.height = "auto";
     textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
   };
 
@@ -86,7 +82,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             disabled:bg-gray-100 disabled:cursor-not-allowed
             transition-colors
           "
-          style={{ maxHeight: '120px' }}
+          style={{ maxHeight: "120px" }}
         />
 
         {/* Send Button */}
@@ -96,18 +92,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
           className="btn-primary h-[41.33px] px-4 py-2 flex-shrink-0"
           aria-label="Send message"
         >
-          {sending ? (
-            <Loader className="h-5 w-5 animate-spin" />
-          ) : (
-            <Send className="h-5 w-5" />
-          )}
+          {sending ? <Loader className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
         </button>
       </div>
 
       {/* Helper Text */}
-      <p className="text-xs text-gray-400 mt-2">
-        Press Enter to send, Shift+Enter for new line
-      </p>
+      <p className="text-xs text-gray-400 mt-2">Press Enter to send, Shift+Enter for new line</p>
     </form>
   );
 };

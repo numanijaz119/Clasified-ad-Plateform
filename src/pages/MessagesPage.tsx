@@ -1,37 +1,38 @@
 // src/pages/MessagesPage.tsx - COMPLETE PROFESSIONAL VERSION
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { MessageCircle, ArrowLeft, MoreVertical, Archive, Ban, Search, X } from 'lucide-react';
-import { useConversations, useMessages } from '../hooks/useMessaging';
-import { messagingService } from '../services/messagingService';
-import ConversationList from '../components/messaging/ConversationList';
-import MessageThread from '../components/messaging/MessageThread';
-import MessageInput from '../components/messaging/MessageInput';
-import BlockUserModal from '../components/messaging/BlockUserModal';
-import ListingModal from '../components/ListingModal';
-import type { Conversation } from '../types/messaging';
-import { useNotificationContext } from '../contexts/NotificationContext';
-import { useToast } from '../contexts/ToastContext';
-import { useListingModal } from '../hooks/useListingModal';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { MessageCircle, ArrowLeft, MoreVertical, Archive, Ban, Search, X } from "lucide-react";
+import { useConversations, useMessages } from "../hooks/useMessaging";
+import { messagingService } from "../services/messagingService";
+import ConversationList from "../components/messaging/ConversationList";
+import MessageThread from "../components/messaging/MessageThread";
+import MessageInput from "../components/messaging/MessageInput";
+import BlockUserModal from "../components/messaging/BlockUserModal";
+import ListingModal from "../components/ListingModal";
+import type { Conversation } from "../types/messaging";
+import { useNotificationContext } from "../contexts/NotificationContext";
+import { useToast } from "../contexts/ToastContext";
+import { useListingModal } from "../hooks/useListingModal";
+import { useAuth } from "../contexts/AuthContext";
 
 const MessagesPage: React.FC = () => {
   const { conversationId } = useParams<{ conversationId?: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { refreshUnreadCounts, markMessagesAsRead, setActiveConversationId } = useNotificationContext();
+  const { refreshUnreadCounts, markMessagesAsRead, setActiveConversationId } =
+    useNotificationContext();
   const toast = useToast();
   const { user } = useAuth();
   const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } = useListingModal();
-  
+
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [showActions, setShowActions] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewStatus, setViewStatus] = useState<'active' | 'archived' | 'blocked'>('active');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewStatus, setViewStatus] = useState<"active" | "archived" | "blocked">("active");
   const [showListMenu, setShowListMenu] = useState(false);
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [conversationToBlock, setConversationToBlock] = useState<number | null>(null);
-  
+
   const {
     conversations,
     loading: loadingConversations,
@@ -59,46 +60,46 @@ const MessagesPage: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
     let refreshTimer: ReturnType<typeof setTimeout>;
-    
+
     const fetchData = async (isBackgroundRefresh = false) => {
       if (!isMounted) return;
-      
+
       // Only refresh if page is visible
-      if (document.visibilityState !== 'visible' && isBackgroundRefresh) {
+      if (document.visibilityState !== "visible" && isBackgroundRefresh) {
         return;
       }
-      
+
       try {
         await refetchConversations(isBackgroundRefresh);
       } catch (error) {
-        console.error('Error refreshing conversations:', error);
+        console.error("Error refreshing conversations:", error);
       }
-      
+
       // Schedule next refresh only if component is still mounted
       if (isMounted) {
         refreshTimer = setTimeout(() => fetchData(true), 30000); // 30 seconds (increased from 10)
       }
     };
-    
+
     // Initial fetch
     fetchData(false);
-    
+
     // Set up visibility change handler for more efficient refreshes
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         fetchData(true);
       } else {
         clearTimeout(refreshTimer);
       }
     };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     // Cleanup function
     return () => {
       isMounted = false;
       clearTimeout(refreshTimer);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [refetchConversations]);
 
@@ -107,7 +108,7 @@ const MessagesPage: React.FC = () => {
     if (selectedConversation?.id && refetchIncremental) {
       const interval = setInterval(() => {
         // Only refresh if page is visible
-        if (document.visibilityState === 'visible') {
+        if (document.visibilityState === "visible") {
           refetchIncremental(); // Use incremental fetch instead of full refetch
         }
       }, 10000); // 10 seconds
@@ -134,7 +135,7 @@ const MessagesPage: React.FC = () => {
   // Handle conversation selection from navigation state (from ad modal)
   useEffect(() => {
     const state = location.state as { conversationId?: number };
-    
+
     if (state?.conversationId && conversations.length > 0) {
       const conversation = conversations.find(c => c.id === state.conversationId);
       if (conversation) {
@@ -154,7 +155,13 @@ const MessagesPage: React.FC = () => {
       // Refresh counts after a short delay
       setTimeout(() => refreshUnreadCounts(), 500);
     }
-  }, [selectedConversation?.id, markAsRead, markMessagesRead, markMessagesAsRead, refreshUnreadCounts]);
+  }, [
+    selectedConversation?.id,
+    markAsRead,
+    markMessagesRead,
+    markMessagesAsRead,
+    refreshUnreadCounts,
+  ]);
 
   // Also mark any notifications related to this conversation as read
   useEffect(() => {
@@ -174,17 +181,17 @@ const MessagesPage: React.FC = () => {
 
   const handleSelectConversation = (conversation: Conversation) => {
     // Check if conversation is blocked (only show error if not in blocked view)
-    if (conversation.is_blocked && viewStatus !== 'blocked') {
-      toast.error('This conversation is blocked. Please unblock to continue.');
+    if (conversation.is_blocked && viewStatus !== "blocked") {
+      toast.error("This conversation is blocked. Please unblock to continue.");
       return;
     }
-    
+
     // In blocked view, don't open the conversation, just show it's selected
-    if (conversation.is_blocked && viewStatus === 'blocked') {
-      toast.info('Use the Unblock button below to restore this conversation.');
+    if (conversation.is_blocked && viewStatus === "blocked") {
+      toast.info("Use the Unblock button below to restore this conversation.");
       return;
     }
-    
+
     setSelectedConversation(conversation);
     setShowActions(false);
     // Update URL without page reload
@@ -194,9 +201,9 @@ const MessagesPage: React.FC = () => {
   };
 
   const handleBlockFromList = (convId: number) => {
-  setConversationToBlock(convId);
-  setShowBlockModal(true);
-};
+    setConversationToBlock(convId);
+    setShowBlockModal(true);
+  };
 
   const handleBackToList = () => {
     setSelectedConversation(null);
@@ -204,7 +211,7 @@ const MessagesPage: React.FC = () => {
     // Clear active conversation id
     setActiveConversationId(null);
     // Update URL without page reload
-    navigate('/messages', { replace: true });
+    navigate("/messages", { replace: true });
   };
 
   // Clear active conversation on unmount
@@ -216,7 +223,7 @@ const MessagesPage: React.FC = () => {
 
   const handleArchive = async () => {
     if (!selectedConversation) return;
-    
+
     await archiveConversation(selectedConversation.id);
     handleBackToList();
   };
@@ -227,21 +234,21 @@ const MessagesPage: React.FC = () => {
     setShowActions(false);
   };
 
-const handleConfirmBlock = async () => {
-  if (!conversationToBlock) return;
-  
-  await blockConversation(conversationToBlock);
-  
-  if (selectedConversation?.id === conversationToBlock) {
-    handleBackToList();
-  }
-  
-  setConversationToBlock(null);
-}
+  const handleConfirmBlock = async () => {
+    if (!conversationToBlock) return;
 
-const handleUnblockFromList = async (convId: number) => {
-  await unblockConversation(convId);
-};
+    await blockConversation(conversationToBlock);
+
+    if (selectedConversation?.id === conversationToBlock) {
+      handleBackToList();
+    }
+
+    setConversationToBlock(null);
+  };
+
+  const handleUnblockFromList = async (convId: number) => {
+    await unblockConversation(convId);
+  };
 
   // handleUnblock removed - unblock now happens directly from conversation list
 
@@ -249,16 +256,16 @@ const handleUnblockFromList = async (convId: number) => {
     if (!selectedConversation) return;
     await unarchiveConversation(selectedConversation.id);
     handleBackToList();
-    setViewStatus('active');
+    setViewStatus("active");
   };
 
   const handleSendMessage = async (content: string) => {
     // Check if conversation is blocked before sending
     if (selectedConversation?.is_blocked) {
-      toast.error('Cannot send message. This conversation is blocked.');
+      toast.error("Cannot send message. This conversation is blocked.");
       return false;
     }
-    
+
     const success = await sendMessage(content);
     if (success) {
       // Silently refresh conversations to update last message
@@ -271,11 +278,11 @@ const handleUnblockFromList = async (convId: number) => {
   // Filter conversations by search query
   const filteredConversations = conversations.filter(conv => {
     if (!searchQuery.trim()) return true;
-    
+
     const query = searchQuery.toLowerCase();
     const userName = conv.other_user.full_name.toLowerCase();
     const adTitle = conv.ad.title.toLowerCase();
-    
+
     return userName.includes(query) || adTitle.includes(query);
   });
 
@@ -283,7 +290,7 @@ const handleUnblockFromList = async (convId: number) => {
   const handleAdClick = async (adId: number) => {
     // Find the conversation with this ad to get the slug
     const conv = conversations.find(c => c.ad.id === adId);
-    
+
     if (conv) {
       try {
         // Provide minimal BasicAd structure - full details will be fetched by slug
@@ -291,22 +298,22 @@ const handleUnblockFromList = async (convId: number) => {
           id: conv.ad.id,
           slug: conv.ad.slug,
           title: conv.ad.title,
-          description: '',
+          description: "",
           price: 0,
-          price_type: 'fixed',
+          price_type: "fixed",
           display_price: conv.ad.display_price,
-          category: { id: 0, name: '', icon: '' },
-          city: { id: 0, name: '' },
-          state: { id: 0, name: '', code: '' },
-          plan: 'free',
+          category: { id: 0, name: "", icon: "" },
+          city: { id: 0, name: "" },
+          state: { id: 0, name: "", code: "" },
+          plan: "free",
           view_count: 0,
-          time_since_posted: '',
+          time_since_posted: "",
           is_featured_active: false,
           created_at: new Date().toISOString(),
         } as any);
       } catch (error) {
-        console.error('Error opening ad modal:', error);
-        toast.error('Failed to open ad details');
+        console.error("Error opening ad modal:", error);
+        toast.error("Failed to open ad details");
       }
     }
   };
@@ -329,12 +336,12 @@ const handleUnblockFromList = async (convId: number) => {
         </div> */}
 
         {/* Main Content */}
-        <div className="card overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
+        <div className="card overflow-hidden" style={{ height: "calc(100vh - 160px)" }}>
           <div className="flex h-full">
             {/* Conversations List - Left Side */}
             <div
               className={`
-                ${selectedConversation ? 'hidden md:block' : 'block'}
+                ${selectedConversation ? "hidden md:block" : "block"}
                 w-full md:w-96 border-r border-gray-200 flex flex-col overflow-y-auto scrollbar-thin
               `}
             >
@@ -342,7 +349,11 @@ const handleUnblockFromList = async (convId: number) => {
               <div className="p-4 border-b border-gray-200 bg-gray-50 sticky top-0 z-10">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-medium text-gray-700">
-                    {viewStatus === 'blocked' ? 'Blocked chats' : viewStatus === 'archived' ? 'Archived chats' : 'Active chats'}
+                    {viewStatus === "blocked"
+                      ? "Blocked chats"
+                      : viewStatus === "archived"
+                        ? "Archived chats"
+                        : "Active chats"}
                   </p>
                   <div className="relative">
                     <button
@@ -354,23 +365,41 @@ const handleUnblockFromList = async (convId: number) => {
                     </button>
                     {showListMenu && (
                       <>
-                        <div className="fixed inset-0 z-10" onClick={() => setShowListMenu(false)} />
+                        <div
+                          className="fixed inset-0 z-10"
+                          onClick={() => setShowListMenu(false)}
+                        />
                         <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
                           <button
                             className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                            onClick={() => { setViewStatus('active'); setShowListMenu(false); setSelectedConversation(null); navigate('/messages', { replace: true }); }}
+                            onClick={() => {
+                              setViewStatus("active");
+                              setShowListMenu(false);
+                              setSelectedConversation(null);
+                              navigate("/messages", { replace: true });
+                            }}
                           >
                             Show Active Chats
                           </button>
                           <button
                             className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                            onClick={() => { setViewStatus('archived'); setShowListMenu(false); setSelectedConversation(null); navigate('/messages', { replace: true }); }}
+                            onClick={() => {
+                              setViewStatus("archived");
+                              setShowListMenu(false);
+                              setSelectedConversation(null);
+                              navigate("/messages", { replace: true });
+                            }}
                           >
                             Show Archived Chats
                           </button>
                           <button
                             className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                            onClick={() => { setViewStatus('blocked'); setShowListMenu(false); setSelectedConversation(null); navigate('/messages', { replace: true }); }}
+                            onClick={() => {
+                              setViewStatus("blocked");
+                              setShowListMenu(false);
+                              setSelectedConversation(null);
+                              navigate("/messages", { replace: true });
+                            }}
                           >
                             Show Blocked Chats
                           </button>
@@ -384,13 +413,13 @@ const handleUnblockFromList = async (convId: number) => {
                   <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Search conversations..."
                     className="input pl-10 pr-10 py-2 text-sm"
                   />
                   {searchQuery && (
                     <button
-                      onClick={() => setSearchQuery('')}
+                      onClick={() => setSearchQuery("")}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
                       <X className="h-4 w-4" />
@@ -398,34 +427,35 @@ const handleUnblockFromList = async (convId: number) => {
                   )}
                 </div>
                 <p className="text-sm text-gray-500 mt-2">
-                  {filteredConversations.length} conversation{filteredConversations.length !== 1 ? 's' : ''}
+                  {filteredConversations.length} conversation
+                  {filteredConversations.length !== 1 ? "s" : ""}
                   {searchQuery && ` matching "${searchQuery}"`}
                 </p>
               </div>
 
               {/* Conversations List */}
               <div className="flex-1 overflow-y-auto scrollbar-thin p-4">
-             <ConversationList
-  conversations={filteredConversations}
-  selectedId={selectedConversation?.id || null}
-  onSelect={handleSelectConversation}
-  onUnblock={handleUnblockFromList}
-  onBlock={handleBlockFromList}  // ← ADD THIS LINE
-  onAdClick={handleAdClick}
-  loading={loadingConversations}
-  refreshing={refreshingConversations}
-  isBlockedView={viewStatus === 'blocked'}
-/>
+                <ConversationList
+                  conversations={filteredConversations}
+                  selectedId={selectedConversation?.id || null}
+                  onSelect={handleSelectConversation}
+                  onUnblock={handleUnblockFromList}
+                  onBlock={handleBlockFromList} // ← ADD THIS LINE
+                  onAdClick={handleAdClick}
+                  loading={loadingConversations}
+                  refreshing={refreshingConversations}
+                  isBlockedView={viewStatus === "blocked"}
+                />
               </div>
             </div>
 
             {/* Message Thread - Right Side */}
             <div
               className={`
-                ${selectedConversation ? 'flex' : 'hidden md:flex'}
+                ${selectedConversation ? "flex" : "hidden md:flex"}
                 flex-1 flex-col bg-white
               `}
-               style={{ minHeight: 0 }}
+              style={{ minHeight: 0 }}
             >
               {selectedConversation ? (
                 <>
@@ -480,12 +510,12 @@ const handleUnblockFromList = async (convId: number) => {
                       {showActions && (
                         <>
                           {/* Backdrop to close */}
-                          <div 
-                            className="fixed inset-0 z-10" 
+                          <div
+                            className="fixed inset-0 z-10"
                             onClick={() => setShowActions(false)}
                           />
                           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
-                            {viewStatus === 'active' && (
+                            {viewStatus === "active" && (
                               <>
                                 <button
                                   onClick={handleArchive}
@@ -503,7 +533,7 @@ const handleUnblockFromList = async (convId: number) => {
                                 </button>
                               </>
                             )}
-                            {viewStatus === 'archived' && (
+                            {viewStatus === "archived" && (
                               <button
                                 onClick={handleUnarchive}
                                 className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
@@ -520,23 +550,18 @@ const handleUnblockFromList = async (convId: number) => {
                   </div>
 
                   {/* Messages */}
-                  <MessageThread 
-                    messages={messages} 
+                  <MessageThread
+                    messages={messages}
                     loading={loadingMessages}
                     conversationId={selectedConversation.id}
                   />
 
                   {/* Message Input */}
                   {!selectedConversation.is_blocked ? (
-                    <MessageInput
-                      onSend={handleSendMessage}
-                      sending={sending}
-                    />
+                    <MessageInput onSend={handleSendMessage} sending={sending} />
                   ) : (
                     <div className="bg-yellow-50 border-t border-yellow-200 p-3 text-center">
-                      <p className="text-sm text-yellow-800">
-                        This conversation has been blocked
-                      </p>
+                      <p className="text-sm text-yellow-800">This conversation has been blocked</p>
                     </div>
                   )}
                 </>
@@ -558,26 +583,29 @@ const handleUnblockFromList = async (convId: number) => {
       </div>
 
       {/* Block User Modal */}
- <BlockUserModal
-  isOpen={showBlockModal}
-  onClose={() => {
-    setShowBlockModal(false);
-    setConversationToBlock(null);
-  }}
-  onConfirm={handleConfirmBlock}
-  userName={
-    conversationToBlock
-      ? conversations.find(c => c.id === conversationToBlock)?.other_user.full_name || 'this user'
-      : 'this user'
-  }
-  conversationCount={
-    conversationToBlock
-      ? conversations.filter(
-          (c) => c.other_user.id === conversations.find(conv => conv.id === conversationToBlock)?.other_user.id
-        ).length
-      : 1
-  }
-/>
+      <BlockUserModal
+        isOpen={showBlockModal}
+        onClose={() => {
+          setShowBlockModal(false);
+          setConversationToBlock(null);
+        }}
+        onConfirm={handleConfirmBlock}
+        userName={
+          conversationToBlock
+            ? conversations.find(c => c.id === conversationToBlock)?.other_user.full_name ||
+              "this user"
+            : "this user"
+        }
+        conversationCount={
+          conversationToBlock
+            ? conversations.filter(
+                c =>
+                  c.other_user.id ===
+                  conversations.find(conv => conv.id === conversationToBlock)?.other_user.id
+              ).length
+            : 1
+        }
+      />
 
       {/* Listing Modal for viewing ads */}
       <ListingModal

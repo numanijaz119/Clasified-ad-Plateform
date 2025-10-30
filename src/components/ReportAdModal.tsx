@@ -22,12 +22,7 @@ const REPORT_REASONS = [
   { value: "other", label: "Other" },
 ];
 
-const ReportAdModal: React.FC<ReportAdModalProps> = ({
-  isOpen,
-  onClose,
-  adId,
-  adTitle,
-}) => {
+const ReportAdModal: React.FC<ReportAdModalProps> = ({ isOpen, onClose, adId, adTitle }) => {
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,14 +50,14 @@ const ReportAdModal: React.FC<ReportAdModalProps> = ({
       });
 
       toast.success("Report submitted successfully. We'll review it shortly.");
-      
+
       // Reset form
       setReason("");
       setDescription("");
       onClose();
     } catch (error: any) {
       console.error("Report submission error:", error);
-      
+
       if (error.details?.error) {
         toast.error(error.details.error);
       } else if (error.message) {
@@ -84,12 +79,7 @@ const ReportAdModal: React.FC<ReportAdModalProps> = ({
   };
 
   return (
-    <BaseModal
-      isOpen={isOpen}
-      onClose={handleClose}
-      maxWidth="max-w-lg"
-      showCloseButton={true}
-    >
+    <BaseModal isOpen={isOpen} onClose={handleClose} maxWidth="max-w-lg" showCloseButton={true}>
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center mb-6">
@@ -98,9 +88,7 @@ const ReportAdModal: React.FC<ReportAdModalProps> = ({
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900">Report Ad</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Report: {adTitle}
-            </p>
+            <p className="text-sm text-gray-600 mt-1">Report: {adTitle}</p>
           </div>
         </div>
 
@@ -121,21 +109,18 @@ const ReportAdModal: React.FC<ReportAdModalProps> = ({
         <form onSubmit={handleSubmit}>
           {/* Reason Selection */}
           <div className="mb-6">
-            <label
-              htmlFor="reason"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
               Reason for Reporting <span className="text-red-500">*</span>
             </label>
             <select
               id="reason"
               value={reason}
-              onChange={(e) => setReason(e.target.value)}
+              onChange={e => setReason(e.target.value)}
               disabled={isSubmitting}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900"
             >
               <option value="">Select a reason...</option>
-              {REPORT_REASONS.map((option) => (
+              {REPORT_REASONS.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -145,17 +130,14 @@ const ReportAdModal: React.FC<ReportAdModalProps> = ({
 
           {/* Description */}
           <div className="mb-6">
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
               Description <span className="text-red-500">*</span>
             </label>
             <textarea
               id="description"
               rows={4}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={e => setDescription(e.target.value)}
               placeholder="Please provide specific details about why you're reporting this ad..."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
               disabled={isSubmitting}

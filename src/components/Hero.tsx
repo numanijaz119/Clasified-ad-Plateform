@@ -1,18 +1,13 @@
 // src/components/Hero.tsx
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Cloud, MapPin } from "lucide-react";
 import SearchBar from "./SearchBar";
 import { useCities } from "../hooks/useCities";
 import { useCategories } from "../hooks/useCategories";
 import { HeaderBanner } from "./common/BannerLayouts";
 
 const Hero: React.FC = () => {
-  const {
-    cities: citiesData,
-    loading: citiesLoading,
-    error: citiesError,
-  } = useCities();
+  const { cities: citiesData, loading: citiesLoading, error: citiesError } = useCities();
   const {
     categories: categoriesData,
     loading: categoriesLoading,
@@ -85,8 +80,7 @@ const Hero: React.FC = () => {
     }
 
     // If it's a relative path, prepend the API base URL
-    const API_BASE_URL =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
     return `${API_BASE_URL}${imageUrl}`;
   };
 
@@ -94,27 +88,21 @@ const Hero: React.FC = () => {
   const cities = useMemo(() => {
     if (!citiesData || citiesData.length === 0) return [];
 
-    const majorCities = citiesData.filter((c) => c.is_major).slice(0, 8);
+    const majorCities = citiesData.filter(c => c.is_major).slice(0, 8);
 
     if (majorCities.length >= 8) {
-      return majorCities.map((city) => ({
+      return majorCities.map(city => ({
         name: city.name,
-        count: (city as any).ads_count
-          ? `${(city as any).ads_count} ads`
-          : "0 ads",
+        count: (city as any).ads_count ? `${(city as any).ads_count} ads` : "0 ads",
         image: getCityImageUrl(city),
       }));
     }
 
-    const otherCities = citiesData
-      .filter((c) => !c.is_major)
-      .slice(0, 8 - majorCities.length);
+    const otherCities = citiesData.filter(c => !c.is_major).slice(0, 8 - majorCities.length);
 
-    return [...majorCities, ...otherCities].map((city) => ({
+    return [...majorCities, ...otherCities].map(city => ({
       name: city.name,
-      count: (city as any).ads_count
-        ? `${(city as any).ads_count} ads`
-        : "0 ads",
+      count: (city as any).ads_count ? `${(city as any).ads_count} ads` : "0 ads",
       image: getCityImageUrl(city),
     }));
   }, [citiesData]);
@@ -123,7 +111,7 @@ const Hero: React.FC = () => {
   const categories = useMemo(() => {
     if (!categoriesData || categoriesData.length === 0) return [];
 
-    return categoriesData.slice(0, 8).map((cat) => ({
+    return categoriesData.slice(0, 8).map(cat => ({
       name: cat.name,
       slug: cat.slug,
       icon:
@@ -136,23 +124,7 @@ const Hero: React.FC = () => {
   }, [categoriesData]);
 
   return (
-    <section className="pt-2 pb-3">
-      {/* Top Banner with Weather */}
-      {/* <div className="bg-white border-b border-gray-200 mb-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-center">
-            <div className="w-full bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-500 font-medium h-20">
-              <div className="text-center">
-                <div className="text-sm font-semibold mb-1">
-                  Advertisement Space
-                </div>
-                <div className="text-xs">728 x 90 - Top Banner</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
+    <section className=" pb-3">
       <HeaderBanner />
 
       <div className="pb-4">
@@ -208,7 +180,7 @@ const Hero: React.FC = () => {
                       alt={city.name}
                       loading="lazy"
                       className="w-full h-24 object-cover group-hover:scale-125 transition-transform duration-500"
-                      onError={(e) => {
+                      onError={e => {
                         const target = e.target as HTMLImageElement;
                         target.src = FALLBACK_CITY_IMAGE;
                       }}
@@ -235,9 +207,7 @@ const Hero: React.FC = () => {
 
         {/* Browse by Categories - Dynamic from Backend */}
         <div>
-          <h2 className="text-lg font-bold text-gray-900 mb-3 text-center">
-            Browse Categories
-          </h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-3 text-center">Browse Categories</h2>
 
           {/* Loading State */}
           {categoriesLoading && (
@@ -258,13 +228,11 @@ const Hero: React.FC = () => {
           )}
 
           {/* Empty State */}
-          {!categoriesLoading &&
-            !categoriesError &&
-            categories.length === 0 && (
-              <div className="text-center py-8">
-                <p className="text-gray-600">No categories available</p>
-              </div>
-            )}
+          {!categoriesLoading && !categoriesError && categories.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No categories available</p>
+            </div>
+          )}
 
           {/* Categories Grid - EXACT ORIGINAL LAYOUT with Dynamic Data */}
           {!categoriesLoading && !categoriesError && categories.length > 0 && (

@@ -2,12 +2,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Search, MapPin } from "lucide-react";
-import {
-  MobileBanner,
-  FlippingAd,
-  SideBanner,
-  RecentListings,
-} from "../components/AdBanners";
+import { FlippingAd, RecentListings } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
 import AdCard from "../components/AdCard";
 import { useAds } from "../hooks/useAds";
@@ -19,8 +14,8 @@ import {
   CategoryPageBanner,
   FooterBanner,
   HeaderBanner,
-  SidebarBanner,
   BetweenAdsBanner,
+  SidebarBanner,
 } from "../components/common/BannerLayouts";
 
 interface Listing {
@@ -77,7 +72,7 @@ const CategoryPage: React.FC = () => {
 
   // Build cities array for dropdown
   const cities = useMemo(() => {
-    return ["all", ...citiesData.map((city) => city.name)];
+    return ["all", ...citiesData.map(city => city.name)];
   }, [citiesData]);
 
   const getCategoryIcon = (category: string) => {
@@ -151,12 +146,6 @@ const CategoryPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-
-      {/* Header Banner (Desktop) */}
-      <div className="hidden md:block md:mx-4 mx-2 mt-2">
-        <HeaderBanner />
-      </div>
-
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -178,9 +167,7 @@ const CategoryPage: React.FC = () => {
                     {category?.name || categoryName}
                   </h1>
                 </div>
-                <p className="text-sm text-gray-600 mt-0.5">
-                  {category?.description || "Browse listings in this category"}
-                </p>
+                <p className="text-sm text-gray-600 mt-0.5">{"Browse listings in this category"}</p>
               </div>
             </div>
           </div>
@@ -188,32 +175,34 @@ const CategoryPage: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex gap-6">
-          {/* Sidebar Ads (Desktop Left) */}
-          <aside className="hidden lg:block lg:w-48 xl:w-60 flex-shrink-0">
-            <div className="sticky top-24 space-y-4">
-              {/* <SideBanner />
-              <SidebarBanner /> */}
-              <FlippingAd size="medium"/>
+      <main className="max-w-7xl mx-auto my-4 px-4">
+        <div className="flex gap-2 md:gap-4 lg:gap-6">
+          {/* Left Sidebar with Ads */}
+          <div className="md:w-48 xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
+            <div className="sticky top-24 space-y-4 z-10">
+              <div className="block">
+                <SidebarBanner categoryId={category?.id} />
+              </div>
+              <FlippingAd size="medium" />
             </div>
-          </aside>
+          </div>
 
           {/* Main Content Area */}
           <div className="flex-1 min-w-0">
             {/* Results Summary */}
-            <div className="flex items-center justify-between mb-4">
+            {/* <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-gray-600" role="status">
-                {loading
-                  ? "Loading..."
-                  : `${ads.length} listings found`}
                 {selectedCity !== "all" && (
                   <span className="text-orange-600 ml-2">
-                    • Filtered by:{" "}
-                    {cities.find((c) => c === selectedCity) || selectedCity}
+                    • Filtered by: {cities.find(c => c === selectedCity) || selectedCity}
                   </span>
                 )}
               </p>
+            </div> */}
+
+            {/* Header Banner (Desktop) */}
+            <div className=" mx-2">
+              <HeaderBanner categoryId={category?.id} />
             </div>
 
             {/* Filters */}
@@ -228,7 +217,7 @@ const CategoryPage: React.FC = () => {
                   <input
                     type="search"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Search listings..."
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
                     aria-label="Search listings"
@@ -266,12 +255,12 @@ const CategoryPage: React.FC = () => {
                   <select
                     id="city-filter"
                     value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
+                    onChange={e => setSelectedCity(e.target.value)}
                     className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
                     disabled={citiesLoading}
                     aria-label="Filter by city"
                   >
-                    {cities.map((city) => (
+                    {cities.map(city => (
                       <option key={city} value={city}>
                         {city === "all" ? "All Cities" : city}
                       </option>
@@ -289,7 +278,7 @@ const CategoryPage: React.FC = () => {
                   <select
                     id="sort-filter"
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                    onChange={e => setSortBy(e.target.value)}
                     className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
                     aria-label="Sort listings"
                   >
@@ -302,21 +291,12 @@ const CategoryPage: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {/* Category Page Banner */}
-            <div className="mb-4">
-              <CategoryPageBanner categoryId={category?.id} />
-            </div>
+            <p className="mb-2">{loading ? "Loading..." : `${ads.length} listings found`}</p>
 
             {/* Error State */}
             {error && (
-              <div
-                className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
-                role="alert"
-              >
-                <p className="text-red-800 text-sm font-medium">
-                  Error loading listings
-                </p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4" role="alert">
+                <p className="text-red-800 text-sm font-medium">Error loading listings</p>
                 <p className="text-red-600 text-sm mt-1">{error}</p>
                 <button
                   onClick={() => refetch()}
@@ -333,16 +313,12 @@ const CategoryPage: React.FC = () => {
                 {loading ? (
                   <div className="text-center py-12" role="status">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-                    <p className="text-sm text-gray-600 mt-4">
-                      Loading listings...
-                    </p>
+                    <p className="text-sm text-gray-600 mt-4">Loading listings...</p>
                   </div>
                 ) : ads.length === 0 ? (
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
                     <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      No listings found
-                    </h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No listings found</h3>
                     <p className="text-gray-600 mb-4">
                       Try adjusting your filters to see more results.
                     </p>
@@ -360,40 +336,56 @@ const CategoryPage: React.FC = () => {
                 ) : (
                   <>
                     {/* Ads Grid with Banner Injection */}
-                    {Array.from({
-                      length: Math.ceil(ads.length / 6),
-                    }).map((_, chunkIndex) => {
-                      const startIndex = chunkIndex * 6;
-                      const endIndex = Math.min(startIndex + 6, ads.length);
-                      const chunkAds = ads.slice(startIndex, endIndex);
+                    {(() => {
+                      // Determine banner interval: 6 if >= 6 ads, 3 if >= 3 ads, all ads if < 3
+                      const totalAds = ads.length;
+                      const bannerInterval = totalAds >= 6 ? 6 : totalAds >= 3 ? 3 : totalAds;
 
-                      return (
-                        <React.Fragment key={chunkIndex}>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                            {chunkAds.map((ad) => (
-                              <AdCard
-                                key={ad.id}
-                                ad={ad}
-                                user={user}
-                                onClick={() => handleListingClick(ad)}
-                                showFeaturedBadge={true}
-                              />
-                            ))}
-                          </div>
+                      return Array.from({
+                        length: Math.ceil(ads.length / bannerInterval),
+                      }).map((_, chunkIndex) => {
+                        const startIndex = chunkIndex * bannerInterval;
+                        const endIndex = Math.min(startIndex + bannerInterval, ads.length);
+                        const chunkAds = ads.slice(startIndex, endIndex);
 
-                          {/* Inject Banner Between Chunks */}
-                          {chunkIndex < Math.ceil(ads.length / 6) - 1 && (
-                            <div className="mb-6">
-                              <BetweenAdsBanner />
+                        return (
+                          <React.Fragment key={chunkIndex}>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                              {chunkAds.map(ad => (
+                                <AdCard
+                                  key={ad.id}
+                                  ad={ad}
+                                  user={user}
+                                  onClick={() => handleListingClick(ad)}
+                                  showFeaturedBadge={true}
+                                />
+                              ))}
                             </div>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
+
+                            {/* Inject Banner Between Chunks */}
+                            {endIndex < ads.length && (
+                              <div className="mb-6">
+                                <BetweenAdsBanner categoryId={category?.id} />
+                              </div>
+                            )}
+                          </React.Fragment>
+                        );
+                      });
+                    })()}
                   </>
                 )}
               </div>
             )}
+
+            {/* Category Page Banner */}
+            <div className="mb-4 hidden md:block">
+              <CategoryPageBanner categoryId={category?.id} />
+            </div>
+
+            {/* Footer Banner */}
+            <div className="hidden md:block">
+              <FooterBanner categoryId={category?.id} />
+            </div>
           </div>
 
           {/* Right Sidebar (Desktop) */}
@@ -402,14 +394,13 @@ const CategoryPage: React.FC = () => {
             aria-label="Sidebar"
           >
             <div className="sticky top-24 space-y-4">
-             
               <RecentListings />
             </div>
           </aside>
         </div>
       </main>
 
-   {/* Mobile Recent Listings */}
+      {/* Mobile Recent Listings */}
       <div className="md:hidden mx-4 mb-4">
         <RecentListings />
       </div>
@@ -419,13 +410,6 @@ const CategoryPage: React.FC = () => {
         <FlippingAd size="medium" />
       </div>
 
-   
-
-      {/* Footer Banner */}
-      <div className="mx-4 mb-4">
-        <FooterBanner />
-      </div>
-
       {/* Listing Modal */}
       <ListingModal
         listing={selectedListing}
@@ -433,6 +417,16 @@ const CategoryPage: React.FC = () => {
         onClose={handleCloseModal}
         isLoggedIn={isAuthenticated}
       />
+
+      {/* Category Page Banner */}
+      <div className="mb-4 mx-4 block md:hidden">
+        <CategoryPageBanner categoryId={category?.id} />
+      </div>
+
+      {/* Footer Banner */}
+      <div className="block mx-4 mb-4 md:hidden">
+        <FooterBanner categoryId={category?.id} />
+      </div>
     </div>
   );
 };

@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Youtube,
-  Mail,
-  Phone,
-  Heart,
-} from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, Heart } from "lucide-react";
 import { useSettings } from "../contexts/SettingsContext";
 import { useStateContext } from "../contexts/StateContext";
 import { contentService } from "../services";
@@ -26,7 +18,7 @@ const Footer = () => {
       try {
         const [categoriesData, citiesData] = await Promise.all([
           contentService.getCategories(),
-          contentService.getCities()
+          contentService.getCities(),
         ]);
         setCategories(categoriesData.slice(0, 6)); // Top 6 categories
         // Filter for major cities and take top 6
@@ -63,8 +55,8 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center mb-4">
               {currentState?.logo ? (
-                <img 
-                  src={currentState.logo} 
+                <img
+                  src={currentState.logo}
                   alt={`${currentState.name} Logo`}
                   className="h-10 w-auto object-contain"
                 />
@@ -74,23 +66,20 @@ const Footer = () => {
                 </div>
               )}
               <div className="ml-3">
-                <h3 className="text-xl font-bold">
-                  DesiLogin {currentState?.code || 'IL'}
-                </h3>
+                <h3 className="text-xl font-bold">DesiLogin {currentState?.code || "IL"}</h3>
                 <p className="text-sm text-gray-400">Indian Community Hub</p>
               </div>
             </Link>
             <p className="text-gray-300 mb-6 leading-relaxed">
-              Connecting the Indian community across {currentState?.name || 'Illinois'}. Find jobs, homes,
-              services, and build meaningful connections with fellow Indians in
-              your area.
+              Connecting the Indian community across {currentState?.name || "Illinois"}. Find jobs,
+              homes, services, and build meaningful connections with fellow Indians in your area.
             </p>
 
             {/* Contact Info - Only show if provided */}
             {(contactEmail || supportPhone) && (
               <div className="space-y-3">
                 {contactEmail && (
-                  <a 
+                  <a
                     href={`mailto:${contactEmail}`}
                     className="flex items-center text-gray-300 hover:text-orange-500 transition-colors"
                   >
@@ -99,7 +88,7 @@ const Footer = () => {
                   </a>
                 )}
                 {supportPhone && (
-                  <a 
+                  <a
                     href={`tel:${supportPhone}`}
                     className="flex items-center text-gray-300 hover:text-orange-500 transition-colors"
                   >
@@ -133,7 +122,7 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4">Categories</h4>
             <ul className="space-y-3">
               {categories.length > 0 ? (
-                categories.map((category) => (
+                categories.map(category => (
                   <li key={category.id}>
                     <Link
                       to={`/category/${category.slug}`}
@@ -154,7 +143,7 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4">Popular Cities</h4>
             <ul className="space-y-3">
               {cities.length > 0 ? (
-                cities.map((city) => (
+                cities.map(city => (
                   <li key={city.id}>
                     <Link
                       to={`/city/${city.slug}`}
@@ -209,12 +198,13 @@ const Footer = () => {
         {/* Bottom Bar - Dynamic based on state */}
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row items-center justify-between">
           <div className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} {currentState?.domain || 'DesiLogInIL.com'}. All rights reserved.
+            © {new Date().getFullYear()} {currentState?.domain || "DesiLogInIL.com"}. All rights
+            reserved.
           </div>
           <div className="flex items-center text-gray-400 text-sm">
             <span>Made with</span>
             <Heart className="h-4 w-4 mx-1 text-red-500 fill-current" />
-            <span>for the Desi community in {currentState?.name || 'Illinois'}</span>
+            <span>for the Desi community in {currentState?.name || "Illinois"}</span>
           </div>
         </div>
       </div>

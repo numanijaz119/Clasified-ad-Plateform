@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  User,
-  Edit3,
-  Camera,
-  Phone,
-  Mail,
-  Calendar,
-  Shield,
-} from "lucide-react";
+import { User, Edit3, Camera, Phone, Mail, Calendar, Shield } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
 interface ProfileData {
@@ -77,7 +69,7 @@ const UserProfile: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setProfileData((prev) => ({
+    setProfileData(prev => ({
       ...prev,
       [name]: value,
     }));
@@ -188,9 +180,7 @@ const UserProfile: React.FC = () => {
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Profile Settings
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900">Profile Settings</h2>
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}
@@ -240,11 +230,7 @@ const UserProfile: React.FC = () => {
                 <div className="relative inline-block">
                   <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
                     {previewUrl ? (
-                      <img
-                        src={previewUrl}
-                        alt="Avatar"
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={previewUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
                       <User className="w-12 h-12 text-gray-400" />
                     )}
@@ -286,9 +272,7 @@ const UserProfile: React.FC = () => {
             <div className="lg:col-span-2 space-y-6">
               {/* Basic Information */}
               <div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                  Basic Information
-                </h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -304,9 +288,7 @@ const UserProfile: React.FC = () => {
                         required
                       />
                     ) : (
-                      <p className="text-gray-900">
-                        {profileData.first_name || "Not provided"}
-                      </p>
+                      <p className="text-gray-900">{profileData.first_name || "Not provided"}</p>
                     )}
                   </div>
 
@@ -324,16 +306,12 @@ const UserProfile: React.FC = () => {
                         required
                       />
                     ) : (
-                      <p className="text-gray-900">
-                        {profileData.last_name || "Not provided"}
-                      </p>
+                      <p className="text-gray-900">{profileData.last_name || "Not provided"}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Username
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
                     {isEditing ? (
                       <input
                         type="text"
@@ -344,9 +322,7 @@ const UserProfile: React.FC = () => {
                         placeholder="Optional username"
                       />
                     ) : (
-                      <p className="text-gray-900">
-                        {profileData.username || "Not set"}
-                      </p>
+                      <p className="text-gray-900">{profileData.username || "Not set"}</p>
                     )}
                   </div>
 
@@ -375,9 +351,7 @@ const UserProfile: React.FC = () => {
 
               {/* Account Information (Read-only) */}
               <div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                  Account Information
-                </h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Account Information</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">

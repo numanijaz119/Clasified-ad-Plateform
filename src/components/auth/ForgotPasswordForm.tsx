@@ -8,10 +8,7 @@ interface ForgotPasswordFormProps {
   onBack: () => void;
 }
 
-const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
-  onSuccess,
-  onBack,
-}) => {
+const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBack }) => {
   const { forgotPassword, isLoading, error, clearError } = useAuth();
   const [email, setEmail] = useState("");
   const [localError, setLocalError] = useState("");
@@ -62,10 +59,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       if (err.details) {
         if (err.details.email && Array.isArray(err.details.email)) {
           errorMessage = err.details.email[0];
-        } else if (
-          err.details.non_field_errors &&
-          Array.isArray(err.details.non_field_errors)
-        ) {
+        } else if (err.details.non_field_errors && Array.isArray(err.details.non_field_errors)) {
           errorMessage = err.details.non_field_errors[0];
         } else if (typeof err.details === "string") {
           errorMessage = err.details;
@@ -80,8 +74,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       } else if (errorMessage.toLowerCase().includes("not active")) {
         errorMessage = "This account is not active. Please contact support.";
       } else if (errorMessage.toLowerCase().includes("suspended")) {
-        errorMessage =
-          "This account has been suspended. Please contact support.";
+        errorMessage = "This account has been suspended. Please contact support.";
       }
 
       setLocalError(errorMessage);
@@ -104,12 +97,9 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
       {/* Header */}
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Forgot your password?
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Forgot your password?</h3>
         <p className="text-gray-600">
-          Enter your email address and we'll send you a verification code to
-          reset your password.
+          Enter your email address and we'll send you a verification code to reset your password.
         </p>
       </div>
 
@@ -117,9 +107,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Email Input */}
         <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Email Address
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
           <input
             type="email"
             value={email}

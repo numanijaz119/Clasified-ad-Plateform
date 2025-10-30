@@ -1,9 +1,9 @@
 // src/contexts/NotificationContext.tsx
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { messagingService } from '../services/messagingService';
-import { eventBus } from '../utils/eventBus';
-import { useToast } from './ToastContext';
-import { useAuth } from './AuthContext';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
+import { messagingService } from "../services/messagingService";
+import { eventBus } from "../utils/eventBus";
+import { useToast } from "./ToastContext";
+import { useAuth } from "./AuthContext";
 
 interface NotificationContextType {
   unreadMessageCount: number;
@@ -30,7 +30,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Initialize notification sound
   useEffect(() => {
-    audioRef.current = new Audio('/notification.mp3');
+    audioRef.current = new Audio("/notification.mp3");
     audioRef.current.volume = 0.5;
   }, []);
 
@@ -52,13 +52,17 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       // Fetch unread messages count
       let messageCount = await messagingService.getUnreadCount();
-      
+
       // If user is currently viewing a conversation and we detect a bump
       // verify the unread belongs to the active conversation before marking it as read
       let markedActiveAsRead = false;
       if (activeConversationId && messageCount > lastMessageCount) {
         try {
-          const unreadForActive = await messagingService.getMessages({ conversation_id: activeConversationId, unread: true, page: 1 });
+          const unreadForActive = await messagingService.getMessages({
+            conversation_id: activeConversationId,
+            unread: true,
+            page: 1,
+          });
           const hasUnreadInActive = (unreadForActive.results || []).length > 0;
           if (hasUnreadInActive) {
             await messagingService.markAllMessagesRead(activeConversationId);
@@ -74,7 +78,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       // Fetch unread notifications list and exclude chat-related types for bell badge
       const unreadNotifications = await messagingService.getNotifications({ is_read: false });
       const nonChatUnread = (unreadNotifications.results || []).filter(
-        (n) => n.notification_type !== 'new_message' && n.notification_type !== 'new_conversation'
+        n => n.notification_type !== "new_message" && n.notification_type !== "new_conversation"
       );
       const notificationCount = nonChatUnread.length;
 
@@ -83,7 +87,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         // Check for new NON-chat notifications (bell only)
         if (notificationCount > lastNotificationCount && lastNotificationCount > 0) {
           const newNotifications = notificationCount - lastNotificationCount;
-          toast.info(`You have ${newNotifications} new notification${newNotifications > 1 ? 's' : ''}`);
+          toast.info(
+            `You have ${newNotifications} new notification${newNotifications > 1 ? "s" : ""}`
+          );
           playNotificationSound();
         }
 
@@ -91,7 +97,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         // If message unread increased and we did NOT mark the active conversation as read,
         // it means another conversation received a message. Emit a refresh so the list updates immediately.
         if (messageCount > lastMessageCount && !markedActiveAsRead) {
-          eventBus.emit('conversations:refresh', { reason: 'unread_bump' });
+          eventBus.emit("conversations:refresh", { reason: "unread_bump" });
         }
       } else {
         // Mark as initialized after first fetch
@@ -105,7 +111,15 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch (error) {
       // Silently fail - notifications are not critical
     }
-  }, [isAuthenticated, isInitialized, lastMessageCount, lastNotificationCount, activeConversationId, toast, playNotificationSound]);
+  }, [
+    isAuthenticated,
+    isInitialized,
+    lastMessageCount,
+    lastNotificationCount,
+    activeConversationId,
+    toast,
+    playNotificationSound,
+  ]);
 
   const markMessagesAsRead = useCallback((conversationId: number) => {
     // Optimistically update the count
@@ -136,13 +150,13 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (!isAuthenticated) return;
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         refreshUnreadCounts();
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [isAuthenticated, refreshUnreadCounts]);
 
   // Listen for block/unblock events to refresh counts immediately
@@ -150,13 +164,13 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (!isAuthenticated) return;
 
     const handleConversationRefresh = (data: any) => {
-      if (data?.reason === 'user_blocked' || data?.reason === 'user_unblocked') {
+      if (data?.reason === "user_blocked" || data?.reason === "user_unblocked") {
         // Immediately refresh unread counts when user blocks/unblocks
         refreshUnreadCounts();
       }
     };
 
-    const unsubscribe = eventBus.on('conversations:refresh', handleConversationRefresh);
+    const unsubscribe = eventBus.on("conversations:refresh", handleConversationRefresh);
     return () => unsubscribe();
   }, [isAuthenticated, refreshUnreadCounts]);
 
@@ -170,17 +184,13 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setActiveConversationId,
   };
 
-  return (
-    <NotificationContext.Provider value={value}>
-      {children}
-    </NotificationContext.Provider>
-  );
+  return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;
 };
 
 export const useNotificationContext = () => {
   const context = useContext(NotificationContext);
   if (!context) {
-    throw new Error('useNotificationContext must be used within NotificationProvider');
+    throw new Error("useNotificationContext must be used within NotificationProvider");
   }
   return context;
 };

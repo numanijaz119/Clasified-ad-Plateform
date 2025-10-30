@@ -21,7 +21,6 @@ class AdsService extends BaseService {
    */
   async createAd(adData: CreateAdRequest): Promise<Ad> {
     try {
-
       // Step 1: Create ad WITHOUT images first
       const adPayload: Record<string, any> = {
         title: adData.title.trim(),
@@ -35,10 +34,7 @@ class AdsService extends BaseService {
       };
 
       // Add price for fixed/negotiable
-      if (
-        adData.price &&
-        (adData.price_type === "fixed" || adData.price_type === "negotiable")
-      ) {
+      if (adData.price && (adData.price_type === "fixed" || adData.price_type === "negotiable")) {
         adPayload.price = adData.price;
       }
 
@@ -59,11 +55,7 @@ class AdsService extends BaseService {
       }
 
       // Create ad (JSON, no images yet)
-      const createResponse = await this.post<Ad>(
-        API_CONFIG.ENDPOINTS.ADS.CREATE,
-        adPayload,
-        true
-      );
+      const createResponse = await this.post<Ad>(API_CONFIG.ENDPOINTS.ADS.CREATE, adPayload, true);
 
       if (!createResponse.data) {
         throw new Error("Failed to create ad");
@@ -85,7 +77,6 @@ class AdsService extends BaseService {
 
       // Step 2: Upload images separately to the dedicated images endpoint
       if (adData.images && adData.images.length > 0) {
-
         // For image upload, we need the numeric ID
         // If we only have slug, we need to fetch the full ad details
         let adId: number;
@@ -104,10 +95,7 @@ class AdsService extends BaseService {
         }
 
         try {
-          const uploadedImages = await this.uploadImagesToAd(
-            adId,
-            adData.images
-          );
+          const uploadedImages = await this.uploadImagesToAd(adId, adData.images);
 
           // Merge images into ad object
           createdAd.images = uploadedImages;
@@ -143,10 +131,7 @@ class AdsService extends BaseService {
    * Upload images to existing ad using the images endpoint
    * This is a separate API call after ad creation
    */
-  private async uploadImagesToAd(
-    adId: number,
-    images: File[]
-  ): Promise<AdImage[]> {
+  private async uploadImagesToAd(adId: number, images: File[]): Promise<AdImage[]> {
     const uploadedImages: AdImage[] = [];
 
     // Upload images one by one (or in batches if backend supports)
@@ -188,8 +173,7 @@ class AdsService extends BaseService {
       const payload: Record<string, any> = {};
 
       if (updateData.title) payload.title = updateData.title.trim();
-      if (updateData.description)
-        payload.description = updateData.description.trim();
+      if (updateData.description) payload.description = updateData.description.trim();
       if (updateData.category) payload.category = updateData.category;
       if (updateData.city) payload.city = updateData.city;
       if (updateData.price_type) payload.price_type = updateData.price_type;
@@ -198,10 +182,8 @@ class AdsService extends BaseService {
       if (updateData.price !== undefined) payload.price = updateData.price;
       if (updateData.contact_phone)
         payload.contact_phone = updateData.contact_phone.replace(/\D/g, "");
-      if (updateData.contact_email)
-        payload.contact_email = updateData.contact_email;
-      if (updateData.hide_phone !== undefined)
-        payload.hide_phone = updateData.hide_phone;
+      if (updateData.contact_email) payload.contact_email = updateData.contact_email;
+      if (updateData.hide_phone !== undefined) payload.hide_phone = updateData.hide_phone;
 
       const url = API_CONFIG.ENDPOINTS.ADS.UPDATE.replace(":slug", slug);
       const response = await this.patch<Ad>(url, payload, true);
@@ -267,7 +249,7 @@ class AdsService extends BaseService {
         Object.entries(params).forEach(([key, value]) => {
           if (value !== undefined && value !== null && value !== "") {
             if (Array.isArray(value)) {
-              value.forEach((v) => queryParams.append(key, v.toString()));
+              value.forEach(v => queryParams.append(key, v.toString()));
             } else {
               queryParams.append(key, value.toString());
             }
@@ -302,7 +284,7 @@ class AdsService extends BaseService {
         Object.entries(params).forEach(([key, value]) => {
           if (value !== undefined && value !== null && value !== "") {
             if (Array.isArray(value)) {
-              value.forEach((v) => queryParams.append(key, v.toString()));
+              value.forEach(v => queryParams.append(key, v.toString()));
             } else {
               queryParams.append(key, value.toString());
             }
@@ -406,10 +388,7 @@ class AdsService extends BaseService {
    */
   async getAdAnalytics(slug: string, days: number = 30): Promise<AdAnalytics> {
     try {
-      const url = `${API_CONFIG.ENDPOINTS.ADS.ANALYTICS.replace(
-        ":slug",
-        slug
-      )}?days=${days}`;
+      const url = `${API_CONFIG.ENDPOINTS.ADS.ANALYTICS.replace(":slug", slug)}?days=${days}`;
       const response = await this.get<AdAnalytics>(url, true);
 
       if (response.data) {
@@ -547,10 +526,7 @@ class AdsService extends BaseService {
   /**
    * Report ad
    */
-  async reportAd(
-    adId: number,
-    data: { reason: string; description: string }
-  ): Promise<any> {
+  async reportAd(adId: number, data: { reason: string; description: string }): Promise<any> {
     try {
       const response = await this.post(
         API_CONFIG.ENDPOINTS.ADS.REPORTS,
@@ -569,10 +545,7 @@ class AdsService extends BaseService {
    */
   async getMyReports(): Promise<any> {
     try {
-      const response = await this.get(
-        API_CONFIG.ENDPOINTS.ADS.REPORTS,
-        true
-      );
+      const response = await this.get(API_CONFIG.ENDPOINTS.ADS.REPORTS, true);
       return response.data;
     } catch (error: any) {
       console.error("Get my reports error:", error);
@@ -593,7 +566,7 @@ class AdsService extends BaseService {
     } catch (error: any) {
       console.error("Get featured pricing error:", error);
       // Return defaults if error
-      return { price: 9.99, duration_days: 30, currency: 'USD' };
+      return { price: 9.99, duration_days: 30, currency: "USD" };
     }
   }
 }

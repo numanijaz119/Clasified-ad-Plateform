@@ -7,11 +7,7 @@ interface AlertMessageProps {
   onClose?: () => void;
 }
 
-const AlertMessage: React.FC<AlertMessageProps> = ({
-  type,
-  message,
-  onClose,
-}) => {
+const AlertMessage: React.FC<AlertMessageProps> = ({ type, message, onClose }) => {
   const isSuccess = type === "success";
 
   return (
@@ -35,9 +31,7 @@ const AlertMessage: React.FC<AlertMessageProps> = ({
         <button
           onClick={onClose}
           className={`${
-            isSuccess
-              ? "text-green-500 hover:text-green-700"
-              : "text-red-500 hover:text-red-700"
+            isSuccess ? "text-green-500 hover:text-green-700" : "text-red-500 hover:text-red-700"
           } transition-colors`}
         >
           <X className="w-4 h-4" />

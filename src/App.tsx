@@ -22,8 +22,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 function App() {
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
-  const [shouldOpenPostAdAfterLogin, setShouldOpenPostAdAfterLogin] =
-    useState(false);
+  const [shouldOpenPostAdAfterLogin, setShouldOpenPostAdAfterLogin] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
 

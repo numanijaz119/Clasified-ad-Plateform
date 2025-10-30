@@ -35,13 +35,9 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   return (
-    <div
-      className={`flex flex-col items-center justify-center space-y-3 ${className}`}
-    >
+    <div className={`flex flex-col items-center justify-center space-y-3 ${className}`}>
       <Loader2 className={`animate-spin text-orange-500 ${getSizeClass()}`} />
-      {text && (
-        <p className={`text-gray-600 font-medium ${getTextSize()}`}>{text}</p>
-      )}
+      {text && <p className={`text-gray-600 font-medium ${getTextSize()}`}>{text}</p>}
     </div>
   );
 };

@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  Key,
-  Eye,
-  EyeOff,
-  AlertCircle,
-  ArrowLeft,
-  CheckCircle,
-} from "lucide-react";
+import { Key, Eye, EyeOff, AlertCircle, ArrowLeft, CheckCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { PasswordHelper } from "./PasswordHelper";
 
@@ -77,12 +70,9 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
       </button>
 
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Reset Your Password
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Reset Your Password</h3>
         <p className="text-gray-600">
-          Enter the verification code sent to <strong>{email}</strong> and your
-          new password.
+          Enter the verification code sent to <strong>{email}</strong> and your new password.
         </p>
       </div>
 
@@ -95,13 +85,11 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Verification Code
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Verification Code</label>
           <input
             type="text"
             value={code}
-            onChange={(e) => setCode(e.target.value)}
+            onChange={e => setCode(e.target.value)}
             placeholder="Enter 6-digit code"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-center text-lg tracking-wide"
             disabled={isLoading}
@@ -110,13 +98,11 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
         </div>
 
         <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            New Password
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
           <input
             type={showPassword ? "text" : "password"}
             value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            onChange={e => setNewPassword(e.target.value)}
             placeholder="Enter new password"
             className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             disabled={isLoading}
@@ -129,11 +115,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             className="absolute right-4 top-11 text-gray-400 hover:text-gray-600"
             disabled={isLoading}
           >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
+            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
         </div>
 
@@ -151,7 +133,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
           <input
             type={showConfirmPassword ? "text" : "password"}
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={e => setConfirmPassword(e.target.value)}
             placeholder="Confirm new password"
             className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             disabled={isLoading}
@@ -164,11 +146,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             className="absolute right-4 top-11 text-gray-400 hover:text-gray-600"
             disabled={isLoading}
           >
-            {showConfirmPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
+            {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
         </div>
 

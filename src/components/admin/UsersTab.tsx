@@ -20,11 +20,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { adminService } from "../../services";
-import {
-  AdminUser,
-  AdminUserListParams,
-  AdminUserActionRequest,
-} from "../../types/admin";
+import { AdminUser, AdminUserListParams, AdminUserActionRequest } from "../../types/admin";
 import ConfirmModal from "./ConfirmModal";
 import BaseModal from "../modals/BaseModal";
 import Button from "../ui/Button";
@@ -80,7 +76,7 @@ const UsersTab: React.FC = () => {
   }, [fetchUsers]);
 
   const handleSearch = () => {
-    setFilters((prev) => ({
+    setFilters(prev => ({
       ...prev,
       search: tempSearch || undefined,
       page: 1,
@@ -89,7 +85,7 @@ const UsersTab: React.FC = () => {
   };
 
   const handleFilterChange = (key: keyof AdminUserListParams, value: any) => {
-    setFilters((prev) => ({
+    setFilters(prev => ({
       ...prev,
       [key]: value || undefined,
       page: 1,
@@ -97,7 +93,7 @@ const UsersTab: React.FC = () => {
   };
 
   const handlePageChange = (page: number) => {
-    setFilters((prev) => ({ ...prev, page }));
+    setFilters(prev => ({ ...prev, page }));
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -146,8 +142,7 @@ const UsersTab: React.FC = () => {
       case "suspend":
         return {
           title: "Suspend User",
-          message:
-            "Are you sure you want to suspend this user? They can be reactivated later.",
+          message: "Are you sure you want to suspend this user? They can be reactivated later.",
           confirmText: "Suspend",
           type: "warning" as const,
           requireReason: true,
@@ -155,8 +150,7 @@ const UsersTab: React.FC = () => {
       case "activate":
         return {
           title: "Activate User",
-          message:
-            "Are you sure you want to activate this user? They will regain full access.",
+          message: "Are you sure you want to activate this user? They will regain full access.",
           confirmText: "Activate",
           type: "success" as const,
         };
@@ -172,8 +166,7 @@ const UsersTab: React.FC = () => {
 
   const handleBan = (userId: number) => openConfirmModal("ban", userId);
   const handleSuspend = (userId: number) => openConfirmModal("suspend", userId);
-  const handleActivate = (userId: number) =>
-    openConfirmModal("activate", userId);
+  const handleActivate = (userId: number) => openConfirmModal("activate", userId);
 
   const getStatusBadge = (status: AdminUser["status_display"]) => {
     const styles = {
@@ -205,12 +198,8 @@ const UsersTab: React.FC = () => {
       <>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              User Management
-            </h2>
-            <p className="text-sm text-gray-600 mt-1">
-              {totalCount} total users found
-            </p>
+            <h2 className="text-xl font-semibold text-gray-900">User Management</h2>
+            <p className="text-sm text-gray-600 mt-1">{totalCount} total users found</p>
           </div>
           <button
             onClick={() => fetchUsers()}
@@ -235,12 +224,8 @@ const UsersTab: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">
-            User Management
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            {totalCount} total users found
-          </p>
+          <h2 className="text-xl font-semibold text-gray-900">User Management</h2>
+          <p className="text-sm text-gray-600 mt-1">{totalCount} total users found</p>
         </div>
         <button
           onClick={() => fetchUsers()}
@@ -255,17 +240,15 @@ const UsersTab: React.FC = () => {
       <div className="bg-gray-50 rounded-lg p-4 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="lg:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
             <div className="flex space-x-2">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
                   value={tempSearch}
-                  onChange={(e) => setTempSearch(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                  onChange={e => setTempSearch(e.target.value)}
+                  onKeyPress={e => e.key === "Enter" && handleSearch()}
                   placeholder="Search by email or name..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
@@ -280,16 +263,11 @@ const UsersTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select
               value={filters.status || "all"}
-              onChange={(e) =>
-                handleFilterChange(
-                  "status",
-                  e.target.value === "all" ? undefined : e.target.value
-                )
+              onChange={e =>
+                handleFilterChange("status", e.target.value === "all" ? undefined : e.target.value)
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
@@ -301,24 +279,22 @@ const UsersTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Status
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email Status</label>
             <select
               value={
                 filters.email_verified === true
                   ? "verified"
                   : filters.email_verified === false
-                  ? "unverified"
-                  : "all"
+                    ? "unverified"
+                    : "all"
               }
-              onChange={(e) => {
+              onChange={e => {
                 const value =
                   e.target.value === "verified"
                     ? true
                     : e.target.value === "unverified"
-                    ? false
-                    : undefined;
+                      ? false
+                      : undefined;
                 handleFilterChange("email_verified", value);
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -332,16 +308,11 @@ const UsersTab: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ads Posted
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ads Posted</label>
             <select
               value={filters.has_ads === true ? "yes" : "all"}
-              onChange={(e) =>
-                handleFilterChange(
-                  "has_ads",
-                  e.target.value === "yes" ? true : undefined
-                )
+              onChange={e =>
+                handleFilterChange("has_ads", e.target.value === "yes" ? true : undefined)
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
@@ -351,12 +322,10 @@ const UsersTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Sort By
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
             <select
               value={filters.ordering || "-created_at"}
-              onChange={(e) => handleFilterChange("ordering", e.target.value)}
+              onChange={e => handleFilterChange("ordering", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="-created_at">Newest First</option>
@@ -403,9 +372,7 @@ const UsersTab: React.FC = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
           <UserIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 mb-2">No users found</p>
-          <p className="text-sm text-gray-500">
-            Try adjusting your filters or search query
-          </p>
+          <p className="text-sm text-gray-500">Try adjusting your filters or search query</p>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -438,15 +405,10 @@ const UsersTab: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {users.map((user, index) => (
-                  <tr
-                    key={user.id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
+                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <span className="text-sm font-medium text-gray-500">
-                        {(currentPage - 1) * (filters.page_size || 20) +
-                          index +
-                          1}
+                        {(currentPage - 1) * (filters.page_size || 20) + index + 1}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -486,26 +448,18 @@ const UsersTab: React.FC = () => {
                       <div className="space-y-1">
                         <div className="flex items-center text-sm">
                           <FileText className="h-4 w-4 mr-1 text-gray-400" />
-                          <span className="font-medium text-gray-900">
-                            {user.total_ads}
-                          </span>
+                          <span className="font-medium text-gray-900">{user.total_ads}</span>
                           <span className="text-gray-500 ml-1">total</span>
                         </div>
                         <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <span className="text-green-600">
-                            {user.active_ads} active
-                          </span>
+                          <span className="text-green-600">{user.active_ads} active</span>
                           {user.pending_ads > 0 && (
-                            <span className="text-yellow-600">
-                              {user.pending_ads} pending
-                            </span>
+                            <span className="text-yellow-600">{user.pending_ads} pending</span>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      {getStatusBadge(user.status_display)}
-                    </td>
+                    <td className="px-6 py-4">{getStatusBadge(user.status_display)}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center text-sm text-gray-600">
                         <Calendar className="h-4 w-4 mr-1 flex-shrink-0" />
@@ -513,8 +467,8 @@ const UsersTab: React.FC = () => {
                           {user.days_since_joined === 0
                             ? "Today"
                             : user.days_since_joined === 1
-                            ? "Yesterday"
-                            : `${user.days_since_joined} days ago`}
+                              ? "Yesterday"
+                              : `${user.days_since_joined} days ago`}
                         </span>
                       </div>
                     </td>
@@ -571,11 +525,8 @@ const UsersTab: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-600">
                   Showing {(currentPage - 1) * (filters.page_size || 20) + 1} to{" "}
-                  {Math.min(
-                    currentPage * (filters.page_size || 20),
-                    totalCount
-                  )}{" "}
-                  of {totalCount} results
+                  {Math.min(currentPage * (filters.page_size || 20), totalCount)} of {totalCount}{" "}
+                  results
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
@@ -639,9 +590,7 @@ const UsersTab: React.FC = () => {
 
       <ConfirmModal
         isOpen={confirmState.isOpen}
-        onClose={() =>
-          setConfirmState({ isOpen: false, type: null, userId: null })
-        }
+        onClose={() => setConfirmState({ isOpen: false, type: null, userId: null })}
         onConfirm={handleConfirm}
         loading={actionLoading !== null}
         {...getConfirmConfig()}
@@ -668,33 +617,25 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   actionLoading,
 }) => {
   return (
-    <BaseModal
-      isOpen={true}
-      onClose={onClose}
-      maxWidth="max-w-2xl"
-      title="User Details"
-    >
+    <BaseModal isOpen={true} onClose={onClose} maxWidth="max-w-2xl" title="User Details">
       <div className="p-6 space-y-6">
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
             {user.full_name.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-900">
-              {user.full_name}
-            </h3>
+            <h3 className="text-xl font-bold text-gray-900">{user.full_name}</h3>
             <div className="flex items-center space-x-2 mt-1">
               <span
                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
                   user.status_display === "active"
                     ? "bg-green-100 text-green-800"
                     : user.status_display === "suspended"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-red-100 text-red-800"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-800"
                 }`}
               >
-                {user.status_display.charAt(0).toUpperCase() +
-                  user.status_display.slice(1)}
+                {user.status_display.charAt(0).toUpperCase() + user.status_display.slice(1)}
               </span>
               {user.email_verified && (
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
@@ -713,9 +654,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
           </div>
           <div>
             <p className="text-sm text-gray-600">Phone</p>
-            <p className="text-sm font-semibold text-gray-900">
-              {user.phone || "Not provided"}
-            </p>
+            <p className="text-sm font-semibold text-gray-900">{user.phone || "Not provided"}</p>
           </div>
           <div>
             <p className="text-sm text-gray-600">Member Since</p>
@@ -726,40 +665,28 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
           <div>
             <p className="text-sm text-gray-600">Last Login</p>
             <p className="text-sm font-semibold text-gray-900">
-              {user.last_login
-                ? new Date(user.last_login).toLocaleDateString()
-                : "Never"}
+              {user.last_login ? new Date(user.last_login).toLocaleDateString() : "Never"}
             </p>
           </div>
         </div>
 
         <div className="border-t border-gray-200 pt-4">
-          <h4 className="text-sm font-semibold text-gray-900 mb-3">
-            Ad Statistics
-          </h4>
+          <h4 className="text-sm font-semibold text-gray-900 mb-3">Ad Statistics</h4>
           <div className="grid grid-cols-4 gap-4">
             <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold text-gray-900">
-                {user.total_ads}
-              </p>
+              <p className="text-2xl font-bold text-gray-900">{user.total_ads}</p>
               <p className="text-xs text-gray-600 mt-1">Total Ads</p>
             </div>
             <div className="text-center p-3 bg-green-50 rounded-lg">
-              <p className="text-2xl font-bold text-green-700">
-                {user.active_ads}
-              </p>
+              <p className="text-2xl font-bold text-green-700">{user.active_ads}</p>
               <p className="text-xs text-gray-600 mt-1">Active</p>
             </div>
             <div className="text-center p-3 bg-yellow-50 rounded-lg">
-              <p className="text-2xl font-bold text-yellow-700">
-                {user.pending_ads}
-              </p>
+              <p className="text-2xl font-bold text-yellow-700">{user.pending_ads}</p>
               <p className="text-xs text-gray-600 mt-1">Pending</p>
             </div>
             <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <p className="text-2xl font-bold text-purple-700">
-                {user.featured_ads}
-              </p>
+              <p className="text-2xl font-bold text-purple-700">{user.featured_ads}</p>
               <p className="text-xs text-gray-600 mt-1">Featured</p>
             </div>
           </div>
@@ -767,21 +694,15 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
         {user.suspension_reason && (
           <div className="border-t border-gray-200 pt-4">
-            <h4 className="text-sm font-semibold text-gray-900 mb-2">
-              Suspension Reason
-            </h4>
+            <h4 className="text-sm font-semibold text-gray-900 mb-2">Suspension Reason</h4>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-              <p className="text-sm text-yellow-800">
-                {user.suspension_reason}
-              </p>
+              <p className="text-sm text-yellow-800">{user.suspension_reason}</p>
             </div>
           </div>
         )}
 
         <div className="border-t border-gray-200 pt-4">
-          <h4 className="text-sm font-semibold text-gray-900 mb-3">
-            Account Details
-          </h4>
+          <h4 className="text-sm font-semibold text-gray-900 mb-3">Account Details</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-600">Account ID:</span>
@@ -789,16 +710,12 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Days Since Joined:</span>
-              <span className="font-medium text-gray-900">
-                {user.days_since_joined} days
-              </span>
+              <span className="font-medium text-gray-900">{user.days_since_joined} days</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Email Status:</span>
               <span
-                className={`font-medium ${
-                  user.email_verified ? "text-green-600" : "text-red-600"
-                }`}
+                className={`font-medium ${user.email_verified ? "text-green-600" : "text-red-600"}`}
               >
                 {user.email_verified ? "Verified" : "Not Verified"}
               </span>

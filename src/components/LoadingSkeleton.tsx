@@ -10,10 +10,7 @@ interface LoadingSkeletonProps {
  * LoadingSkeleton component that provides different skeleton layouts
  * to prevent CLS while loading protected routes
  */
-const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({
-  variant = "page",
-  className = "",
-}) => {
+const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({ variant = "page", className = "" }) => {
   const baseClasses = "animate-pulse";
 
   if (variant === "dashboard") {
@@ -57,7 +54,10 @@ const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({
                   <div className="h-6 w-32 bg-gray-200 rounded mb-4"></div>
                   <div className="space-y-4">
                     {Array.from({ length: 5 }).map((_, index) => (
-                      <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                      <div
+                        key={index}
+                        className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0"
+                      >
                         <div className="flex items-center space-x-3">
                           <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
                           <div>
@@ -151,7 +151,7 @@ const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({
         <div className={baseClasses}>
           {/* Page title */}
           <div className="h-8 w-64 bg-gray-200 rounded mb-6"></div>
-          
+
           {/* Content */}
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <div className="h-6 w-48 bg-gray-200 rounded mb-4"></div>

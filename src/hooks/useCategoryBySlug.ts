@@ -28,7 +28,7 @@ export const useCategoryBySlug = (slug?: string) => {
       .replace(/\s+&\s+/g, "-")
       .replace(/\s+/g, "-");
 
-    const found = categories.find((cat) => cat.slug === normalizedSlug);
+    const found = categories.find(cat => cat.slug === normalizedSlug);
     setCategory(found || null);
   }, [slug, categories, loading]);
 

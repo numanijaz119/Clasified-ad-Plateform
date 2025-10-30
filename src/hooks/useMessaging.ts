@@ -1,21 +1,21 @@
 // src/hooks/useMessaging.ts
-import { useState, useEffect, useCallback } from 'react';
-import { messagingService } from '../services/messagingService';
-import { eventBus, ConversationPreviewUpdate, RefreshConversationsEvent } from '../utils/eventBus';
-import { useToast } from '../contexts/ToastContext';
+import { useState, useEffect, useCallback } from "react";
+import { messagingService } from "../services/messagingService";
+import { eventBus, ConversationPreviewUpdate, RefreshConversationsEvent } from "../utils/eventBus";
+import { useToast } from "../contexts/ToastContext";
 import type {
   Conversation,
   Message,
   Notification,
   MessageCreateRequest,
   MessageStats,
-} from '../types/messaging';
+} from "../types/messaging";
 
 /**
  * Hook for managing conversations
  */
-export const useConversations = (options?: { status?: 'active' | 'archived' | 'blocked' }) => {
-  const status = options?.status ?? 'active';
+export const useConversations = (options?: { status?: "active" | "archived" | "blocked" }) => {
+  const status = options?.status ?? "active";
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -24,55 +24,58 @@ export const useConversations = (options?: { status?: 'active' | 'archived' | 'b
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const toast = useToast();
 
-  const fetchConversations = useCallback(async (isRefreshing = false) => {
-    try {
-      // Only show loading state on initial load when there are no conversations
-      if (!isRefreshing && (!conversations || conversations.length === 0)) {
-        setLoading(true);
-      }
-
-      const response = await messagingService.getConversations({ status });
-
-      // Use functional update to ensure we have the latest state
-      setConversations(prevConversations => {
-        // Only update if there are actual changes to prevent unnecessary re-renders
-        const newConversations = response.results;
-
-        // Check if the data has actually changed
-        const hasChanges = JSON.stringify(prevConversations) !== JSON.stringify(newConversations);
-
-        if (hasChanges) {
-          return newConversations;
+  const fetchConversations = useCallback(
+    async (isRefreshing = false) => {
+      try {
+        // Only show loading state on initial load when there are no conversations
+        if (!isRefreshing && (!conversations || conversations.length === 0)) {
+          setLoading(true);
         }
-        return prevConversations;
-      });
 
-      // Update unread count
-      const newUnreadCount = response.results.reduce(
-        (count: number, conv: any) => count + (conv.unread_count || 0),
-        0
-      );
-      setUnreadCount(newUnreadCount);
+        const response = await messagingService.getConversations({ status });
 
-    } catch (err: any) {
-      const errorMsg = err.message || 'Failed to load conversations';
-      setError(errorMsg);
-      if (!isRefreshing) { // Only show toast for initial load errors
-        toast.error(errorMsg);
+        // Use functional update to ensure we have the latest state
+        setConversations(prevConversations => {
+          // Only update if there are actual changes to prevent unnecessary re-renders
+          const newConversations = response.results;
+
+          // Check if the data has actually changed
+          const hasChanges = JSON.stringify(prevConversations) !== JSON.stringify(newConversations);
+
+          if (hasChanges) {
+            return newConversations;
+          }
+          return prevConversations;
+        });
+
+        // Update unread count
+        const newUnreadCount = response.results.reduce(
+          (count: number, conv: any) => count + (conv.unread_count || 0),
+          0
+        );
+        setUnreadCount(newUnreadCount);
+      } catch (err: any) {
+        const errorMsg = err.message || "Failed to load conversations";
+        setError(errorMsg);
+        if (!isRefreshing) {
+          // Only show toast for initial load errors
+          toast.error(errorMsg);
+        }
+      } finally {
+        if (!isRefreshing) {
+          setLoading(false);
+        }
       }
-    } finally {
-      if (!isRefreshing) {
-        setLoading(false);
-      }
-    }
-  }, [toast, status]);
+    },
+    [toast, status]
+  );
 
   const fetchUnreadCount = useCallback(async () => {
     try {
       const count = await messagingService.getUnreadCount();
       setUnreadCount(count);
     } catch (err) {
-      console.error('Failed to fetch unread count:', err);
+      console.error("Failed to fetch unread count:", err);
     }
   }, []);
 
@@ -80,16 +83,22 @@ export const useConversations = (options?: { status?: 'active' | 'archived' | 'b
     fetchConversations();
     fetchUnreadCount();
     // Listen for conversation preview updates to update list instantly
-    const offUpdate = eventBus.on<ConversationPreviewUpdate>('conversation:update', (payload) => {
-      setConversations((prev) => {
-        const next = prev.map((c) => {
+    const offUpdate = eventBus.on<ConversationPreviewUpdate>("conversation:update", payload => {
+      setConversations(prev => {
+        const next = prev.map(c => {
           if (c.id !== payload.conversationId) return c;
-          const lastMessage = typeof payload.lastMessage === 'string' ? payload.lastMessage : (payload.lastMessage?.content || c.last_message || '');
+          const lastMessage =
+            typeof payload.lastMessage === "string"
+              ? payload.lastMessage
+              : payload.lastMessage?.content || c.last_message || "";
           return {
             ...c,
             last_message: lastMessage,
             last_message_at: payload.lastMessageAt || c.last_message_at,
-            unread_count: typeof payload.unreadDelta === 'number' ? Math.max(0, (c.unread_count || 0) + payload.unreadDelta) : c.unread_count,
+            unread_count:
+              typeof payload.unreadDelta === "number"
+                ? Math.max(0, (c.unread_count || 0) + payload.unreadDelta)
+                : c.unread_count,
           };
         });
         return next;
@@ -98,7 +107,7 @@ export const useConversations = (options?: { status?: 'active' | 'archived' | 'b
       fetchUnreadCount();
     });
     // Listen for refresh events (e.g., from NotificationContext)
-    const offRefresh = eventBus.on<RefreshConversationsEvent>('conversations:refresh', () => {
+    const offRefresh = eventBus.on<RefreshConversationsEvent>("conversations:refresh", () => {
       fetchConversations(true);
       fetchUnreadCount();
     });
@@ -108,99 +117,115 @@ export const useConversations = (options?: { status?: 'active' | 'archived' | 'b
     };
   }, [fetchConversations, fetchUnreadCount, status]);
 
-  const markAsRead = useCallback(async (conversationId: number) => {
-    try {
-      await messagingService.markConversationRead(conversationId);
-      // Update local state
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === conversationId ? { ...conv, unread_count: 0 } : conv
-        )
-      );
-      fetchUnreadCount();
-    } catch (err: any) {
-      toast.error('Failed to mark as read');
-    }
-  }, [toast, fetchUnreadCount]);
-
-  const archiveConversation = useCallback(async (conversationId: number) => {
-    try {
-      await messagingService.archiveConversation(conversationId);
-      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
-      toast.success('Conversation archived');
-    } catch (err: any) {
-      toast.error('Failed to archive conversation');
-    }
-  }, [toast]);
-
-  const unarchiveConversation = useCallback(async (conversationId: number) => {
-    try {
-      await messagingService.unarchiveConversation(conversationId);
-      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
-      toast.success('Conversation restored');
-    } catch (err: any) {
-      toast.error('Failed to restore conversation');
-    }
-  }, [toast]);
-
-  const blockConversation = useCallback(async (conversationId: number) => {
-    try {
-      const response = await messagingService.blockConversation(conversationId);
-
-      // Remove all conversations from the list (backend blocks all)
-      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
-
-      // Refresh unread count immediately to clear badges from blocked conversations
-      fetchUnreadCount();
-
-      // Emit event to refresh global notification counts
-      eventBus.emit('conversations:refresh', { reason: 'user_blocked' });
-
-      // Show count if available
-      const count = (response as any)?.blocked_count || 1;
-      const userName = (response as any)?.blocked_user_name || 'User';
-
-      if (count > 1) {
-        toast.success(`${userName} blocked. ${count} conversations blocked.`);
-      } else {
-        toast.success(`${userName} blocked.`);
+  const markAsRead = useCallback(
+    async (conversationId: number) => {
+      try {
+        await messagingService.markConversationRead(conversationId);
+        // Update local state
+        setConversations(prev =>
+          prev.map(conv => (conv.id === conversationId ? { ...conv, unread_count: 0 } : conv))
+        );
+        fetchUnreadCount();
+      } catch (err: any) {
+        toast.error("Failed to mark as read");
       }
-    } catch (err: any) {
-      toast.error('Failed to block user');
-    }
-  }, [toast, fetchUnreadCount]);
+    },
+    [toast, fetchUnreadCount]
+  );
 
-  const unblockConversation = useCallback(async (conversationId: number) => {
-    try {
-      const response = await messagingService.unblockConversation(conversationId);
-
-      // Remove from blocked list
-      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
-
-      // Refresh unread count to restore badges if there are unread messages
-      fetchUnreadCount();
-
-      // Emit event to refresh global notification counts
-      eventBus.emit('conversations:refresh', { reason: 'user_unblocked' });
-
-      // Show count if available
-      const count = (response as any)?.unblocked_count || 1;
-      const userName = (response as any)?.unblocked_user_name || 'User';
-
-      if (count > 1) {
-        toast.success(`${userName} unblocked. ${count} conversations restored.`);
-      } else {
-        toast.success(`${userName} unblocked.`);
+  const archiveConversation = useCallback(
+    async (conversationId: number) => {
+      try {
+        await messagingService.archiveConversation(conversationId);
+        setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+        toast.success("Conversation archived");
+      } catch (err: any) {
+        toast.error("Failed to archive conversation");
       }
-    } catch (err: any) {
-      toast.error('Failed to unblock user');
-    }
-  }, [toast, fetchUnreadCount]);
+    },
+    [toast]
+  );
+
+  const unarchiveConversation = useCallback(
+    async (conversationId: number) => {
+      try {
+        await messagingService.unarchiveConversation(conversationId);
+        setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+        toast.success("Conversation restored");
+      } catch (err: any) {
+        toast.error("Failed to restore conversation");
+      }
+    },
+    [toast]
+  );
+
+  const blockConversation = useCallback(
+    async (conversationId: number) => {
+      try {
+        const response = await messagingService.blockConversation(conversationId);
+
+        // Remove all conversations from the list (backend blocks all)
+        setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+
+        // Refresh unread count immediately to clear badges from blocked conversations
+        fetchUnreadCount();
+
+        // Emit event to refresh global notification counts
+        eventBus.emit("conversations:refresh", { reason: "user_blocked" });
+
+        // Show count if available
+        const count = (response as any)?.blocked_count || 1;
+        const userName = (response as any)?.blocked_user_name || "User";
+
+        if (count > 1) {
+          toast.success(`${userName} blocked. ${count} conversations blocked.`);
+        } else {
+          toast.success(`${userName} blocked.`);
+        }
+      } catch (err: any) {
+        toast.error("Failed to block user");
+      }
+    },
+    [toast, fetchUnreadCount]
+  );
+
+  const unblockConversation = useCallback(
+    async (conversationId: number) => {
+      try {
+        const response = await messagingService.unblockConversation(conversationId);
+
+        // Remove from blocked list
+        setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+
+        // Refresh unread count to restore badges if there are unread messages
+        fetchUnreadCount();
+
+        // Emit event to refresh global notification counts
+        eventBus.emit("conversations:refresh", { reason: "user_unblocked" });
+
+        // Show count if available
+        const count = (response as any)?.unblocked_count || 1;
+        const userName = (response as any)?.unblocked_user_name || "User";
+
+        if (count > 1) {
+          toast.success(`${userName} unblocked. ${count} conversations restored.`);
+        } else {
+          toast.success(`${userName} unblocked.`);
+        }
+      } catch (err: any) {
+        toast.error("Failed to unblock user");
+      }
+    },
+    [toast, fetchUnreadCount]
+  );
 
   // Wrap the refetch function to handle the refreshing state
-  const refetch = useCallback(async (isRefreshing = false) => {
-    return fetchConversations(isRefreshing);
-  }, [fetchConversations]);
+  const refetch = useCallback(
+    async (isRefreshing = false) => {
+      return fetchConversations(isRefreshing);
+    },
+    [fetchConversations]
+  );
 
   return {
     conversations,
@@ -228,61 +253,64 @@ export const useMessages = (conversationId: number | null) => {
   const [lastFetchTime, setLastFetchTime] = useState<string | null>(null);
   const toast = useToast();
 
-  const fetchMessages = useCallback(async (incremental = false) => {
-    if (!conversationId) return;
+  const fetchMessages = useCallback(
+    async (incremental = false) => {
+      if (!conversationId) return;
 
-    try {
-      if (!incremental) {
-        setLoading(true);
-      }
-      setError(null);
-
-      // For incremental fetch, only get messages after the last fetch
-      const params: any = {
-        conversation_id: conversationId,
-      };
-
-      if (incremental && lastFetchTime) {
-        params.since = lastFetchTime;
-      }
-
-      const response = await messagingService.getMessages(params);
-
-      if (incremental && lastFetchTime) {
-        // Append new messages to existing ones
-        if (response.results.length > 0) {
-          setMessages(prev => [...prev, ...response.results]);
-          console.log(`Fetched ${response.results.length} new messages incrementally`);
+      try {
+        if (!incremental) {
+          setLoading(true);
         }
-      } else {
-        // Replace all messages (initial load)
-        setMessages(response.results);
-      }
+        setError(null);
 
-      // Update last fetch time to the most recent message timestamp
-      if (response.results.length > 0) {
-        const lastMessage = response.results[response.results.length - 1];
-        setLastFetchTime(lastMessage.created_at);
+        // For incremental fetch, only get messages after the last fetch
+        const params: any = {
+          conversation_id: conversationId,
+        };
 
-        // Emit preview update using the last message received
-        eventBus.emit<ConversationPreviewUpdate>('conversation:update', {
-          conversationId: conversationId,
-          lastMessage: lastMessage,
-          lastMessageAt: lastMessage.created_at,
-        });
+        if (incremental && lastFetchTime) {
+          params.since = lastFetchTime;
+        }
+
+        const response = await messagingService.getMessages(params);
+
+        if (incremental && lastFetchTime) {
+          // Append new messages to existing ones
+          if (response.results.length > 0) {
+            setMessages(prev => [...prev, ...response.results]);
+            console.log(`Fetched ${response.results.length} new messages incrementally`);
+          }
+        } else {
+          // Replace all messages (initial load)
+          setMessages(response.results);
+        }
+
+        // Update last fetch time to the most recent message timestamp
+        if (response.results.length > 0) {
+          const lastMessage = response.results[response.results.length - 1];
+          setLastFetchTime(lastMessage.created_at);
+
+          // Emit preview update using the last message received
+          eventBus.emit<ConversationPreviewUpdate>("conversation:update", {
+            conversationId: conversationId,
+            lastMessage: lastMessage,
+            lastMessageAt: lastMessage.created_at,
+          });
+        }
+      } catch (err: any) {
+        const errorMsg = err.message || "Failed to load messages";
+        setError(errorMsg);
+        if (!incremental) {
+          toast.error(errorMsg);
+        }
+      } finally {
+        if (!incremental) {
+          setLoading(false);
+        }
       }
-    } catch (err: any) {
-      const errorMsg = err.message || 'Failed to load messages';
-      setError(errorMsg);
-      if (!incremental) {
-        toast.error(errorMsg);
-      }
-    } finally {
-      if (!incremental) {
-        setLoading(false);
-      }
-    }
-  }, [conversationId, lastFetchTime, toast]);
+    },
+    [conversationId, lastFetchTime, toast]
+  );
 
   useEffect(() => {
     if (conversationId) {
@@ -292,55 +320,58 @@ export const useMessages = (conversationId: number | null) => {
     }
   }, [conversationId]);
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!conversationId || !content.trim()) return false;
+  const sendMessage = useCallback(
+    async (content: string) => {
+      if (!conversationId || !content.trim()) return false;
 
-    try {
-      setSending(true);
-      const messageData: MessageCreateRequest = {
-        conversation: conversationId,
-        message_type: 'text',
-        content: content.trim(),
-      };
+      try {
+        setSending(true);
+        const messageData: MessageCreateRequest = {
+          conversation: conversationId,
+          message_type: "text",
+          content: content.trim(),
+        };
 
-      const newMessage = await messagingService.sendMessage(messageData);
+        const newMessage = await messagingService.sendMessage(messageData);
 
-      // Add new message to list
-      setMessages(prev => [...prev, newMessage]);
-      // Emit immediate preview update (no unread delta for self send)
-      eventBus.emit<ConversationPreviewUpdate>('conversation:update', {
-        conversationId,
-        lastMessage: newMessage,
-        lastMessageAt: newMessage.created_at,
-        unreadDelta: 0,
-      });
+        // Add new message to list
+        setMessages(prev => [...prev, newMessage]);
+        // Emit immediate preview update (no unread delta for self send)
+        eventBus.emit<ConversationPreviewUpdate>("conversation:update", {
+          conversationId,
+          lastMessage: newMessage,
+          lastMessageAt: newMessage.created_at,
+          unreadDelta: 0,
+        });
 
-      return true;
-    } catch (err: any) {
-      // Parse error message from backend
-      let errorMessage = 'Failed to send message';
+        return true;
+      } catch (err: any) {
+        // Parse error message from backend
+        let errorMessage = "Failed to send message";
 
-      if (err.details?.conversation) {
-        // Handle conversation-level errors (e.g., blocked)
-        const conversationError = Array.isArray(err.details.conversation)
-          ? err.details.conversation[0]
-          : err.details.conversation;
+        if (err.details?.conversation) {
+          // Handle conversation-level errors (e.g., blocked)
+          const conversationError = Array.isArray(err.details.conversation)
+            ? err.details.conversation[0]
+            : err.details.conversation;
 
-        if (conversationError.includes('blocked')) {
-          errorMessage = 'Cannot send message. This conversation is blocked.';
-        } else {
-          errorMessage = conversationError;
+          if (conversationError.includes("blocked")) {
+            errorMessage = "Cannot send message. This conversation is blocked.";
+          } else {
+            errorMessage = conversationError;
+          }
+        } else if (err.message) {
+          errorMessage = err.message;
         }
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
 
-      toast.error(errorMessage);
-      return false;
-    } finally {
-      setSending(false);
-    }
-  }, [conversationId, toast]);
+        toast.error(errorMessage);
+        return false;
+      } finally {
+        setSending(false);
+      }
+    },
+    [conversationId, toast]
+  );
 
   const markAsRead = useCallback(async () => {
     if (!conversationId) return;
@@ -348,11 +379,9 @@ export const useMessages = (conversationId: number | null) => {
     try {
       await messagingService.markAllMessagesRead(conversationId);
       // Update local state
-      setMessages(prev =>
-        prev.map(msg => ({ ...msg, is_read: true }))
-      );
+      setMessages(prev => prev.map(msg => ({ ...msg, is_read: true })));
     } catch (err) {
-      console.error('Failed to mark messages as read:', err);
+      console.error("Failed to mark messages as read:", err);
     }
   }, [conversationId]);
 
@@ -385,7 +414,7 @@ export const useNotifications = () => {
       const response = await messagingService.getNotifications();
       setNotifications(response.results);
     } catch (err: any) {
-      const errorMsg = err.message || 'Failed to load notifications';
+      const errorMsg = err.message || "Failed to load notifications";
       setError(errorMsg);
     } finally {
       setLoading(false);
@@ -397,7 +426,7 @@ export const useNotifications = () => {
       const count = await messagingService.getUnreadNotificationsCount();
       setUnreadCount(count);
     } catch (err) {
-      console.error('Failed to fetch unread notifications:', err);
+      console.error("Failed to fetch unread notifications:", err);
     }
   }, []);
 
@@ -406,30 +435,29 @@ export const useNotifications = () => {
     fetchUnreadCount();
   }, [fetchNotifications, fetchUnreadCount]);
 
-  const markAsRead = useCallback(async (notificationId: number) => {
-    try {
-      await messagingService.markNotificationRead(notificationId);
-      setNotifications(prev =>
-        prev.map(notif =>
-          notif.id === notificationId ? { ...notif, is_read: true } : notif
-        )
-      );
-      fetchUnreadCount();
-    } catch (err: any) {
-      toast.error('Failed to mark notification as read');
-    }
-  }, [toast, fetchUnreadCount]);
+  const markAsRead = useCallback(
+    async (notificationId: number) => {
+      try {
+        await messagingService.markNotificationRead(notificationId);
+        setNotifications(prev =>
+          prev.map(notif => (notif.id === notificationId ? { ...notif, is_read: true } : notif))
+        );
+        fetchUnreadCount();
+      } catch (err: any) {
+        toast.error("Failed to mark notification as read");
+      }
+    },
+    [toast, fetchUnreadCount]
+  );
 
   const markAllAsRead = useCallback(async () => {
     try {
       await messagingService.markAllNotificationsRead();
-      setNotifications(prev =>
-        prev.map(notif => ({ ...notif, is_read: true }))
-      );
+      setNotifications(prev => prev.map(notif => ({ ...notif, is_read: true })));
       setUnreadCount(0);
-      toast.success('All notifications marked as read');
+      toast.success("All notifications marked as read");
     } catch (err: any) {
-      toast.error('Failed to mark all as read');
+      toast.error("Failed to mark all as read");
     }
   }, [toast]);
 
@@ -437,9 +465,9 @@ export const useNotifications = () => {
     try {
       await messagingService.clearAllNotifications();
       setNotifications([]);
-      toast.success('Notifications cleared');
+      toast.success("Notifications cleared");
     } catch (err: any) {
-      toast.error('Failed to clear notifications');
+      toast.error("Failed to clear notifications");
     }
   }, [toast]);
 
@@ -469,7 +497,7 @@ export const useMessagingStats = () => {
       const data = await messagingService.getStats();
       setStats(data);
     } catch (err: any) {
-      toast.error('Failed to load messaging statistics');
+      toast.error("Failed to load messaging statistics");
     } finally {
       setLoading(false);
     }

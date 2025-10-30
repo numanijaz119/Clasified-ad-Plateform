@@ -24,9 +24,7 @@ const NotFoundPage: React.FC = () => {
         </div>
 
         {/* Content */}
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">
-          Oops! Page Not Found
-        </h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">Oops! Page Not Found</h2>
         <p className="text-lg text-gray-600 mb-8">
           The page you're looking for doesn't exist or has been moved.
           <br />
@@ -42,7 +40,7 @@ const NotFoundPage: React.FC = () => {
             <ArrowLeft className="h-5 w-5 mr-2" />
             Go Back
           </button>
-          
+
           <button
             onClick={() => navigate("/")}
             className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg text-base font-medium text-white bg-orange-500 hover:bg-orange-600 transition-colors"

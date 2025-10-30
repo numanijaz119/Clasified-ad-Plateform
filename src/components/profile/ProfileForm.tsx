@@ -55,17 +55,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">
-        Profile Information
-      </h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">Profile Information</h2>
 
       {isEditing ? (
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label
-              htmlFor="first_name"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">
               First Name
             </label>
             <input
@@ -86,10 +81,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
           </div>
 
           <div>
-            <label
-              htmlFor="last_name"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">
               Last Name
             </label>
             <input
@@ -110,10 +102,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
           </div>
 
           <div>
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
               Phone Number
             </label>
             <input
@@ -157,32 +146,22 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
       ) : (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              First Name
-            </label>
+            <label className="block text-sm font-medium text-gray-700">First Name</label>
             <p className="text-gray-900 mt-1 py-2">{user.first_name}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Last Name
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Last Name</label>
             <p className="text-gray-900 mt-1 py-2">{user.last_name}</p>
           </div>
           {user.show_email !== false && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Email</label>
               <p className="text-gray-900 mt-1 py-2">{user.email}</p>
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Phone Number
-            </label>
-            <p className="text-gray-900 mt-1 py-2">
-              {user.phone || "Not provided"}
-            </p>
+            <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+            <p className="text-gray-900 mt-1 py-2">{user.phone || "Not provided"}</p>
           </div>
         </div>
       )}

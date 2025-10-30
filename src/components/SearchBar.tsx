@@ -26,7 +26,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ className }) => {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search for jobs, homes, cars, services..."
             className="w-full pl-10 pr-24 md:pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
           />

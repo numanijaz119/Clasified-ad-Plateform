@@ -7,13 +7,11 @@ import {
   Eye,
   Clock,
   Star,
-  Heart,
   Phone,
   Mail,
   User,
   MessageCircle,
   TrendingUp,
-  Edit,
   BarChart3,
   Flag,
 } from "lucide-react";
@@ -74,26 +72,20 @@ const ListingModal: React.FC<ListingModalProps> = ({
   // CRITICAL: Check ownership using multiple sources
   const isOwnAd =
     user &&
-    (listing.is_owner === true ||
-      listing.user_id === user.id ||
-      listing.user?.id === user.id);
+    (listing.is_owner === true || listing.user_id === user.id || listing.user?.id === user.id);
 
   // Use dynamic images from API, fallback to placeholder if none
   const displayImages =
-    listing.images && listing.images.length > 0
-      ? listing.images
-      : ["/placeholder.svg"];
+    listing.images && listing.images.length > 0 ? listing.images : ["/placeholder.svg"];
 
   const hasMultipleImages = displayImages.length > 1;
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % displayImages.length);
+    setCurrentImageIndex(prev => (prev + 1) % displayImages.length);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex(
-      (prev) => (prev - 1 + displayImages.length) % displayImages.length
-    );
+    setCurrentImageIndex(prev => (prev - 1 + displayImages.length) % displayImages.length);
   };
 
   const handleMessageSeller = async () => {
@@ -110,9 +102,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
     try {
       setStartingConversation(true);
 
-      const conversation = await messagingService.createConversation(
-        listing.id
-      );
+      const conversation = await messagingService.createConversation(listing.id);
 
       navigate("/messages", {
         state: { conversationId: conversation.id },
@@ -142,9 +132,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
             "You have blocked this user. Please unblock them from Blocked Chats to continue."
           );
         } else if (errorMessage.includes("has blocked you")) {
-          toast.error(
-            "This user has blocked you. You cannot start a conversation with them."
-          );
+          toast.error("This user has blocked you. You cannot start a conversation with them.");
         } else {
           toast.error("Cannot start conversation. User is blocked.");
         }
@@ -159,12 +147,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
   };
 
   return (
-    <BaseModal
-      isOpen={isOpen}
-      onClose={onClose}
-      maxWidth="max-w-4xl"
-      showCloseButton={false}
-    >
+    <BaseModal isOpen={isOpen} onClose={onClose} maxWidth="max-w-4xl" showCloseButton={false}>
       {/* Custom Header - Blue border for own ads */}
       <div
         className={`flex items-center justify-between p-6 border-b sticky top-0 bg-white z-10 ${
@@ -203,12 +186,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
           className="text-gray-400 hover:text-gray-600 transition-colors"
           aria-label="Close modal"
         >
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -222,13 +200,9 @@ const ListingModal: React.FC<ListingModalProps> = ({
       <div className="p-6">
         {/* Title and Price */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            {listing.title}
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{listing.title}</h1>
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="text-3xl font-bold text-orange-600">
-              {listing.price}
-            </div>
+            <div className="text-3xl font-bold text-orange-600">{listing.price}</div>
             <div className="flex items-center space-x-4 text-sm text-gray-600">
               <div className="flex items-center space-x-1">
                 <MapPin className="h-4 w-4" aria-hidden="true" />
@@ -309,9 +283,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
 
         {/* Description */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">
-            Description
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">Description</h2>
           <div className="prose prose-sm max-w-none text-gray-700">
             <p className="whitespace-pre-wrap">{listing.description}</p>
           </div>
@@ -325,15 +297,11 @@ const ListingModal: React.FC<ListingModalProps> = ({
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
               <div className="flex items-center mb-4">
                 <TrendingUp className="h-5 w-5 text-blue-600 mr-2" />
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Your Ad Performance
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900">Your Ad Performance</h2>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {listing.views}
-                  </div>
+                  <div className="text-2xl font-bold text-blue-600">{listing.views}</div>
                   <div className="text-sm text-gray-600 mt-1">Total Views</div>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center">
@@ -343,16 +311,14 @@ const ListingModal: React.FC<ListingModalProps> = ({
                   <div className="text-sm text-gray-600 mt-1">Featured</div>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-orange-600">
-                    {listing.timeAgo}
-                  </div>
+                  <div className="text-2xl font-bold text-orange-600">{listing.timeAgo}</div>
                   <div className="text-sm text-gray-600 mt-1">Posted</div>
                 </div>
               </div>
               <div className="mt-4 text-sm text-gray-600 bg-white rounded-lg p-3">
                 <p>
-                  💡 <strong>Tip:</strong> Want more visibility? Consider
-                  promoting your ad to featured status for increased reach!
+                  💡 <strong>Tip:</strong> Want more visibility? Consider promoting your ad to
+                  featured status for increased reach!
                 </p>
               </div>
             </div>
@@ -380,9 +346,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
         ) : (
           /* BUYER VIEW - Show contact information */
           <div className="bg-gray-50 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Contact Information
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
             {isLoggedIn ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -393,9 +357,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
                       </div>
                       <div>
                         <div className="text-sm text-gray-600">Phone</div>
-                        <div className="font-semibold text-gray-900">
-                          {listing.phone}
-                        </div>
+                        <div className="font-semibold text-gray-900">{listing.phone}</div>
                       </div>
                     </div>
                   )}
@@ -406,9 +368,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
                       </div>
                       <div>
                         <div className="text-sm text-gray-600">Email</div>
-                        <div className="font-semibold text-gray-900">
-                          {listing.email}
-                        </div>
+                        <div className="font-semibold text-gray-900">{listing.email}</div>
                       </div>
                     </div>
                   )}
@@ -419,9 +379,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
                       </div>
                       <div>
                         <div className="text-sm text-gray-600">Seller</div>
-                        <div className="font-semibold text-gray-900">
-                          {listing.user.full_name}
-                        </div>
+                        <div className="font-semibold text-gray-900">{listing.user.full_name}</div>
                       </div>
                     </div>
                   )}
@@ -467,8 +425,6 @@ const ListingModal: React.FC<ListingModalProps> = ({
                     </a>
                   )}
 
-                 
-
                   {/* Report Button - Only show if not own ad */}
                   {!isOwnAd && (
                     <button
@@ -491,8 +447,7 @@ const ListingModal: React.FC<ListingModalProps> = ({
                   Sign In to View Contact Info
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Please sign in to view the seller's contact information and
-                  get in touch.
+                  Please sign in to view the seller's contact information and get in touch.
                 </p>
               </div>
             )}

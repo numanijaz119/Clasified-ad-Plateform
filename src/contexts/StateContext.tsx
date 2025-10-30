@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { API_CONFIG } from '../config/api';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { API_CONFIG } from "../config/api";
 
 interface StateInfo {
   id: number;
@@ -32,20 +32,20 @@ export const StateProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       const response = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CONTENT.CURRENT_STATE}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
-      
+
       if (!response.ok) {
-        throw new Error('Failed to fetch state');
+        throw new Error("Failed to fetch state");
       }
-      
+
       const data = await response.json();
       setCurrentState(data);
-      
+
       // Update document title, meta tags, logo, and favicon
       if (data) {
         updateSEO(data);
@@ -61,26 +61,26 @@ export const StateProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const updateSEO = (state: StateInfo) => {
     // Update page title
     document.title = state.meta_title;
-    
+
     // Update meta description
     let metaDescription = document.querySelector('meta[name="description"]');
     if (!metaDescription) {
-      metaDescription = document.createElement('meta');
-      metaDescription.setAttribute('name', 'description');
+      metaDescription = document.createElement("meta");
+      metaDescription.setAttribute("name", "description");
       document.head.appendChild(metaDescription);
     }
-    metaDescription.setAttribute('content', state.meta_description);
-    
+    metaDescription.setAttribute("content", state.meta_description);
+
     // Update Open Graph tags
-    updateMetaTag('og:title', state.meta_title);
-    updateMetaTag('og:description', state.meta_description);
-    updateMetaTag('og:site_name', state.name);
-    updateMetaTag('og:url', window.location.href);
-    
+    updateMetaTag("og:title", state.meta_title);
+    updateMetaTag("og:description", state.meta_description);
+    updateMetaTag("og:site_name", state.name);
+    updateMetaTag("og:url", window.location.href);
+
     // Update Twitter Card tags
-    updateMetaTag('twitter:title', state.meta_title);
-    updateMetaTag('twitter:description', state.meta_description);
-    updateMetaTag('twitter:card', 'summary_large_image');
+    updateMetaTag("twitter:title", state.meta_title);
+    updateMetaTag("twitter:description", state.meta_description);
+    updateMetaTag("twitter:card", "summary_large_image");
   };
 
   const updateBranding = (state: StateInfo) => {
@@ -89,21 +89,21 @@ export const StateProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       // Remove existing favicons
       const existingFavicons = document.querySelectorAll('link[rel*="icon"]');
       existingFavicons.forEach(icon => icon.remove());
-      
+
       // Add new favicon
-      const favicon = document.createElement('link');
-      favicon.rel = 'icon';
-      favicon.type = 'image/x-icon';
+      const favicon = document.createElement("link");
+      favicon.rel = "icon";
+      favicon.type = "image/x-icon";
       favicon.href = state.favicon;
       document.head.appendChild(favicon);
-      
+
       // Add apple touch icon
-      const appleTouchIcon = document.createElement('link');
-      appleTouchIcon.rel = 'apple-touch-icon';
+      const appleTouchIcon = document.createElement("link");
+      appleTouchIcon.rel = "apple-touch-icon";
       appleTouchIcon.href = state.favicon;
       document.head.appendChild(appleTouchIcon);
     }
-    
+
     // Logo is accessed via currentState.logo in components
   };
 
@@ -113,15 +113,15 @@ export const StateProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       meta = document.querySelector(`meta[name="${property}"]`) as HTMLMetaElement;
     }
     if (!meta) {
-      meta = document.createElement('meta');
-      if (property.startsWith('og:') || property.startsWith('twitter:')) {
-        meta.setAttribute('property', property);
+      meta = document.createElement("meta");
+      if (property.startsWith("og:") || property.startsWith("twitter:")) {
+        meta.setAttribute("property", property);
       } else {
-        meta.setAttribute('name', property);
+        meta.setAttribute("name", property);
       }
       document.head.appendChild(meta);
     }
-    meta.setAttribute('content', content);
+    meta.setAttribute("content", content);
   };
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export const StateProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 export const useStateContext = () => {
   const context = useContext(StateContext);
   if (context === undefined) {
-    throw new Error('useStateContext must be used within a StateProvider');
+    throw new Error("useStateContext must be used within a StateProvider");
   }
   return context;
 };

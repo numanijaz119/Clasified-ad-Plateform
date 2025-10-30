@@ -22,9 +22,7 @@ interface UseCategoriesReturn {
   refetch: () => Promise<void>;
 }
 
-export const useCategories = (
-  activeOnly: boolean = true
-): UseCategoriesReturn => {
+export const useCategories = (activeOnly: boolean = true): UseCategoriesReturn => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,9 +35,7 @@ export const useCategories = (
       const data = await contentService.getCategories();
 
       // Filter active categories if needed
-      const filteredCategories = activeOnly
-        ? data.filter((cat: Category) => cat.is_active)
-        : data;
+      const filteredCategories = activeOnly ? data.filter((cat: Category) => cat.is_active) : data;
 
       // Sort by sort_order, then name
       const sortedCategories = filteredCategories.sort((a, b) => {
@@ -51,8 +47,7 @@ export const useCategories = (
 
       setCategories(sortedCategories);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to load categories";
+      const errorMessage = err instanceof Error ? err.message : "Failed to load categories";
       setError(errorMessage);
       console.error("Error fetching categories:", err);
     } finally {

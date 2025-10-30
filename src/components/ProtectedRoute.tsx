@@ -39,12 +39,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (requireAuth && !isAuthenticated) {
     // Store the intended destination for redirect after login
     const from = location.pathname + location.search;
-    return (
-      <Navigate
-        to={`${fallbackPath}?redirect=${encodeURIComponent(from)}`}
-        replace
-      />
-    );
+    return <Navigate to={`${fallbackPath}?redirect=${encodeURIComponent(from)}`} replace />;
   }
 
   // Block admin users from accessing user-only routes (like user dashboard)

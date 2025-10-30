@@ -10,17 +10,13 @@ import {
   Filter,
   X,
   Star,
-
   Eye,
   EyeOff,
 } from "lucide-react";
 import { useToast } from "../../contexts/ToastContext";
 import { adminService } from "../../services/adminService";
 import { contentService } from "../../services/contentService";
-import {
-  AdminCityCreateRequest,
-  AdminCityUpdateRequest,
-} from "../../types/admin";
+import { AdminCityCreateRequest, AdminCityUpdateRequest } from "../../types/admin";
 import { City, State } from "../../types/content";
 import BaseModal from "../modals/BaseModal";
 import ConfirmModal from "./ConfirmModal";
@@ -91,7 +87,7 @@ const CitiesTab: React.FC = () => {
 
   // Filter cities based on search and filters
   const filteredCities = useMemo(() => {
-    return cities.filter((city) => {
+    return cities.filter(city => {
       // Search filter
       if (searchQuery && !city.name.toLowerCase().includes(searchQuery.toLowerCase())) {
         return false;
@@ -164,8 +160,8 @@ const CitiesTab: React.FC = () => {
       return;
     }
 
-    setFormData((prev) => ({ ...prev, photo: file }));
-    setFormErrors((prev) => ({ ...prev, photo: "" }));
+    setFormData(prev => ({ ...prev, photo: file }));
+    setFormErrors(prev => ({ ...prev, photo: "" }));
 
     const reader = new FileReader();
     reader.onloadend = () => setImagePreview(reader.result as string);
@@ -210,11 +206,11 @@ const CitiesTab: React.FC = () => {
           is_major: formData.is_major,
           is_active: selectedCity.is_active,
         };
-        
+
         if (formData.photo) {
           updateData.photo = formData.photo;
         }
-        
+
         await adminService.updateCity(selectedCity.id, updateData);
         toast.success("City updated successfully");
         setShowEditModal(false);
@@ -227,11 +223,11 @@ const CitiesTab: React.FC = () => {
           is_major: formData.is_major,
           is_active: true, // Set new cities as active by default
         };
-        
+
         if (formData.photo) {
           cityData.photo = formData.photo;
         }
-        
+
         await adminService.createCity(cityData);
         toast.success("City created successfully");
         setShowCreateModal(false);
@@ -242,10 +238,9 @@ const CitiesTab: React.FC = () => {
       await loadData();
     } catch (err: any) {
       const errorMsg = err.message || "Failed to save city";
-      if(err.message === "The fields name, state must make a unique set."){
-        toast.error("The city already exists.")
-      }else{
-
+      if (err.message === "The fields name, state must make a unique set.") {
+        toast.error("The city already exists.");
+      } else {
         toast.error(errorMsg);
       }
       if (err.details) setFormErrors(err.details);
@@ -276,11 +271,11 @@ const CitiesTab: React.FC = () => {
         is_active: newStatus,
       };
       await adminService.updateCity(city.id, updateData);
-      
+
       // Reload data
       await loadData();
-      
-      toast.success(`City ${city.is_active ? 'deactivated' : 'activated'} successfully`);
+
+      toast.success(`City ${city.is_active ? "deactivated" : "activated"} successfully`);
     } catch (err: any) {
       console.error("Toggle city status error:", err);
       toast.error(err.message || "Failed to update city status");
@@ -294,11 +289,11 @@ const CitiesTab: React.FC = () => {
         is_major: newMajorStatus,
       };
       await adminService.updateCity(city.id, updateData);
-      
+
       // Reload data
       await loadData();
-      
-      toast.success(`City ${city.is_major ? 'unmarked' : 'marked'} as major city`);
+
+      toast.success(`City ${city.is_major ? "unmarked" : "marked"} as major city`);
     } catch (err: any) {
       console.error("Toggle major status error:", err);
       toast.error(err.message || "Failed to update major city status");
@@ -336,7 +331,7 @@ const CitiesTab: React.FC = () => {
                   type="text"
                   placeholder="Search cities..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={e => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 w-64"
                 />
               </div>
@@ -375,16 +370,14 @@ const CitiesTab: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  State
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
                 <select
                   value={selectedState}
-                  onChange={(e) => setSelectedState(e.target.value)}
+                  onChange={e => setSelectedState(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 >
                   <option value="all">All States</option>
-                  {states.map((state) => (
+                  {states.map(state => (
                     <option key={state.id} value={state.code}>
                       {state.name}
                     </option>
@@ -397,7 +390,7 @@ const CitiesTab: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={showMajorOnly}
-                    onChange={(e) => setShowMajorOnly(e.target.checked)}
+                    onChange={e => setShowMajorOnly(e.target.checked)}
                     className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                   />
                   <span className="ml-2 text-sm text-gray-700">Major cities only</span>
@@ -409,11 +402,11 @@ const CitiesTab: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={showActiveOnly}
-                    onChange={(e) => setShowActiveOnly(e.target.checked)}
+                    onChange={e => setShowActiveOnly(e.target.checked)}
                     className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                   />
                   <span className="ml-2 text-sm text-gray-700">
-                    {showActiveOnly ? 'Show active cities' : 'Show inactive cities'}
+                    {showActiveOnly ? "Show active cities" : "Show inactive cities"}
                   </span>
                 </label>
               </div>
@@ -478,7 +471,7 @@ const CitiesTab: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCities.map((city) => (
+                {filteredCities.map(city => (
                   <tr key={city.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
@@ -553,7 +546,7 @@ const CitiesTab: React.FC = () => {
                           }`}
                           title={city.is_major ? "Remove major city status" : "Mark as major city"}
                         >
-                          <Star className={`h-4 w-4 ${city.is_major ? 'fill-current' : ''}`} />
+                          <Star className={`h-4 w-4 ${city.is_major ? "fill-current" : ""}`} />
                         </button>
                         <button
                           onClick={() => openEditModal(city)}
@@ -603,13 +596,11 @@ const CitiesTab: React.FC = () => {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Enter city name"
                 />
-                {formErrors.name && (
-                  <p className="text-red-600 text-sm mt-1">{formErrors.name}</p>
-                )}
+                {formErrors.name && <p className="text-red-600 text-sm mt-1">{formErrors.name}</p>}
               </div>
 
               <div>
@@ -618,11 +609,11 @@ const CitiesTab: React.FC = () => {
                 </label>
                 <select
                   value={formData.state}
-                  onChange={(e) => setFormData(prev => ({ ...prev, state: Number(e.target.value) }))}
+                  onChange={e => setFormData(prev => ({ ...prev, state: Number(e.target.value) }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 >
                   <option value={0}>Select a state</option>
-                  {states.map((state) => (
+                  {states.map(state => (
                     <option key={state.id} value={state.id}>
                       {state.name}
                     </option>
@@ -644,12 +635,8 @@ const CitiesTab: React.FC = () => {
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-orange-500 transition-colors">
                     <div className="flex flex-col items-center">
                       <MapPin className="h-8 w-8 text-gray-400 mb-2" />
-                      <span className="text-sm text-gray-600">
-                        Click to upload city photo
-                      </span>
-                      <span className="text-xs text-gray-500 mt-1">
-                        PNG, JPG up to 5MB
-                      </span>
+                      <span className="text-sm text-gray-600">Click to upload city photo</span>
+                      <span className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</span>
                     </div>
                     <input
                       type="file"
@@ -669,9 +656,7 @@ const CitiesTab: React.FC = () => {
                   </div>
                 )}
               </div>
-              {formErrors.photo && (
-                <p className="text-red-600 text-sm mt-1">{formErrors.photo}</p>
-              )}
+              {formErrors.photo && <p className="text-red-600 text-sm mt-1">{formErrors.photo}</p>}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -683,7 +668,7 @@ const CitiesTab: React.FC = () => {
                   type="number"
                   step="any"
                   value={formData.latitude}
-                  onChange={(e) => setFormData(prev => ({ ...prev, latitude: e.target.value }))}
+                  onChange={e => setFormData(prev => ({ ...prev, latitude: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="e.g., 41.8781"
                 />
@@ -700,7 +685,7 @@ const CitiesTab: React.FC = () => {
                   type="number"
                   step="any"
                   value={formData.longitude}
-                  onChange={(e) => setFormData(prev => ({ ...prev, longitude: e.target.value }))}
+                  onChange={e => setFormData(prev => ({ ...prev, longitude: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="e.g., -87.6298"
                 />
@@ -715,7 +700,7 @@ const CitiesTab: React.FC = () => {
                 type="checkbox"
                 id="is_major"
                 checked={formData.is_major}
-                onChange={(e) => setFormData(prev => ({ ...prev, is_major: e.target.checked }))}
+                onChange={e => setFormData(prev => ({ ...prev, is_major: e.target.checked }))}
                 className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
               />
               <label htmlFor="is_major" className="ml-2 block text-sm text-gray-700">
@@ -741,13 +726,8 @@ const CitiesTab: React.FC = () => {
               disabled={submitting}
               className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitting
-                ? "Saving..."
-                : showEditModal
-                ? "Update City"
-                : "Add City"}
+              {submitting ? "Saving..." : showEditModal ? "Update City" : "Add City"}
             </button>
-        
           </div>
         </form>
       </BaseModal>

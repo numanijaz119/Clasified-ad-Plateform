@@ -68,16 +68,12 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">
-        Account Security
-      </h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">Account Security</h2>
 
       {isChangingPassword ? (
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Current Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
             <div className="relative">
               <input
                 type={showPassword.old ? "text" : "password"}
@@ -93,11 +89,7 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
                 onClick={() => onTogglePassword("old")}
                 className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 transition-colors"
               >
-                {showPassword.old ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
+                {showPassword.old ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
             {errors.old_password && (
@@ -106,9 +98,7 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              New Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
             <div className="relative">
               <input
                 type={showPassword.new ? "text" : "password"}
@@ -124,11 +114,7 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
                 onClick={() => onTogglePassword("new")}
                 className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 transition-colors"
               >
-                {showPassword.new ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
+                {showPassword.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
             {errors.new_password && (
@@ -173,9 +159,7 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
               </button>
             </div>
             {errors.confirm_password && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.confirm_password}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.confirm_password}</p>
             )}
           </div>
 
@@ -193,9 +177,7 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-medium text-gray-900">Password</h3>
-              <p className="text-sm text-gray-500">
-                Last changed: {getPasswordLastChanged()}
-              </p>
+              <p className="text-sm text-gray-500">Last changed: {getPasswordLastChanged()}</p>
             </div>
             <Button
               variant="ghost"
@@ -206,11 +188,7 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
               Change Password
             </Button>
 
-            <span
-              className={
-                !user.google_id ? "hidden" : "" + "text-sm text-orange-500 "
-              }
-            >
+            <span className={!user.google_id ? "hidden" : "" + "text-sm text-orange-500 "}>
               Google account users cannot change their password here.
             </span>
           </div>
@@ -218,14 +196,8 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
           <div className="border-t pt-4">
             <h3 className="font-medium text-gray-900 mb-2">Account Status</h3>
             <div className="flex items-center space-x-2">
-              <Shield
-                className={`w-4 h-4 ${
-                  user.is_active ? "text-green-500" : "text-red-500"
-                }`}
-              />
-              <span
-                className={user.is_active ? "text-green-600" : "text-red-600"}
-              >
+              <Shield className={`w-4 h-4 ${user.is_active ? "text-green-500" : "text-red-500"}`} />
+              <span className={user.is_active ? "text-green-600" : "text-red-600"}>
                 {user.is_active ? "Active" : "Inactive"}
               </span>
             </div>

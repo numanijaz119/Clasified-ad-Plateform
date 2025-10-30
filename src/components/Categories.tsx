@@ -98,10 +98,7 @@ const Categories: React.FC = () => {
     >
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2
-            id="categories-heading"
-            className="text-4xl font-bold text-gray-900 mb-4"
-          >
+          <h2 id="categories-heading" className="text-4xl font-bold text-gray-900 mb-4">
             Browse by Category
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
@@ -117,7 +114,7 @@ const Categories: React.FC = () => {
               <p className="text-gray-500 text-lg">No categories available</p>
             </div>
           ) : (
-            categories.map((category) => {
+            categories.map(category => {
               const IconComponent = getIcon(category.icon);
               const colorGradient = getColor(category.slug);
 
@@ -131,20 +128,14 @@ const Categories: React.FC = () => {
                   <div
                     className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${colorGradient} mb-4 group-hover:scale-110 transition-transform`}
                   >
-                    <IconComponent
-                      className="w-6 h-6 text-white"
-                      aria-hidden="true"
-                    />
+                    <IconComponent className="w-6 h-6 text-white" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-orange-500 transition-colors">
                     {category.name}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-1">
-                    {category.description}
-                  </p>
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-1">{category.description}</p>
                   <p className="text-sm font-medium text-gray-500">
-                    {category.ads_count.toLocaleString()}{" "}
-                    {category.ads_count === 1 ? "ad" : "ads"}
+                    {category.ads_count.toLocaleString()} {category.ads_count === 1 ? "ad" : "ads"}
                   </p>
                 </button>
               );

@@ -48,16 +48,13 @@ const SignInForm: React.FC<SignInFormProps> = ({
       console.error("Sign in error:", err);
 
       // Get the error message from the caught error
-      const errorMessage =
-        err.message || "Something went wrong. Please try again.";
+      const errorMessage = err.message || "Something went wrong. Please try again.";
 
       // Check if this is an email verification error
       if (
         errorMessage.toLowerCase().includes("verify your email") ||
         errorMessage.toLowerCase().includes("email_not_verified") ||
-        errorMessage
-          .toLowerCase()
-          .includes("please verify your email address before logging in")
+        errorMessage.toLowerCase().includes("please verify your email address before logging in")
       ) {
         onSwitchToVerification(email);
         sendVerificationOtp();
@@ -100,7 +97,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             placeholder="Email address"
             className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             required
@@ -114,7 +111,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
           <input
             type={showPassword ? "text" : "password"}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             placeholder="Password"
             className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             required
@@ -126,11 +123,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
             className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600"
             disabled={isLoading}
           >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
+            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
         </div>
 

@@ -43,13 +43,11 @@ export const PasswordHelper: React.FC<PasswordHelperProps> = ({
     });
   }
 
-  const allPassed = checks.every((check) => check.passed);
+  const allPassed = checks.every(check => check.passed);
 
   return (
     <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-      <div className="text-sm font-medium text-gray-700 mb-2">
-        Password Requirements:
-      </div>
+      <div className="text-sm font-medium text-gray-700 mb-2">Password Requirements:</div>
 
       <div className="space-y-1">
         {checks.map((check, index) => (
@@ -59,11 +57,7 @@ export const PasswordHelper: React.FC<PasswordHelperProps> = ({
               check.passed ? "text-green-600" : "text-red-500"
             }`}
           >
-            {check.passed ? (
-              <Check className="h-4 w-4" />
-            ) : (
-              <X className="h-4 w-4" />
-            )}
+            {check.passed ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
             <span>{check.label}</span>
           </div>
         ))}

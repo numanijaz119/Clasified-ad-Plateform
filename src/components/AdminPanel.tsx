@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Eye, Star, MapPin, Calendar } from 'lucide-react';
+import React, { useState } from "react";
+import { Plus, Edit, Trash2, Eye, Star, MapPin, Calendar } from "lucide-react";
 
 interface Ad {
   id: number;
@@ -7,7 +7,7 @@ interface Ad {
   category: string;
   city: string;
   price: string;
-  status: 'active' | 'pending' | 'expired';
+  status: "active" | "pending" | "expired";
   featured: boolean;
   views: number;
   createdAt: Date;
@@ -18,78 +18,88 @@ const AdminPanel: React.FC = () => {
   const [ads, setAds] = useState<Ad[]>([
     {
       id: 1,
-      title: 'Software Engineer Position',
-      category: 'Jobs',
-      city: 'Chicago',
-      price: '$95,000',
-      status: 'active',
+      title: "Software Engineer Position",
+      category: "Jobs",
+      city: "Chicago",
+      price: "$95,000",
+      status: "active",
       featured: true,
       views: 345,
-      createdAt: new Date('2025-01-10'),
-      expiresAt: new Date('2025-02-10')
+      createdAt: new Date("2025-01-10"),
+      expiresAt: new Date("2025-02-10"),
     },
     {
       id: 2,
-      title: '3BR Downtown Apartment',
-      category: 'Real Estate',
-      city: 'Naperville',
-      price: '$2,200/month',
-      status: 'active',
+      title: "3BR Downtown Apartment",
+      category: "Real Estate",
+      city: "Naperville",
+      price: "$2,200/month",
+      status: "active",
       featured: false,
       views: 289,
-      createdAt: new Date('2025-01-11'),
-      expiresAt: new Date('2025-02-11')
+      createdAt: new Date("2025-01-11"),
+      expiresAt: new Date("2025-02-11"),
     },
     {
       id: 3,
-      title: 'Honda Civic 2020',
-      category: 'Vehicles',
-      city: 'Aurora',
-      price: '$22,500',
-      status: 'pending',
+      title: "Honda Civic 2020",
+      category: "Vehicles",
+      city: "Aurora",
+      price: "$22,500",
+      status: "pending",
       featured: false,
       views: 156,
-      createdAt: new Date('2025-01-12'),
-      expiresAt: new Date('2025-02-12')
-    }
+      createdAt: new Date("2025-01-12"),
+      expiresAt: new Date("2025-02-12"),
+    },
   ]);
 
-  const [selectedCity, setSelectedCity] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedCity, setSelectedCity] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
 
-  const cities = ['all', 'Chicago', 'Aurora', 'Naperville', 'Bloomington-Normal', 'Peoria', 'Springfield', 'Urbana-Champaign', 'Rockford'];
-  const statuses = ['all', 'active', 'pending', 'expired'];
+  const cities = [
+    "all",
+    "Chicago",
+    "Aurora",
+    "Naperville",
+    "Bloomington-Normal",
+    "Peoria",
+    "Springfield",
+    "Urbana-Champaign",
+    "Rockford",
+  ];
+  const statuses = ["all", "active", "pending", "expired"];
 
   const filteredAds = ads.filter(ad => {
-    const matchesCity = selectedCity === 'all' || ad.city === selectedCity;
-    const matchesStatus = selectedStatus === 'all' || ad.status === selectedStatus;
+    const matchesCity = selectedCity === "all" || ad.city === selectedCity;
+    const matchesStatus = selectedStatus === "all" || ad.status === selectedStatus;
     return matchesCity && matchesStatus;
   });
 
   const toggleFeatured = (id: number) => {
-    setAds(ads.map(ad => 
-      ad.id === id ? { ...ad, featured: !ad.featured } : ad
-    ));
+    setAds(ads.map(ad => (ad.id === id ? { ...ad, featured: !ad.featured } : ad)));
   };
 
-  const updateStatus = (id: number, status: 'active' | 'pending' | 'expired') => {
-    setAds(ads.map(ad => 
-      ad.id === id ? { ...ad, status } : ad
-    ));
+  const updateStatus = (id: number, status: "active" | "pending" | "expired") => {
+    setAds(ads.map(ad => (ad.id === id ? { ...ad, status } : ad)));
   };
 
   const deleteAd = (id: number) => {
-    if (confirm('Are you sure you want to delete this ad?')) {
+    if (confirm("Are you sure you want to delete this ad?")) {
       setAds(ads.filter(ad => ad.id !== id));
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'expired': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "expired":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -115,7 +125,7 @@ const AdminPanel: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -124,12 +134,12 @@ const AdminPanel: React.FC = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Active Ads</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {ads.filter(ad => ad.status === 'active').length}
+                  {ads.filter(ad => ad.status === "active").length}
                 </p>
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -143,7 +153,7 @@ const AdminPanel: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -164,36 +174,42 @@ const AdminPanel: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Filter by City</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Filter by City
+                </label>
                 <select
                   value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
+                  onChange={e => setSelectedCity(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
                 >
                   {cities.map(city => (
                     <option key={city} value={city}>
-                      {city === 'all' ? 'All Cities' : city}
+                      {city === "all" ? "All Cities" : city}
                     </option>
                   ))}
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Filter by Status
+                </label>
                 <select
                   value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  onChange={e => setSelectedStatus(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
                 >
                   {statuses.map(status => (
                     <option key={status} value={status}>
-                      {status === 'all' ? 'All Status' : status.charAt(0).toUpperCase() + status.slice(1)}
+                      {status === "all"
+                        ? "All Status"
+                        : status.charAt(0).toUpperCase() + status.slice(1)}
                     </option>
                   ))}
                 </select>
               </div>
             </div>
-            
+
             <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 flex items-center space-x-2 font-semibold">
               <Plus className="h-4 w-4" />
               <span>Add New Ad</span>
@@ -228,7 +244,7 @@ const AdminPanel: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredAds.map((ad) => (
+                {filteredAds.map(ad => (
                   <tr key={ad.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -252,7 +268,9 @@ const AdminPanel: React.FC = () => {
                       <div className="text-sm font-medium text-gray-900">{ad.price}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ad.status)}`}>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ad.status)}`}
+                      >
                         {ad.status}
                       </span>
                     </td>
@@ -266,29 +284,31 @@ const AdminPanel: React.FC = () => {
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => toggleFeatured(ad.id)}
-                          className={`p-1 rounded ${ad.featured ? 'text-orange-500' : 'text-gray-400'} hover:text-orange-600`}
-                          title={ad.featured ? 'Remove from featured' : 'Make featured'}
+                          className={`p-1 rounded ${ad.featured ? "text-orange-500" : "text-gray-400"} hover:text-orange-600`}
+                          title={ad.featured ? "Remove from featured" : "Make featured"}
                         >
-                          <Star className={`h-4 w-4 ${ad.featured ? 'fill-current' : ''}`} />
+                          <Star className={`h-4 w-4 ${ad.featured ? "fill-current" : ""}`} />
                         </button>
-                        
+
                         <select
                           value={ad.status}
-                          onChange={(e) => updateStatus(ad.id, e.target.value as 'active' | 'pending' | 'expired')}
+                          onChange={e =>
+                            updateStatus(ad.id, e.target.value as "active" | "pending" | "expired")
+                          }
                           className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-orange-500"
                         >
                           <option value="active">Active</option>
                           <option value="pending">Pending</option>
                           <option value="expired">Expired</option>
                         </select>
-                        
+
                         <button className="text-blue-600 hover:text-blue-900" title="Edit">
                           <Edit className="h-4 w-4" />
                         </button>
-                        
-                        <button 
+
+                        <button
                           onClick={() => deleteAd(ad.id)}
-                          className="text-red-600 hover:text-red-900" 
+                          className="text-red-600 hover:text-red-900"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -300,7 +320,7 @@ const AdminPanel: React.FC = () => {
               </tbody>
             </table>
           </div>
-          
+
           {filteredAds.length === 0 && (
             <div className="text-center py-12">
               <div className="text-gray-400 mb-4">

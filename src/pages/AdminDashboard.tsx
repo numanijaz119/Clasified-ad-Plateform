@@ -64,7 +64,6 @@ const tabs: Tab[] = [
   { id: "settings", name: "Settings", icon: Settings },
 ];
 
-
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -73,7 +72,7 @@ const AdminDashboard: React.FC = () => {
   // Get active tab from URL hash
   const getActiveTabFromHash = (): TabId => {
     const hash = location.hash.replace("#", "");
-    const validTab = tabs.find((t) => t.id === hash);
+    const validTab = tabs.find(t => t.id === hash);
     return validTab ? (hash as TabId) : "overview";
   };
 
@@ -134,27 +133,23 @@ const AdminDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Admin Dashboard
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
           <p className="text-gray-600">Manage your Illinois Connect platform</p>
         </div>
 
         {/* Navigation Tabs */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
           <div className="border-b border-gray-200">
-            <nav
-              className="flex gap-x-4 flex-wrap px-6"
-              aria-label="Admin Tabs"
-            >
-              {tabs.map((tab) => (
+            <nav className="flex gap-x-4 flex-wrap px-6" aria-label="Admin Tabs">
+              {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${activeTab === tab.id
+                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${
+                    activeTab === tab.id
                       ? "border-orange-500 text-orange-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
+                  }`}
                   aria-current={activeTab === tab.id ? "page" : undefined}
                 >
                   <tab.icon className="h-4 w-4" />

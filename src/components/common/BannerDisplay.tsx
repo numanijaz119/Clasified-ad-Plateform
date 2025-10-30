@@ -9,6 +9,7 @@ interface BannerDisplayProps {
   position: BannerPosition;
   stateCode?: string;
   categoryId?: number;
+  cityId?: number;
   className?: string;
   autoRotate?: boolean;
   rotationInterval?: number;
@@ -18,6 +19,7 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
   position,
   stateCode,
   categoryId,
+  cityId,
   className = "",
   autoRotate = true,
   rotationInterval = 10000,
@@ -26,9 +28,10 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
     position,
     stateCode,
     categoryId,
+    cityId,
   });
   const { trackImpression, trackClick } = useBannerTracking();
-  
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Track impressions when banner is visible
@@ -46,7 +49,7 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
   useEffect(() => {
     if (autoRotate && banners.length > 1) {
       const interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % banners.length);
+        setCurrentIndex(prev => (prev + 1) % banners.length);
       }, rotationInterval);
       return () => clearInterval(interval);
     }
@@ -63,7 +66,7 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
       await trackClick(banner.id);
       bannerTracker.markClickTracked(banner.id);
     }
-    
+
     if (banner.click_url) {
       if (banner.open_new_tab) {
         window.open(banner.click_url, "_blank", "noopener,noreferrer");
@@ -127,14 +130,9 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
           className={`relative overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow h-full ${
             currentBanner.click_url ? "cursor-pointer" : ""
           }`}
-          onClick={() =>
-            currentBanner.click_url && handleBannerClick(currentBanner)
-          }
-          onKeyDown={(e) => {
-            if (
-              currentBanner.click_url &&
-              (e.key === "Enter" || e.key === " ")
-            ) {
+          onClick={() => currentBanner.click_url && handleBannerClick(currentBanner)}
+          onKeyDown={e => {
+            if (currentBanner.click_url && (e.key === "Enter" || e.key === " ")) {
               e.preventDefault();
               handleBannerClick(currentBanner);
             }
@@ -151,10 +149,7 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
           />
           {currentBanner.click_url && (
             <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-md">
-              <ExternalLink
-                className="h-4 w-4 text-gray-700"
-                aria-hidden="true"
-              />
+              <ExternalLink className="h-4 w-4 text-gray-700" aria-hidden="true" />
             </div>
           )}
         </div>
@@ -163,9 +158,7 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
       {currentBanner.banner_type === "html" && currentBanner.html_content && (
         <div
           className="html-banner rounded-lg overflow-hidden h-full flex flex-col"
-          onClick={() =>
-            currentBanner.click_url && handleBannerClick(currentBanner)
-          }
+          onClick={() => currentBanner.click_url && handleBannerClick(currentBanner)}
           role={currentBanner.click_url ? "button" : "region"}
           tabIndex={currentBanner.click_url ? 0 : undefined}
         >
@@ -179,18 +172,11 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
       {currentBanner.banner_type === "text" && currentBanner.text_content && (
         <div
           className={`text-banner p-2 sm:p-3 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg shadow-sm hover:shadow-md transition-all h-full flex flex-col justify-center ${
-            currentBanner.click_url
-              ? "cursor-pointer hover:border-orange-300"
-              : ""
+            currentBanner.click_url ? "cursor-pointer hover:border-orange-300" : ""
           }`}
-          onClick={() =>
-            currentBanner.click_url && handleBannerClick(currentBanner)
-          }
-          onKeyDown={(e) => {
-            if (
-              currentBanner.click_url &&
-              (e.key === "Enter" || e.key === " ")
-            ) {
+          onClick={() => currentBanner.click_url && handleBannerClick(currentBanner)}
+          onKeyDown={e => {
+            if (currentBanner.click_url && (e.key === "Enter" || e.key === " ")) {
               e.preventDefault();
               handleBannerClick(currentBanner);
             }
@@ -224,9 +210,7 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={`h-2 rounded-full transition-all ${
-                index === currentIndex
-                  ? "w-6 bg-orange-500"
-                  : "w-2 bg-gray-300 hover:bg-gray-400"
+                index === currentIndex ? "w-6 bg-orange-500" : "w-2 bg-gray-300 hover:bg-gray-400"
               }`}
               aria-label={`Show banner ${index + 1}`}
               aria-selected={index === currentIndex}

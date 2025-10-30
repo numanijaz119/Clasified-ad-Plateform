@@ -40,14 +40,11 @@ export const useStates = (useCache: boolean = true): UseStatesReturn => {
       const activeStates = data.filter((state: State) => state.is_active);
 
       // Sort alphabetically by name
-      const sortedStates = activeStates.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
+      const sortedStates = activeStates.sort((a, b) => a.name.localeCompare(b.name));
 
       setStates(sortedStates);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to load states";
+      const errorMessage = err instanceof Error ? err.message : "Failed to load states";
       setError(errorMessage);
       console.error("Error fetching states:", err);
     } finally {

@@ -74,9 +74,7 @@ export const useAds = (initialParams?: UseAdsParams): UseAdsReturn => {
   const [totalCount, setTotalCount] = useState(0);
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
-  const [currentParams, setCurrentParams] = useState<UseAdsParams | undefined>(
-    initialParams
-  );
+  const [currentParams, setCurrentParams] = useState<UseAdsParams | undefined>(initialParams);
 
   const fetchAds = useCallback(
     async (params?: UseAdsParams) => {
@@ -109,8 +107,7 @@ export const useAds = (initialParams?: UseAdsParams): UseAdsReturn => {
           setCurrentParams(params);
         }
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to load ads";
+        const errorMessage = err instanceof Error ? err.message : "Failed to load ads";
         setError(errorMessage);
         console.error("Error fetching ads:", err);
       } finally {

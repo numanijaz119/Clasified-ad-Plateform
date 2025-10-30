@@ -28,7 +28,7 @@ export interface Message {
   sender: number;
   sender_name: string;
   sender_avatar?: string;
-  message_type: 'text' | 'image' | 'system';
+  message_type: "text" | "image" | "system";
   content: string;
   image?: string;
   is_read: boolean;
@@ -43,7 +43,7 @@ export interface Conversation {
   buyer: User;
   seller: User;
   ad: Ad;
- last_message?: string | Message;
+  last_message?: string | Message;
   last_message_at: string;
   is_active: boolean;
   is_blocked: boolean;
@@ -56,7 +56,14 @@ export interface Conversation {
 
 export interface Notification {
   id: number;
-  notification_type: 'new_message' | 'new_conversation' | 'ad_approved' | 'ad_rejected' | 'ad_expired' | 'ad_expiring_soon' | 'system';
+  notification_type:
+    | "new_message"
+    | "new_conversation"
+    | "ad_approved"
+    | "ad_rejected"
+    | "ad_expired"
+    | "ad_expiring_soon"
+    | "system";
   title: string;
   message: string;
   action_url?: string;
@@ -71,27 +78,27 @@ export interface Notification {
 // API Request/Response Types
 export interface ConversationListParams {
   page?: number;
-  status?: 'active' | 'archived' | 'blocked';
+  status?: "active" | "archived" | "blocked";
   ad?: number;
 }
 
 export interface MessageCreateRequest {
   conversation: number;
-  message_type: 'text' | 'image';
+  message_type: "text" | "image";
   content: string;
   image?: File;
 }
 
 export interface MessageListParams {
   conversation_id?: number;
-  type?: 'text' | 'image' | 'system';
+  type?: "text" | "image" | "system";
   unread?: boolean;
   page?: number;
 }
 
 export interface NotificationListParams {
   is_read?: boolean;
-  type?: Notification['notification_type'];
+  type?: Notification["notification_type"];
   page?: number;
 }
 

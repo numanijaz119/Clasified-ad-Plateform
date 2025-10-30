@@ -52,7 +52,7 @@ const MyReportsTab: React.FC = () => {
       }
       setError(null);
       const data = await adsService.getMyReports();
-      
+
       // Handle paginated response
       if (data && Array.isArray(data.results)) {
         setReports(data.results);
@@ -61,7 +61,7 @@ const MyReportsTab: React.FC = () => {
       } else {
         setReports([]);
       }
-      
+
       if (isRefresh) {
         toast.success("Reports refreshed successfully");
       }
@@ -120,19 +120,17 @@ const MyReportsTab: React.FC = () => {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
         <Flag className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          No Reports Submitted
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Reports Submitted</h3>
         <p className="text-gray-600">
-          You haven't reported any ads yet. If you see something that violates
-          our policies, you can report it from the ad details page.
+          You haven't reported any ads yet. If you see something that violates our policies, you can
+          report it from the ad details page.
         </p>
       </div>
     );
   }
 
-  const pendingReports = reportsArray.filter((r) => !r.is_reviewed);
-  const reviewedReports = reportsArray.filter((r) => r.is_reviewed);
+  const pendingReports = reportsArray.filter(r => !r.is_reviewed);
+  const reviewedReports = reportsArray.filter(r => r.is_reviewed);
 
   // Pagination
   const totalPages = Math.ceil(reportsArray.length / ITEMS_PER_PAGE);
@@ -147,9 +145,7 @@ const MyReportsTab: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Reports</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {reportsArray.length}
-              </p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">{reportsArray.length}</p>
             </div>
             <FileText className="h-10 w-10 text-gray-400" />
           </div>
@@ -159,9 +155,7 @@ const MyReportsTab: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Pending Review</p>
-              <p className="text-2xl font-bold text-orange-600 mt-1">
-                {pendingReports.length}
-              </p>
+              <p className="text-2xl font-bold text-orange-600 mt-1">{pendingReports.length}</p>
             </div>
             <Clock className="h-10 w-10 text-orange-400" />
           </div>
@@ -171,9 +165,7 @@ const MyReportsTab: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Reviewed</p>
-              <p className="text-2xl font-bold text-green-600 mt-1">
-                {reviewedReports.length}
-              </p>
+              <p className="text-2xl font-bold text-green-600 mt-1">{reviewedReports.length}</p>
             </div>
             <CheckCircle className="h-10 w-10 text-green-400" />
           </div>
@@ -185,38 +177,42 @@ const MyReportsTab: React.FC = () => {
         <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Your Reports</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Track the status of your submitted reports
-            </p>
+            <p className="text-sm text-gray-600 mt-1">Track the status of your submitted reports</p>
           </div>
           <button
             onClick={() => fetchReports(true)}
             disabled={isRefreshing}
             className="btn-ghost px-3 py-2 flex items-center gap-2"
           >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
             Refresh
           </button>
         </div>
 
         <div className="divide-y divide-gray-200">
-          {paginatedReports.map((report) => (
+          {paginatedReports.map(report => (
             <div key={report.id} className="p-4 hover:bg-gray-50 transition-colors">
               <div className="flex gap-4">
                 {/* Ad Image */}
                 <div className="flex-shrink-0">
                   {report.ad_image ? (
                     <img
-                      src={report.ad_image.startsWith('http') ? report.ad_image : `${API_CONFIG.BASE_URL}${report.ad_image}`}
+                      src={
+                        report.ad_image.startsWith("http")
+                          ? report.ad_image
+                          : `${API_CONFIG.BASE_URL}${report.ad_image}`
+                      }
                       alt={report.ad_title}
                       className="w-24 h-24 object-cover rounded-lg"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                      onError={e => {
+                        e.currentTarget.style.display = "none";
+                        e.currentTarget.nextElementSibling?.classList.remove("hidden");
                       }}
                     />
                   ) : null}
-                  <div className={`w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center ${report.ad_image ? 'hidden' : ''}`}>
+                  <div
+                    className={`w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center ${report.ad_image ? "hidden" : ""}`}
+                  >
                     <FileText className="h-8 w-8 text-gray-400" />
                   </div>
                 </div>
@@ -226,9 +222,7 @@ const MyReportsTab: React.FC = () => {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h4 className="font-semibold text-gray-900 truncate">
-                          {report.ad_title}
-                        </h4>
+                        <h4 className="font-semibold text-gray-900 truncate">{report.ad_title}</h4>
                         {report.is_reviewed ? (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap">
                             <CheckCircle className="h-3 w-3 mr-1" />
@@ -257,9 +251,7 @@ const MyReportsTab: React.FC = () => {
 
                       {report.is_reviewed && report.admin_notes && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mt-2">
-                          <p className="text-xs font-medium text-blue-900 mb-1">
-                            Admin Response:
-                          </p>
+                          <p className="text-xs font-medium text-blue-900 mb-1">Admin Response:</p>
                           <p className="text-xs text-blue-800">{report.admin_notes}</p>
                         </div>
                       )}
@@ -277,7 +269,9 @@ const MyReportsTab: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, reportsArray.length)} of {reportsArray.length} reports
+              Showing {startIndex + 1} to{" "}
+              {Math.min(startIndex + ITEMS_PER_PAGE, reportsArray.length)} of {reportsArray.length}{" "}
+              reports
             </div>
             <div className="flex gap-2">
               <button

@@ -45,9 +45,7 @@ interface DashboardData {
 const UserDashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>("overview");
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
-  );
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [userAds, setUserAds] = useState<Ad[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingAds, setIsLoadingAds] = useState(false);
@@ -55,23 +53,27 @@ const UserDashboard: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showPostAdModal, setShowPostAdModal] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [adToDelete, setAdToDelete] = useState<{ id: number; slug: string; title: string } | null>(null);
+  const [adToDelete, setAdToDelete] = useState<{ id: number; slug: string; title: string } | null>(
+    null
+  );
   const [isDeleting, setIsDeleting] = useState(false);
   const [featuredPricing, setFeaturedPricing] = useState({ price: 9.99, duration_days: 30 });
 
   const toast = useToast();
-  
+
   // Fetch featured pricing
   useEffect(() => {
-    adsService.getFeaturedPricing().then(pricing => {
-      setFeaturedPricing(pricing);
-    }).catch(err => {
-      console.error('Failed to load pricing:', err);
-    });
+    adsService
+      .getFeaturedPricing()
+      .then(pricing => {
+        setFeaturedPricing(pricing);
+      })
+      .catch(err => {
+        console.error("Failed to load pricing:", err);
+      });
   }, []);
 
-  const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } =
-    useListingModal();
+  const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } = useListingModal();
 
   const convertAdToBasicAd = (ad: Ad): BasicAd => {
     return {
@@ -149,11 +151,11 @@ const UserDashboard: React.FC = () => {
 
   const confirmDeleteAd = async () => {
     if (!adToDelete) return;
-    
+
     setIsDeleting(true);
     try {
       await adsService.deleteAd(adToDelete.slug);
-      setUserAds((ads) => ads.filter((ad) => ad.id !== adToDelete.id));
+      setUserAds(ads => ads.filter(ad => ad.id !== adToDelete.id));
       await fetchDashboardAnalytics();
       toast.success("Ad deleted successfully!");
       setDeleteModalOpen(false);
@@ -240,20 +242,16 @@ const UserDashboard: React.FC = () => {
       pendingAds: dashboardData.pending_ads,
       featuredAds: dashboardData.featured_ads,
       conversionRate,
-      expiredAds: userAds.filter((ad) => ad.status === "expired").length,
+      expiredAds: userAds.filter(ad => ad.status === "expired").length,
     };
   }, [dashboardData, userAds]);
 
   const topPerformingAds = useMemo(() => {
-    return [...userAds]
-      .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
-      .slice(0, 5);
+    return [...userAds].sort((a, b) => (b.view_count || 0) - (a.view_count || 0)).slice(0, 5);
   }, [userAds]);
 
   const promotableAds = useMemo(() => {
-    return userAds.filter(
-      (ad) => ad.plan !== "featured" && ad.status === "approved"
-    );
+    return userAds.filter(ad => ad.plan !== "featured" && ad.status === "approved");
   }, [userAds]);
 
   const recentActivity = useMemo(() => {
@@ -264,12 +262,9 @@ const UserDashboard: React.FC = () => {
     }> = [];
 
     [...userAds]
-      .sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 5)
-      .forEach((ad) => {
+      .forEach(ad => {
         activities.push({
           type: "ad_created",
           message: `Created ad "${ad.title}"`,
@@ -294,10 +289,7 @@ const UserDashboard: React.FC = () => {
       });
 
     return activities
-      .sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 10);
   }, [userAds]);
 
@@ -319,9 +311,7 @@ const UserDashboard: React.FC = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Ads</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.totalAds.toLocaleString()}
-              </p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalAds.toLocaleString()}</p>
               <p className="text-xs text-gray-500 mt-1">
                 {stats.activeAds} active, {stats.pendingAds} pending
               </p>
@@ -340,8 +330,7 @@ const UserDashboard: React.FC = () => {
                 {stats.totalViews.toLocaleString()}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                {(stats.totalViews / Math.max(stats.totalAds, 1)).toFixed(1)}{" "}
-                avg per ad
+                {(stats.totalViews / Math.max(stats.totalAds, 1)).toFixed(1)} avg per ad
               </p>
             </div>
           </div>
@@ -371,9 +360,7 @@ const UserDashboard: React.FC = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Featured Ads</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.featuredAds}
-              </p>
+              <p className="text-2xl font-bold text-gray-900">{stats.featuredAds}</p>
               <p className="text-xs text-gray-500 mt-1">
                 ${(stats.featuredAds * featuredPricing.price).toFixed(2)} invested
               </p>
@@ -384,12 +371,10 @@ const UserDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Top Performing Ads
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performing Ads</h3>
           <div className="space-y-3">
             {topPerformingAds.length > 0 ? (
-              topPerformingAds.map((ad) => (
+              topPerformingAds.map(ad => (
                 <div
                   key={ad.id}
                   className="flex items-center justify-between py-3 px-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
@@ -405,9 +390,7 @@ const UserDashboard: React.FC = () => {
                       />
                     )}
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium text-gray-900 truncate">
-                        {ad.title}
-                      </h4>
+                      <h4 className="text-sm font-medium text-gray-900 truncate">{ad.title}</h4>
                       <p className="text-xs text-gray-500">
                         {ad.category?.name} • {ad.city?.name}
                       </p>
@@ -417,18 +400,14 @@ const UserDashboard: React.FC = () => {
                     <p className="text-sm font-semibold text-gray-900">
                       {(ad.view_count || 0).toLocaleString()} views
                     </p>
-                    <p className="text-xs text-gray-500">
-                      {ad.contact_views || 0} contacts
-                    </p>
+                    <p className="text-xs text-gray-500">{ad.contact_views || 0} contacts</p>
                   </div>
                 </div>
               ))
             ) : (
               <div className="text-center py-8">
                 <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  No ads yet
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No ads yet</h3>
                 <p className="text-gray-600 mb-4">
                   Start by creating your first ad to see performance data.
                 </p>
@@ -446,16 +425,11 @@ const UserDashboard: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Recent Activity
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
           <div className="space-y-3">
             {recentActivity.length > 0 ? (
               recentActivity.slice(0, 5).map((activity, index) => (
-                <div
-                  key={index}
-                  className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
-                >
+                <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                   <Clock className="h-5 w-5 text-gray-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-900">{activity.message}</p>
@@ -482,9 +456,7 @@ const UserDashboard: React.FC = () => {
       <div className="flex justify-between md:items-center flex-col md:flex-row gap-y-4 md:gap-y-0">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">My Ads</h3>
-          <p className="text-sm text-gray-600">
-            Manage and track your {userAds.length} ads
-          </p>
+          <p className="text-sm text-gray-600">Manage and track your {userAds.length} ads</p>
         </div>
         <div className="flex gap-3 self-end md:self-auto">
           <Button
@@ -493,9 +465,7 @@ const UserDashboard: React.FC = () => {
             disabled={isRefreshing}
             className="inline-flex items-center gap-2"
           >
-            <RefreshCw
-              className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-            />
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
             Refresh
           </Button>
           <Button
@@ -534,7 +504,7 @@ const UserDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {userAds.map((ad) => (
+                {userAds.map(ad => (
                   <tr key={ad.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 min-w-[312px]">
                       <div className="flex items-center">
@@ -588,9 +558,7 @@ const UserDashboard: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() =>
-                            handleListingClick(convertAdToBasicAd(ad))
-                          }
+                          onClick={() => handleListingClick(convertAdToBasicAd(ad))}
                           className="text-gray-600 hover:text-orange-600 p-1 rounded"
                           title="View Ad"
                         >
@@ -620,9 +588,7 @@ const UserDashboard: React.FC = () => {
         ) : (
           <div className="text-center py-12">
             <BarChart3 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No ads yet
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No ads yet</h3>
             <p className="text-gray-600 mb-6">
               You haven't created any ads yet. Start by posting your first ad.
             </p>
@@ -642,13 +608,9 @@ const UserDashboard: React.FC = () => {
 
   const renderStats = () => (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-gray-900">
-        Detailed Statistics
-      </h3>
+      <h3 className="text-lg font-semibold text-gray-900">Detailed Statistics</h3>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h4 className="text-md font-semibold text-gray-900 mb-4">
-          Performance Overview
-        </h4>
+        <h4 className="text-md font-semibold text-gray-900 mb-4">Performance Overview</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent mb-2">
@@ -661,8 +623,8 @@ const UserDashboard: React.FC = () => {
                 {stats.conversionRate >= 5
                   ? "Excellent"
                   : stats.conversionRate >= 2
-                  ? "Good"
-                  : "Needs improvement"}
+                    ? "Good"
+                    : "Needs improvement"}
               </span>
             </div>
           </div>
@@ -687,9 +649,7 @@ const UserDashboard: React.FC = () => {
       {userAds.length > 0 ? (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h4 className="text-md font-semibold text-gray-900">
-              Individual Ad Performance
-            </h4>
+            <h4 className="text-md font-semibold text-gray-900">Individual Ad Performance</h4>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -713,7 +673,7 @@ const UserDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {userAds.map((ad) => {
+                {userAds.map(ad => {
                   const adConversionRate =
                     (ad.view_count || 0) > 0
                       ? ((ad.contact_views || 0) / (ad.view_count || 0)) * 100
@@ -731,29 +691,23 @@ const UserDashboard: React.FC = () => {
                             />
                           )}
                           <div className="text-sm min-w-32">
-                            <div className="font-medium text-gray-900 line-clamp-2">
-                              {ad.title}
-                            </div>
-                            <div className="text-gray-500">
-                              {ad.display_price}
-                            </div>
+                            <div className="font-medium text-gray-900 line-clamp-2">{ad.title}</div>
+                            <div className="text-gray-500">{ad.display_price}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {(ad.view_count || 0).toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {ad.contact_views || 0}
-                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{ad.contact_views || 0}</td>
                       <td className="px-6 py-4 text-sm">
                         <span
                           className={`font-medium ${
                             adConversionRate >= 5
                               ? "text-green-600"
                               : adConversionRate >= 2
-                              ? "text-yellow-600"
-                              : "text-red-600"
+                                ? "text-yellow-600"
+                                : "text-red-600"
                           }`}
                         >
                           {adConversionRate.toFixed(1)}%
@@ -775,8 +729,7 @@ const UserDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
           <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600">
-            No statistics available. Create your first ad to start tracking
-            performance.
+            No statistics available. Create your first ad to start tracking performance.
           </p>
         </div>
       )}
@@ -786,20 +739,15 @@ const UserDashboard: React.FC = () => {
   const renderPromoteAds = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900">
-          Promote Your Ads
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900">Promote Your Ads</h3>
         <p className="text-sm text-gray-600 mt-1">
-          Feature your ads to get more visibility and reach potential buyers
-          faster.
+          Feature your ads to get more visibility and reach potential buyers faster.
         </p>
       </div>
       <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-6">
         <div className="flex items-center mb-4">
           <Star className="h-6 w-6 text-orange-600 mr-2" />
-          <h4 className="text-lg font-semibold text-gray-900">
-            Featured Ad Benefits
-          </h4>
+          <h4 className="text-lg font-semibold text-gray-900">Featured Ad Benefits</h4>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div className="flex items-center">
@@ -821,16 +769,14 @@ const UserDashboard: React.FC = () => {
       </div>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h4 className="text-md font-semibold text-gray-900">
-            Ads Available for Promotion
-          </h4>
+          <h4 className="text-md font-semibold text-gray-900">Ads Available for Promotion</h4>
           <p className="text-sm text-gray-600 mt-1">
             {promotableAds.length} ads can be promoted to featured status
           </p>
         </div>
         {promotableAds.length > 0 ? (
           <div className="divide-y divide-gray-200">
-            {promotableAds.map((ad) => (
+            {promotableAds.map(ad => (
               <div key={ad.id} className="p-6">
                 <div className="flex md:items-center justify-between flex-col md:flex-row gap-y-4 md:gap-y-0">
                   <div className="flex items-center space-x-4">
@@ -843,16 +789,14 @@ const UserDashboard: React.FC = () => {
                       />
                     )}
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium text-gray-900 line-clamp-2">
-                        {ad.title}
-                      </h4>
+                      <h4 className="text-sm font-medium text-gray-900 line-clamp-2">{ad.title}</h4>
                       <p className="text-xs text-gray-500 mt-1">
                         {ad.category?.name} • {ad.city?.name}
                       </p>
                       <div className="flex items-center justify-between mt-3">
                         <div className="text-xs text-gray-500">
-                          {(ad.view_count || 0).toLocaleString()} views •{" "}
-                          {ad.contact_views || 0} contacts
+                          {(ad.view_count || 0).toLocaleString()} views • {ad.contact_views || 0}{" "}
+                          contacts
                         </div>
                         <div className="text-sm font-semibold text-gray-900">
                           {ad.display_price}
@@ -899,9 +843,7 @@ const UserDashboard: React.FC = () => {
       </div>
       {stats.featuredAds > 0 && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h4 className="text-md font-semibold text-gray-900 mb-4">
-            Your Featured Ads
-          </h4>
+          <h4 className="text-md font-semibold text-gray-900 mb-4">Your Featured Ads</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent mb-1">
@@ -918,7 +860,7 @@ const UserDashboard: React.FC = () => {
             <div className="text-center">
               <div className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent mb-1">
                 {userAds
-                  .filter((ad) => ad.plan === "featured")
+                  .filter(ad => ad.plan === "featured")
                   .reduce((sum, ad) => sum + (ad.view_count || 0), 0)
                   .toLocaleString()}
               </div>
@@ -947,9 +889,7 @@ const UserDashboard: React.FC = () => {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 Welcome back, {user?.first_name || user?.email?.split("@")[0]}
               </h1>
-              <p className="text-gray-600">
-                Manage your ads and track performance
-              </p>
+              <p className="text-gray-600">Manage your ads and track performance</p>
             </div>
             <Button
               variant="secondary"
@@ -957,9 +897,7 @@ const UserDashboard: React.FC = () => {
               disabled={isRefreshing}
               className="inline-flex items-center gap-2"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
               Refresh
             </Button>
           </div>
@@ -980,11 +918,8 @@ const UserDashboard: React.FC = () => {
         </div>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
           <div className="border-b border-gray-200">
-            <nav
-              className="flex gap-x-8 flex-wrap px-6"
-              aria-label="Dashboard Tabs"
-            >
-              {tabs.map((tab) => (
+            <nav className="flex gap-x-8 flex-wrap px-6" aria-label="Dashboard Tabs">
+              {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabId)}

@@ -51,9 +51,7 @@ interface FeaturedAdsParams {
   stateCode?: string;
 }
 
-export const useFeaturedAds = (
-  params?: FeaturedAdsParams
-): UseFeaturedAdsReturn => {
+export const useFeaturedAds = (params?: FeaturedAdsParams): UseFeaturedAdsReturn => {
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,8 +78,7 @@ export const useFeaturedAds = (
         setAds([]);
       }
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to load featured ads";
+      const errorMessage = err instanceof Error ? err.message : "Failed to load featured ads";
       setError(errorMessage);
       console.error("Error fetching featured ads:", err);
     } finally {

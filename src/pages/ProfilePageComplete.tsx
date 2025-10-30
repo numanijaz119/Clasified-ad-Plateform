@@ -99,25 +99,25 @@ const ProfilePage: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
     // Clear field-specific error when user starts typing
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+      setErrors(prev => ({ ...prev, [name]: "" }));
     }
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setPasswordData((prev) => ({
+    setPasswordData(prev => ({
       ...prev,
       [name]: value,
     }));
     // Clear field-specific error when user starts typing
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+      setErrors(prev => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -126,7 +126,7 @@ const ProfilePage: React.FC = () => {
     if (file) {
       // Validate file type
       if (!file.type.startsWith("image/")) {
-        setErrors((prev) => ({
+        setErrors(prev => ({
           ...prev,
           avatar: "Please select a valid image file",
         }));
@@ -135,14 +135,14 @@ const ProfilePage: React.FC = () => {
 
       // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({
+        setErrors(prev => ({
           ...prev,
           avatar: "Image size must be less than 5MB",
         }));
         return;
       }
 
-      setFormData((prev) => ({ ...prev, avatar: file }));
+      setFormData(prev => ({ ...prev, avatar: file }));
 
       // Create preview
       const reader = new FileReader();
@@ -153,7 +153,7 @@ const ProfilePage: React.FC = () => {
 
       // Clear avatar error
       if (errors.avatar) {
-        setErrors((prev) => ({ ...prev, avatar: "" }));
+        setErrors(prev => ({ ...prev, avatar: "" }));
       }
     }
   };
@@ -232,7 +232,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const togglePasswordVisibility = (field: "old" | "new" | "confirm") => {
-    setShowPassword((prev) => ({
+    setShowPassword(prev => ({
       ...prev,
       [field]: !prev[field],
     }));
@@ -302,9 +302,7 @@ const ProfilePage: React.FC = () => {
 
               {/* User Info */}
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {user.full_name}
-                </h1>
+                <h1 className="text-3xl font-bold text-gray-900">{user.full_name}</h1>
                 {user.show_email !== false && (
                   <div className="flex items-center space-x-2 mt-2">
                     <Mail className="w-4 h-4 text-gray-500" />
@@ -360,16 +358,12 @@ const ProfilePage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Profile Information */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Profile Information
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Profile Information</h2>
 
             {isEditing ? (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    First Name
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                   <input
                     type="text"
                     name="first_name"
@@ -379,16 +373,12 @@ const ProfilePage: React.FC = () => {
                     required
                   />
                   {errors.first_name && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.first_name}
-                    </p>
+                    <p className="text-red-500 text-sm mt-1">{errors.first_name}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Last Name
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                   <input
                     type="text"
                     name="last_name"
@@ -398,9 +388,7 @@ const ProfilePage: React.FC = () => {
                     required
                   />
                   {errors.last_name && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.last_name}
-                    </p>
+                    <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>
                   )}
                 </div>
 
@@ -416,14 +404,10 @@ const ProfilePage: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     placeholder="(optional)"
                   />
-                  {errors.phone && (
-                    <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-                  )}
+                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
 
-                {errors.avatar && (
-                  <p className="text-red-500 text-sm">{errors.avatar}</p>
-                )}
+                {errors.avatar && <p className="text-red-500 text-sm">{errors.avatar}</p>}
 
                 <div className="flex space-x-3 pt-4">
                   <button
@@ -454,32 +438,22 @@ const ProfilePage: React.FC = () => {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    First Name
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">First Name</label>
                   <p className="text-gray-900 mt-1">{user.first_name}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Last Name
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Last Name</label>
                   <p className="text-gray-900 mt-1">{user.last_name}</p>
                 </div>
                 {user.show_email !== false && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Email
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
                     <p className="text-gray-900 mt-1">{user.email}</p>
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Phone Number
-                  </label>
-                  <p className="text-gray-900 mt-1">
-                    {user.phone || "Not provided"}
-                  </p>
+                  <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                  <p className="text-gray-900 mt-1">{user.phone || "Not provided"}</p>
                 </div>
               </div>
             )}
@@ -487,9 +461,7 @@ const ProfilePage: React.FC = () => {
 
           {/* Account Security & Settings */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Account Security
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Account Security</h2>
 
             {isChangingPassword ? (
               <div className="space-y-4">
@@ -519,9 +491,7 @@ const ProfilePage: React.FC = () => {
                     </button>
                   </div>
                   {errors.old_password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.old_password}
-                    </p>
+                    <p className="text-red-500 text-sm mt-1">{errors.old_password}</p>
                   )}
                 </div>
 
@@ -551,9 +521,7 @@ const ProfilePage: React.FC = () => {
                     </button>
                   </div>
                   {errors.new_password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.new_password}
-                    </p>
+                    <p className="text-red-500 text-sm mt-1">{errors.new_password}</p>
                   )}
                 </div>
 
@@ -583,9 +551,7 @@ const ProfilePage: React.FC = () => {
                     </button>
                   </div>
                   {errors.confirm_password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.confirm_password}
-                    </p>
+                    <p className="text-red-500 text-sm mt-1">{errors.confirm_password}</p>
                   )}
                 </div>
 
@@ -618,9 +584,7 @@ const ProfilePage: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium text-gray-900">Password</h3>
-                    <p className="text-sm text-gray-500">
-                      Last changed: Not tracked
-                    </p>
+                    <p className="text-sm text-gray-500">Last changed: Not tracked</p>
                   </div>
                   <button
                     onClick={() => setIsChangingPassword(true)}
@@ -631,20 +595,12 @@ const ProfilePage: React.FC = () => {
                 </div>
 
                 <div className="border-t pt-4">
-                  <h3 className="font-medium text-gray-900 mb-2">
-                    Account Status
-                  </h3>
+                  <h3 className="font-medium text-gray-900 mb-2">Account Status</h3>
                   <div className="flex items-center space-x-2">
                     <Shield
-                      className={`w-4 h-4 ${
-                        user.is_active ? "text-green-500" : "text-red-500"
-                      }`}
+                      className={`w-4 h-4 ${user.is_active ? "text-green-500" : "text-red-500"}`}
                     />
-                    <span
-                      className={
-                        user.is_active ? "text-green-600" : "text-red-600"
-                      }
-                    >
+                    <span className={user.is_active ? "text-green-600" : "text-red-600"}>
                       {user.is_active ? "Active" : "Inactive"}
                     </span>
                   </div>
@@ -656,42 +612,28 @@ const ProfilePage: React.FC = () => {
 
         {/* Account Information */}
         <div className="bg-white rounded-lg shadow p-6 mt-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            Account Information
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Account Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Account Created
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Account Created</label>
               <div className="flex items-center space-x-2 mt-1">
                 <Calendar className="w-4 h-4 text-gray-500" />
-                <span className="text-gray-900">
-                  {formatDate(user.created_at)}
-                </span>
+                <span className="text-gray-900">{formatDate(user.created_at)}</span>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Last Updated
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Last Updated</label>
               <div className="flex items-center space-x-2 mt-1">
                 <Calendar className="w-4 h-4 text-gray-500" />
-                <span className="text-gray-900">
-                  {formatDate(user.updated_at)}
-                </span>
+                <span className="text-gray-900">{formatDate(user.updated_at)}</span>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                User ID
-              </label>
+              <label className="block text-sm font-medium text-gray-700">User ID</label>
               <p className="text-gray-900 mt-1">#{user.id}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email Verification
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Email Verification</label>
               <div className="flex items-center space-x-2 mt-1">
                 {user.email_verified ? (
                   <>

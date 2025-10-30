@@ -101,34 +101,34 @@ export const API_CONFIG = {
     },
 
     // ========================================================================
-// MESSAGING ENDPOINTS
-// ========================================================================
-MESSAGING: {
-  // Conversations
-  CONVERSATIONS: "/api/messaging/conversations/",
-  CONVERSATION_DETAIL: "/api/messaging/conversations/:id/",
-  CONVERSATION_MARK_READ: "/api/messaging/conversations/:id/mark_read/",
-  CONVERSATION_ARCHIVE: "/api/messaging/conversations/:id/archive/",
-  CONVERSATION_UNARCHIVE: "/api/messaging/conversations/:id/unarchive/",
-  CONVERSATION_BLOCK: "/api/messaging/conversations/:id/block/",
-  CONVERSATION_UNBLOCK: "/api/messaging/conversations/:id/unblock/",
-  CONVERSATIONS_UNREAD: "/api/messaging/conversations/unread_count/",
-  CONVERSATIONS_STATS: "/api/messaging/conversations/stats/",
-  
-  // Messages
-  MESSAGES: "/api/messaging/messages/",
-  MESSAGE_DETAIL: "/api/messaging/messages/:id/",
-  MESSAGE_MARK_READ: "/api/messaging/messages/:id/mark_read/",
-  MESSAGES_MARK_ALL_READ: "/api/messaging/messages/mark_all_read/",
-  
-  // Notifications
-  NOTIFICATIONS: "/api/messaging/notifications/",
-  NOTIFICATION_DETAIL: "/api/messaging/notifications/:id/",
-  NOTIFICATION_MARK_READ: "/api/messaging/notifications/:id/mark_read/",
-  NOTIFICATIONS_MARK_ALL_READ: "/api/messaging/notifications/mark_all_read/",
-  NOTIFICATIONS_UNREAD: "/api/messaging/notifications/unread_count/",
-  NOTIFICATIONS_CLEAR: "/api/messaging/notifications/clear_all/",
-},
+    // MESSAGING ENDPOINTS
+    // ========================================================================
+    MESSAGING: {
+      // Conversations
+      CONVERSATIONS: "/api/messaging/conversations/",
+      CONVERSATION_DETAIL: "/api/messaging/conversations/:id/",
+      CONVERSATION_MARK_READ: "/api/messaging/conversations/:id/mark_read/",
+      CONVERSATION_ARCHIVE: "/api/messaging/conversations/:id/archive/",
+      CONVERSATION_UNARCHIVE: "/api/messaging/conversations/:id/unarchive/",
+      CONVERSATION_BLOCK: "/api/messaging/conversations/:id/block/",
+      CONVERSATION_UNBLOCK: "/api/messaging/conversations/:id/unblock/",
+      CONVERSATIONS_UNREAD: "/api/messaging/conversations/unread_count/",
+      CONVERSATIONS_STATS: "/api/messaging/conversations/stats/",
+
+      // Messages
+      MESSAGES: "/api/messaging/messages/",
+      MESSAGE_DETAIL: "/api/messaging/messages/:id/",
+      MESSAGE_MARK_READ: "/api/messaging/messages/:id/mark_read/",
+      MESSAGES_MARK_ALL_READ: "/api/messaging/messages/mark_all_read/",
+
+      // Notifications
+      NOTIFICATIONS: "/api/messaging/notifications/",
+      NOTIFICATION_DETAIL: "/api/messaging/notifications/:id/",
+      NOTIFICATION_MARK_READ: "/api/messaging/notifications/:id/mark_read/",
+      NOTIFICATIONS_MARK_ALL_READ: "/api/messaging/notifications/mark_all_read/",
+      NOTIFICATIONS_UNREAD: "/api/messaging/notifications/unread_count/",
+      NOTIFICATIONS_CLEAR: "/api/messaging/notifications/clear_all/",
+    },
 
     // ========================================================================
     // ADMINISTRATOR ENDPOINTS
@@ -202,7 +202,7 @@ MESSAGING: {
       // Content Management - States
       STATES_LIST: "/api/administrator/states/",
       STATE_DETAIL: "/api/administrator/states/:id/",
-      
+
       // Content Management - Categories
       CATEGORIES_LIST: "/api/administrator/categories/",
       CATEGORIES_STATS: "/api/administrator/categories/stats/",
@@ -216,7 +216,7 @@ MESSAGING: {
       // Content Management - Cities
       CITIES_LIST: "/api/administrator/cities/",
       // Query params: ?state=IL&is_active=true&is_major=true
-      
+
       CITY_CREATE: "/api/administrator/cities/create/",
       CITY_DETAIL: "/api/administrator/cities/:id/",
       CITY_UPDATE: "/api/administrator/cities/:id/",
@@ -241,8 +241,6 @@ MESSAGING: {
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000, // 1 second
 };
-
-
 
 // Request headers
 export const getHeaders = (includeAuth: boolean = true) => {
@@ -293,10 +291,7 @@ export interface ApiError {
 }
 
 // Helper function to replace URL parameters
-export const buildUrl = (
-  endpoint: string,
-  params: Record<string, string | number>
-): string => {
+export const buildUrl = (endpoint: string, params: Record<string, string | number>): string => {
   let url = endpoint;
   Object.entries(params).forEach(([key, value]) => {
     url = url.replace(`:${key}`, String(value));
@@ -313,7 +308,7 @@ export const buildQueryString = (
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
       if (Array.isArray(value)) {
-        value.forEach((v) => searchParams.append(key, String(v)));
+        value.forEach(v => searchParams.append(key, String(v)));
       } else {
         searchParams.append(key, String(value));
       }

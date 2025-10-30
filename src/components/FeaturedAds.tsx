@@ -14,8 +14,7 @@ import Badge from "./ui/Badge";
 const FeaturedAds: React.FC = () => {
   const { isAuthenticated, user } = useAuth(); // Added user to check ownership
   const { ads, loading, error, refetch } = useFeaturedAds({ page_size: 3 });
-  const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } =
-    useListingModal();
+  const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } = useListingModal();
 
   const handleAdClick = (ad: any) => {
     handleListingClick(ad);
@@ -25,12 +24,8 @@ const FeaturedAds: React.FC = () => {
     <section className="py-3">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-lg font-bold text-gray-900 mb-0.5">
-            Featured Ads
-          </h2>
-          <p className="text-xs text-gray-600">
-            Premium listings from our community
-          </p>
+          <h2 className="text-lg font-bold text-gray-900 mb-0.5">Featured Ads</h2>
+          <p className="text-xs text-gray-600">Premium listings from our community</p>
         </div>
         <Link to="/featured-ads">
           <Button>View All → </Button>
@@ -42,9 +37,7 @@ const FeaturedAds: React.FC = () => {
         <div>
           <div className="text-center py-8">
             <div className="text-red-600 mb-4" role="alert">
-              <p className="text-sm font-medium mb-2">
-                Unable to load featured ads
-              </p>
+              <p className="text-sm font-medium mb-2">Unable to load featured ads</p>
               <p className="text-xs">{error}</p>
             </div>
             <button
@@ -67,30 +60,26 @@ const FeaturedAds: React.FC = () => {
             <div className="text-gray-400 mb-4">
               <Star className="h-16 w-16 mx-auto" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No featured ads available
-            </h3>
-            <p className="text-gray-600">
-              Check back soon for premium listings!
-            </p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No featured ads available</h3>
+            <p className="text-gray-600">Check back soon for premium listings!</p>
           </div>
         </div>
       ) : (
         <>
           {/* Featured Ads Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ads.map((ad) => {
+            {ads.map(ad => {
               // Check if current user owns this ad
               const isOwnAd = user && (ad.is_owner || ad.user_id === user.id);
-              
+
               return (
                 <div
                   key={ad.id}
                   onClick={() => handleAdClick(ad)}
                   className={`group bg-white rounded-lg shadow-sm transition-all cursor-pointer hover:shadow-md border-2 ${
-                    isOwnAd 
-                      ? 'border-blue-500' // Blue border for own ads
-                      : 'border-gray-200 hover:border-orange-300' // Original styling
+                    isOwnAd
+                      ? "border-blue-500" // Blue border for own ads
+                      : "border-gray-200 hover:border-orange-300" // Original styling
                   }`}
                 >
                   {/* Image */}
@@ -146,7 +135,6 @@ const FeaturedAds: React.FC = () => {
 
                     {/* Stats */}
                     <div className="flex items-center justify-between text-xs text-gray-500 pt-1 border-t border-gray-100">
-            
                       <div className="flex items-center space-x-1">
                         <Clock className="h-2.5 w-2.5" />
                         <span>{ad.time_since_posted}</span>

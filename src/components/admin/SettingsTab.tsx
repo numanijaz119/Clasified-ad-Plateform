@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Save, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
-import { adminService } from '../../services/adminService';
-import { useSettings } from '../../contexts/SettingsContext';
-import { useToast } from '../../contexts/ToastContext';
-import LoadingSpinner from '../ui/LoadingSpinner';
-import Button from '../ui/Button';
+import React, { useState, useEffect } from "react";
+import {
+  Settings as SettingsIcon,
+  Save,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle,
+} from "lucide-react";
+import { adminService } from "../../services/adminService";
+import { useSettings } from "../../contexts/SettingsContext";
+import { useToast } from "../../contexts/ToastContext";
+import LoadingSpinner from "../ui/LoadingSpinner";
+import Button from "../ui/Button";
 
 const SettingsTab: React.FC = () => {
   const toast = useToast();
@@ -13,9 +19,9 @@ const SettingsTab: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
-    site_name: 'Classified Ads',
-    contact_email: '',
-    support_phone: '',
+    site_name: "Classified Ads",
+    contact_email: "",
+    support_phone: "",
     allow_registration: true,
     require_email_verification: true,
     auto_approve_ads: false,
@@ -42,7 +48,7 @@ const SettingsTab: React.FC = () => {
         featured_ad_duration_days: data.featured_ad_duration_days,
       });
     } catch (error: any) {
-      toast.error('Failed to load settings');
+      toast.error("Failed to load settings");
     } finally {
       setLoading(false);
     }
@@ -54,7 +60,7 @@ const SettingsTab: React.FC = () => {
 
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : type === 'number' ? parseFloat(value) : value
+      [name]: type === "checkbox" ? checked : type === "number" ? parseFloat(value) : value,
     }));
   };
 
@@ -63,15 +69,13 @@ const SettingsTab: React.FC = () => {
       setSaving(true);
       await adminService.updateSettings(formData);
       await refreshSettings(); // Refresh global settings
-      toast.success('Settings updated successfully!');
+      toast.success("Settings updated successfully!");
     } catch (error: any) {
-      toast.error(error.message || 'Failed to update settings');
+      toast.error(error.message || "Failed to update settings");
     } finally {
       setSaving(false);
     }
   };
-
-
 
   if (loading) {
     return (
@@ -89,20 +93,17 @@ const SettingsTab: React.FC = () => {
           <p className="text-gray-600 mt-1">Configure system-wide settings and preferences</p>
         </div>
         <div className="flex space-x-3">
-
           <button
             onClick={loadSettings}
             disabled={loading}
             className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
           >
-            <RefreshCw
-              className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-            />
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>Refresh</span>
           </button>
           <Button onClick={handleSave} variant="primary" disabled={saving}>
             <Save className="w-4 h-4" />
-            <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+            <span>{saving ? "Saving..." : "Save Changes"}</span>
           </Button>
         </div>
       </div>
@@ -119,9 +120,7 @@ const SettingsTab: React.FC = () => {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Site Name
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Site Name</label>
             <input
               type="text"
               name="site_name"
@@ -134,9 +133,7 @@ const SettingsTab: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contact Email
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Contact Email</label>
               <input
                 type="email"
                 name="contact_email"
@@ -148,9 +145,7 @@ const SettingsTab: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Support Phone
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Support Phone</label>
               <input
                 type="tel"
                 name="support_phone"
@@ -211,7 +206,8 @@ const SettingsTab: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-yellow-900">Registration Disabled</p>
                 <p className="text-sm text-yellow-700 mt-1">
-                  New users cannot create accounts. The sign-up option is hidden from the login form.
+                  New users cannot create accounts. The sign-up option is hidden from the login
+                  form.
                 </p>
               </div>
             </div>
@@ -233,7 +229,9 @@ const SettingsTab: React.FC = () => {
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
             <div>
               <p className="font-medium text-gray-900">Auto-Approve Ads</p>
-              <p className="text-sm text-gray-600">Automatically approve new ads without manual review</p>
+              <p className="text-sm text-gray-600">
+                Automatically approve new ads without manual review
+              </p>
             </div>
             <input
               type="checkbox"
@@ -283,21 +281,23 @@ const SettingsTab: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div>
             <span className="text-blue-700">Registration:</span>
-            <span className={`ml-2 font-medium ${formData.allow_registration ? 'text-green-600' : 'text-red-600'}`}>
-              {formData.allow_registration ? 'ENABLED' : 'DISABLED'}
+            <span
+              className={`ml-2 font-medium ${formData.allow_registration ? "text-green-600" : "text-red-600"}`}
+            >
+              {formData.allow_registration ? "ENABLED" : "DISABLED"}
             </span>
           </div>
           <div>
             <span className="text-blue-700">Auto-Approve:</span>
-            <span className={`ml-2 font-medium ${formData.auto_approve_ads ? 'text-green-600' : 'text-gray-600'}`}>
-              {formData.auto_approve_ads ? 'ON' : 'OFF'}
+            <span
+              className={`ml-2 font-medium ${formData.auto_approve_ads ? "text-green-600" : "text-gray-600"}`}
+            >
+              {formData.auto_approve_ads ? "ON" : "OFF"}
             </span>
           </div>
           <div>
             <span className="text-blue-700">Featured Price:</span>
-            <span className="ml-2 font-medium text-gray-900">
-              ${formData.featured_ad_price}
-            </span>
+            <span className="ml-2 font-medium text-gray-900">${formData.featured_ad_price}</span>
           </div>
         </div>
       </div>

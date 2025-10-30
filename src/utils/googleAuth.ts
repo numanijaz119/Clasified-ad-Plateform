@@ -23,8 +23,7 @@ export const loadGoogleOAuth = (): Promise<void> => {
     script.async = true;
     script.defer = true;
     script.onload = () => resolve();
-    script.onerror = () =>
-      reject(new Error("Failed to load Google OAuth script"));
+    script.onerror = () => reject(new Error("Failed to load Google OAuth script"));
     document.head.appendChild(script);
   });
 };
@@ -44,7 +43,7 @@ export const initializeGoogleAuth = async (
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: (response: any) => handleGoogleCallback(response, onGoogleLogin),
-      ux_mode: 'popup', // Use popup mode for better compatibility
+      ux_mode: "popup", // Use popup mode for better compatibility
       auto_select: false,
     });
   } catch (error) {
@@ -64,7 +63,7 @@ const handleGoogleCallback = async (
         id_token: response.credential,
       });
     } else {
-      throw new Error('No credential received from Google');
+      throw new Error("No credential received from Google");
     }
   } catch (error) {
     console.error("Google login error:", error);
@@ -86,7 +85,7 @@ export const signInWithGoogle = (
       // Use direct popup method - more reliable and policy-compliant
       showGooglePopup(resolve, reject, onGoogleLogin);
     } catch (error) {
-      console.error('Google sign-in error:', error);
+      console.error("Google sign-in error:", error);
       reject(error);
     }
   });
@@ -129,9 +128,7 @@ const showGooglePopup = (
     });
 
     // Auto-click to trigger popup
-    const button = buttonContainer.querySelector(
-      'div[role="button"]'
-    ) as HTMLElement;
+    const button = buttonContainer.querySelector('div[role="button"]') as HTMLElement;
     if (button) {
       setTimeout(() => {
         button.click();

@@ -5,19 +5,16 @@ import {
   X,
   User,
   Plus,
-  Bell,
-  MessageCircle,
   ChevronDown,
   LogOut,
   UserCircle,
-  Settings,
   BarChart3,
   Shield,
 } from "lucide-react";
 import { Button } from "./";
 import { useAuth } from "../contexts/AuthContext";
 import { useStateContext } from "../contexts/StateContext";
-import { NotificationBell, MessageIcon } from './messaging';
+import { NotificationBell, MessageIcon } from "./messaging";
 
 /**
  * Normalizes avatar URL to ensure it's absolute and includes cache-busting
@@ -47,12 +44,7 @@ interface HeaderProps {
   user: any;
 }
 
-const Header: React.FC<HeaderProps> = ({
-  onPostAd,
-  onSignIn,
-  isLoggedIn,
-  onSignOut,
-}) => {
+const Header: React.FC<HeaderProps> = ({ onPostAd, onSignIn, isLoggedIn, onSignOut }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { user } = useAuth();
@@ -117,13 +109,12 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="flex items-center space-x-2">
                   {/* Notifications */}
                   <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
-                  <NotificationBell />
-              
+                    <NotificationBell />
                   </button>
 
                   {/* Chat/Messages */}
                   <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
-                   <MessageIcon />
+                    <MessageIcon />
                   </button>
                 </div>
 
@@ -140,7 +131,7 @@ const Header: React.FC<HeaderProps> = ({
                           src={normalizeAvatarUrl(user.avatar)!}
                           alt={user.full_name || user.first_name}
                           className="w-full h-full object-cover"
-                          onError={(e) => {
+                          onError={e => {
                             // If image fails to load, hide it and show fallback
                             const target = e.currentTarget as HTMLImageElement;
                             target.style.display = "none";
@@ -156,9 +147,7 @@ const Header: React.FC<HeaderProps> = ({
                     {/* User Name */}
                     <div>
                       <p className="text-sm font-medium text-gray-900">
-                        {user?.full_name ||
-                          `${user?.first_name} ${user?.last_name}` ||
-                          "User"}
+                        {user?.full_name || `${user?.first_name} ${user?.last_name}` || "User"}
                       </p>
                     </div>
 
@@ -183,7 +172,7 @@ const Header: React.FC<HeaderProps> = ({
                       </Link>
 
                       {/* Show User Dashboard for regular users, Admin Panel for admins */}
-                      {(user?.is_staff || user?.is_superuser) ? (
+                      {user?.is_staff || user?.is_superuser ? (
                         <Link
                           to="/admin"
                           className="flex items-center px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
@@ -238,11 +227,7 @@ const Header: React.FC<HeaderProps> = ({
                 </Button>
 
                 {/* Sign In Button - Hidden on mobile when not logged in */}
-                <Button
-                  onClick={onSignIn}
-                  variant="outline"
-                  className="hidden md:block"
-                >
+                <Button onClick={onSignIn} variant="outline" className="hidden md:block">
                   Sign In
                 </Button>
               </>
@@ -287,9 +272,7 @@ const Header: React.FC<HeaderProps> = ({
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">
-                        {user?.full_name ||
-                          `${user?.first_name} ${user?.last_name}` ||
-                          "User"}
+                        {user?.full_name || `${user?.first_name} ${user?.last_name}` || "User"}
                       </p>
                       <p className="text-xs text-gray-500">{user?.email}</p>
                     </div>
@@ -305,17 +288,16 @@ const Header: React.FC<HeaderProps> = ({
                     My Profile
                   </Link>
 
- {(!user?.is_staff || !user?.is_superuser) && (
-                  <Link
-                    to="/dashboard"
-                    className="flex items-center px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <BarChart3 className="h-5 w-5 mr-3" />
-                    Dashboard
-                  </Link>
-
- )}
+                  {(!user?.is_staff || !user?.is_superuser) && (
+                    <Link
+                      to="/dashboard"
+                      className="flex items-center px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <BarChart3 className="h-5 w-5 mr-3" />
+                      Dashboard
+                    </Link>
+                  )}
 
                   {/* Admin Panel Link - Only show for admin users */}
                   {(user?.is_staff || user?.is_superuser) && (
@@ -393,10 +375,7 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* Click outside to close dropdown */}
         {isProfileDropdownOpen && (
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setIsProfileDropdownOpen(false)}
-          />
+          <div className="fixed inset-0 z-40" onClick={() => setIsProfileDropdownOpen(false)} />
         )}
       </div>
     </header>

@@ -5,9 +5,7 @@ interface VerificationSuccessProps {
   onContinueToSignIn: () => void;
 }
 
-const VerificationSuccess: React.FC<VerificationSuccessProps> = ({
-  onContinueToSignIn,
-}) => {
+const VerificationSuccess: React.FC<VerificationSuccessProps> = ({ onContinueToSignIn }) => {
   return (
     <>
       {/* Custom Header */}
@@ -24,12 +22,9 @@ const VerificationSuccess: React.FC<VerificationSuccessProps> = ({
 
           {/* Success Message */}
           <div className="space-y-3">
-            <h3 className="text-2xl font-bold text-gray-900">
-              Verification Successful!
-            </h3>
+            <h3 className="text-2xl font-bold text-gray-900">Verification Successful!</h3>
             <p className="text-gray-600 text-lg leading-relaxed max-w-sm mx-auto">
-              Your email has been successfully verified. You can now sign in to
-              your account.
+              Your email has been successfully verified. You can now sign in to your account.
             </p>
           </div>
 

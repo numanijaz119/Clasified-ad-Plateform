@@ -33,12 +33,7 @@ interface AdCardProps {
  * - Accessibility features
  * - SEO-friendly markup
  */
-const AdCard: React.FC<AdCardProps> = ({
-  ad,
-  user,
-  onClick,
-  showFeaturedBadge = true,
-}) => {
+const AdCard: React.FC<AdCardProps> = ({ ad, user, onClick, showFeaturedBadge = true }) => {
   // Check if current user owns this ad
   const isOwnAd = user && (ad.is_owner || ad.user_id === user.id);
 
@@ -49,13 +44,11 @@ const AdCard: React.FC<AdCardProps> = ({
     <article
       onClick={onClick}
       className={`group bg-white rounded-lg shadow-sm transition-all cursor-pointer hover:shadow-md border-2 ${
-        isOwnAd
-          ? "border-blue-500"
-          : "border-gray-200 hover:border-orange-300"
+        isOwnAd ? "border-blue-500" : "border-gray-200 hover:border-orange-300"
       }`}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => {
+      onKeyDown={e => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onClick();
@@ -131,9 +124,7 @@ const AdCard: React.FC<AdCardProps> = ({
         </h3>
 
         {/* Price */}
-        <p className="text-orange-600 font-bold text-base mb-2">
-          {ad.display_price}
-        </p>
+        <p className="text-orange-600 font-bold text-base mb-2">{ad.display_price}</p>
 
         {/* Location */}
         <div className="flex items-center text-gray-600 text-xs mb-2">

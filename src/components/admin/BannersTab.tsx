@@ -40,6 +40,7 @@ const BannersTab: React.FC = () => {
   const [banners, setBanners] = useState<AdminBanner[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     count: 0,
@@ -60,9 +61,7 @@ const BannersTab: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
-  const [selectedBanner, setSelectedBanner] = useState<AdminBanner | null>(
-    null
-  );
+  const [selectedBanner, setSelectedBanner] = useState<AdminBanner | null>(null);
   const [analytics, setAnalytics] = useState<AdminBannerAnalytics | null>(null);
 
   const [formData, setFormData] = useState({
@@ -75,6 +74,7 @@ const BannersTab: React.FC = () => {
     position: "header" as BannerPosition,
     target_states: [] as number[],
     target_categories: [] as number[],
+    target_cities: [] as number[],
     click_url: "",
     open_new_tab: true,
     is_active: true,
@@ -95,6 +95,7 @@ const BannersTab: React.FC = () => {
     loadBanners();
     loadStates();
     loadCategories();
+    loadCities();
   }, [filters]);
 
   const loadBanners = async () => {
@@ -132,13 +133,22 @@ const BannersTab: React.FC = () => {
     }
   };
 
+  const loadCities = async () => {
+    try {
+      const response = await contentService.getCities();
+      setCities(response);
+    } catch (err) {
+      // Silently fail - cities are optional
+    }
+  };
+
   const handleRefresh = async () => {
     await loadBanners();
     toast.success("Banners refreshed");
   };
 
   const handleFilterChange = (key: keyof AdminBannerListParams, value: any) => {
-    setFilters((prev) => ({
+    setFilters(prev => ({
       ...prev,
       [key]: value === "all" ? undefined : value,
       page: 1,
@@ -186,19 +196,19 @@ const BannersTab: React.FC = () => {
           total_clicks: banner.clicks || 0,
           ctr: banner.ctr || 0,
         },
-        daily_impressions: banner.impressions > 0 ? [
-          { day: new Date().toISOString().split('T')[0], impressions: banner.impressions }
-        ] : [],
-        daily_clicks: banner.clicks > 0 ? [
-          { day: new Date().toISOString().split('T')[0], clicks: banner.clicks }
-        ] : [],
+        daily_impressions:
+          banner.impressions > 0
+            ? [{ day: new Date().toISOString().split("T")[0], impressions: banner.impressions }]
+            : [],
+        daily_clicks:
+          banner.clicks > 0
+            ? [{ day: new Date().toISOString().split("T")[0], clicks: banner.clicks }]
+            : [],
       };
 
       setAnalytics(mockAnalytics);
 
-      toast.error(
-        "Using cached analytics data - API endpoint may not be available"
-      );
+      toast.error("Using cached analytics data - API endpoint may not be available");
     }
   };
 
@@ -219,6 +229,7 @@ const BannersTab: React.FC = () => {
       position: banner.position,
       target_states: banner.target_states || [],
       target_categories: banner.target_categories || [],
+      target_cities: banner.target_cities || [],
       click_url: banner.click_url || "",
       open_new_tab: banner.open_new_tab,
       is_active: banner.is_active,
@@ -241,6 +252,7 @@ const BannersTab: React.FC = () => {
       position: "header",
       target_states: [],
       target_categories: [],
+      target_cities: [],
       click_url: "",
       open_new_tab: true,
       is_active: true,
@@ -266,8 +278,8 @@ const BannersTab: React.FC = () => {
     }
 
     const processedFile = truncateFilename(file);
-    setFormData((prev) => ({ ...prev, image: processedFile }));
-    setFormErrors((prev) => ({ ...prev, image: "" }));
+    setFormData(prev => ({ ...prev, image: processedFile }));
+    setFormErrors(prev => ({ ...prev, image: "" }));
 
     const reader = new FileReader();
     reader.onloadend = () => setImagePreview(reader.result as string);
@@ -322,6 +334,7 @@ const BannersTab: React.FC = () => {
           position: formData.position,
           target_states: formData.target_states,
           target_categories: formData.target_categories,
+          target_cities: formData.target_cities,
           click_url: formData.click_url,
           open_new_tab: formData.open_new_tab,
           is_active: formData.is_active,
@@ -331,10 +344,8 @@ const BannersTab: React.FC = () => {
         };
 
         if (formData.image) updateData.image = formData.image;
-        if (formData.banner_type === "html")
-          updateData.html_content = formData.html_content;
-        if (formData.banner_type === "text")
-          updateData.text_content = formData.text_content;
+        if (formData.banner_type === "html") updateData.html_content = formData.html_content;
+        if (formData.banner_type === "text") updateData.text_content = formData.text_content;
 
         await adminBannerService.updateBanner(selectedBanner.id, updateData);
         toast.success("Banner updated successfully");
@@ -347,6 +358,7 @@ const BannersTab: React.FC = () => {
           position: formData.position,
           target_states: formData.target_states,
           target_categories: formData.target_categories,
+          target_cities: formData.target_cities,
           click_url: formData.click_url,
           open_new_tab: formData.open_new_tab,
           is_active: formData.is_active,
@@ -382,7 +394,7 @@ const BannersTab: React.FC = () => {
   };
 
   const handlePageChange = (page: number) => {
-    setFilters((prev) => ({ ...prev, page }));
+    setFilters(prev => ({ ...prev, page }));
   };
 
   const totalPages = Math.ceil(pagination.count / (filters.page_size || 20));
@@ -393,7 +405,7 @@ const BannersTab: React.FC = () => {
     if (!searchQuery.trim()) return banners;
 
     return banners.filter(
-      (banner) =>
+      banner =>
         banner.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         banner.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         banner.click_url?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -430,9 +442,7 @@ const BannersTab: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            Banner Management
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900">Banner Management</h2>
           <p className="text-sm text-gray-600 mt-1">
             Manage promotional banners across the platform
           </p>
@@ -490,9 +500,7 @@ const BannersTab: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600">Total Banners</p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {pagination.count}
-                      </p>
+                      <p className="text-2xl font-bold text-gray-900">{pagination.count}</p>
                     </div>
                     <ImageIcon className="h-5 w-5 text-gray-400" />
                   </div>
@@ -502,7 +510,7 @@ const BannersTab: React.FC = () => {
                     <div>
                       <p className="text-sm text-gray-600">Active</p>
                       <p className="text-2xl font-bold text-green-600">
-                        {banners.filter((b) => b.is_active).length}
+                        {banners.filter(b => b.is_active).length}
                       </p>
                     </div>
                     <Eye className="h-5 w-5 text-green-400" />
@@ -513,7 +521,7 @@ const BannersTab: React.FC = () => {
                     <div>
                       <p className="text-sm text-gray-600">Inactive</p>
                       <p className="text-2xl font-bold text-gray-600">
-                        {banners.filter((b) => !b.is_active).length}
+                        {banners.filter(b => !b.is_active).length}
                       </p>
                     </div>
                     <EyeOff className="h-5 w-5 text-gray-400" />
@@ -524,9 +532,7 @@ const BannersTab: React.FC = () => {
                     <div>
                       <p className="text-sm text-gray-600">Total Clicks</p>
                       <p className="text-2xl font-bold text-orange-600">
-                        {banners
-                          .reduce((sum, b) => sum + b.clicks, 0)
-                          .toLocaleString()}
+                        {banners.reduce((sum, b) => sum + b.clicks, 0).toLocaleString()}
                       </p>
                     </div>
                     <TrendingUp className="h-5 w-5 text-orange-400" />
@@ -546,7 +552,7 @@ const BannersTab: React.FC = () => {
                       type="text"
                       placeholder="Search banners..."
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={e => setSearchQuery(e.target.value)}
                       className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 w-64"
                     />
                   </div>
@@ -555,9 +561,7 @@ const BannersTab: React.FC = () => {
                     disabled={loading}
                     className="sm:flex hidden items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
                   >
-                    <RefreshCw
-                      className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                    />
+                    <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
                     <span>Refresh</span>
                   </button>
                 </div>
@@ -577,9 +581,7 @@ const BannersTab: React.FC = () => {
                     disabled={loading}
                     className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
                   >
-                    <RefreshCw
-                      className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                    />
+                    <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
                     <span>Refresh</span>
                   </button>
                 </div>
@@ -602,18 +604,16 @@ const BannersTab: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Status
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select
                       value={
                         filters.is_active === undefined
                           ? "all"
                           : filters.is_active
-                          ? "active"
-                          : "inactive"
+                            ? "active"
+                            : "inactive"
                       }
-                      onChange={(e) => {
+                      onChange={e => {
                         const val = e.target.value;
                         handleFilterChange(
                           "is_active",
@@ -629,14 +629,10 @@ const BannersTab: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Type
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
                     <select
                       value={filters.banner_type || "all"}
-                      onChange={(e) =>
-                        handleFilterChange("banner_type", e.target.value)
-                      }
+                      onChange={e => handleFilterChange("banner_type", e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     >
                       <option value="all">All Types</option>
@@ -647,14 +643,10 @@ const BannersTab: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Position
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
                     <select
                       value={filters.position || "all"}
-                      onChange={(e) =>
-                        handleFilterChange("position", e.target.value)
-                      }
+                      onChange={e => handleFilterChange("position", e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     >
                       <option value="all">All Positions</option>
@@ -684,9 +676,7 @@ const BannersTab: React.FC = () => {
             <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
               <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchQuery
-                  ? "No banners match your search"
-                  : "No banners found"}
+                {searchQuery ? "No banners match your search" : "No banners found"}
               </h3>
               <p className="text-gray-600 mb-6">
                 {searchQuery
@@ -730,7 +720,7 @@ const BannersTab: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredBanners.map((banner) => (
+                    {filteredBanners.map(banner => (
                       <tr key={banner.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-3">
@@ -749,9 +739,7 @@ const BannersTab: React.FC = () => {
                               </div>
                             )}
                             <div>
-                              <p className="font-medium text-gray-900">
-                                {banner.title}
-                              </p>
+                              <p className="font-medium text-gray-900">{banner.title}</p>
                               {banner.click_url && (
                                 <a
                                   href={banner.click_url}
@@ -759,9 +747,7 @@ const BannersTab: React.FC = () => {
                                   rel="noopener noreferrer"
                                   className="text-sm text-blue-600 hover:underline flex items-center space-x-1 mt-1"
                                 >
-                                  <span className="truncate max-w-xs">
-                                    {banner.click_url}
-                                  </span>
+                                  <span className="truncate max-w-xs">{banner.click_url}</span>
                                   <ExternalLink className="h-3 w-3 flex-shrink-0" />
                                 </a>
                               )}
@@ -784,9 +770,7 @@ const BannersTab: React.FC = () => {
                             banner.target_states_display.length > 0 ? (
                               <div className="flex items-center space-x-1 text-gray-900">
                                 <MapPin className="h-4 w-4 text-gray-400" />
-                                <span>
-                                  {banner.target_states_display.length} state(s)
-                                </span>
+                                <span>{banner.target_states_display.length} state(s)</span>
                               </div>
                             ) : (
                               <span className="text-gray-400">All States</span>
@@ -795,15 +779,10 @@ const BannersTab: React.FC = () => {
                             banner.target_categories_display.length > 0 ? (
                               <div className="flex items-center space-x-1 text-gray-900">
                                 <Tag className="h-4 w-4 text-gray-400" />
-                                <span>
-                                  {banner.target_categories_display.length}{" "}
-                                  category(ies)
-                                </span>
+                                <span>{banner.target_categories_display.length} category(ies)</span>
                               </div>
                             ) : (
-                              <span className="text-gray-400">
-                                All Categories
-                              </span>
+                              <span className="text-gray-400">All Categories</span>
                             )}
                           </div>
                         </td>
@@ -828,9 +807,7 @@ const BannersTab: React.FC = () => {
                                 ? "bg-green-100 text-green-800 hover:bg-green-200"
                                 : "bg-gray-100 text-gray-800 hover:bg-gray-200"
                             } transition-colors`}
-                            aria-label={`Toggle banner ${
-                              banner.is_active ? "off" : "on"
-                            }`}
+                            aria-label={`Toggle banner ${banner.is_active ? "off" : "on"}`}
                           >
                             {banner.is_active ? (
                               <>
@@ -885,13 +862,9 @@ const BannersTab: React.FC = () => {
               {totalPages > 1 && (
                 <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                   <div className="text-sm text-gray-700">
-                    Showing {(currentPage - 1) * (filters.page_size || 20) + 1}{" "}
-                    to{" "}
-                    {Math.min(
-                      currentPage * (filters.page_size || 20),
-                      pagination.count
-                    )}{" "}
-                    of {pagination.count} results
+                    Showing {(currentPage - 1) * (filters.page_size || 20) + 1} to{" "}
+                    {Math.min(currentPage * (filters.page_size || 20), pagination.count)} of{" "}
+                    {pagination.count} results
                   </div>
                   <div className="flex space-x-2">
                     <button
@@ -902,34 +875,31 @@ const BannersTab: React.FC = () => {
                       Previous
                     </button>
                     <div className="flex space-x-1">
-                      {Array.from(
-                        { length: Math.min(totalPages, 5) },
-                        (_, i) => {
-                          let pageNum;
-                          if (totalPages <= 5) {
-                            pageNum = i + 1;
-                          } else if (currentPage <= 3) {
-                            pageNum = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            pageNum = totalPages - 4 + i;
-                          } else {
-                            pageNum = currentPage - 2 + i;
-                          }
-                          return (
-                            <button
-                              key={pageNum}
-                              onClick={() => handlePageChange(pageNum)}
-                              className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                                currentPage === pageNum
-                                  ? "bg-orange-500 text-white"
-                                  : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                              }`}
-                            >
-                              {pageNum}
-                            </button>
-                          );
+                      {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
                         }
-                      )}
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                              currentPage === pageNum
+                                ? "bg-orange-500 text-white"
+                                : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
                     </div>
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
@@ -1337,26 +1307,20 @@ const BannersTab: React.FC = () => {
               <input
                 type="text"
                 value={formData.title}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, title: e.target.value }))
-                }
+                onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="Enter banner title"
               />
-              {formErrors.title && (
-                <p className="text-red-600 text-sm mt-1">{formErrors.title}</p>
-              )}
+              {formErrors.title && <p className="text-red-600 text-sm mt-1">{formErrors.title}</p>}
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData((prev) => ({
+                onChange={e =>
+                  setFormData(prev => ({
                     ...prev,
                     description: e.target.value,
                   }))
@@ -1375,8 +1339,8 @@ const BannersTab: React.FC = () => {
                 </label>
                 <select
                   value={formData.banner_type}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
+                  onChange={e =>
+                    setFormData(prev => ({
                       ...prev,
                       banner_type: e.target.value as BannerType,
                     }))
@@ -1401,8 +1365,8 @@ const BannersTab: React.FC = () => {
                 </label>
                 <select
                   value={formData.position}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
+                  onChange={e =>
+                    setFormData(prev => ({
                       ...prev,
                       position: e.target.value as BannerPosition,
                     }))
@@ -1417,9 +1381,7 @@ const BannersTab: React.FC = () => {
                   <option value="ad_detail">Ad Detail</option>
                 </select>
                 {formErrors.position && (
-                  <p className="text-red-600 text-sm mt-1">
-                    {formErrors.position}
-                  </p>
+                  <p className="text-red-600 text-sm mt-1">{formErrors.position}</p>
                 )}
               </div>
             </div>
@@ -1428,20 +1390,15 @@ const BannersTab: React.FC = () => {
             {formData.banner_type === "image" && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Banner Image{" "}
-                  {!showEditModal && <span className="text-red-500">*</span>}
+                  Banner Image {!showEditModal && <span className="text-red-500">*</span>}
                 </label>
                 <div className="mt-1 flex items-center space-x-4">
                   <label className="flex-1 cursor-pointer">
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-orange-500 transition-colors">
                       <div className="flex flex-col items-center">
                         <ImageIcon className="h-8 w-8 text-gray-400 mb-2" />
-                        <span className="text-sm text-gray-600">
-                          Click to upload image
-                        </span>
-                        <span className="text-xs text-gray-500 mt-1">
-                          PNG, JPG up to 5MB
-                        </span>
+                        <span className="text-sm text-gray-600">Click to upload image</span>
+                        <span className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</span>
                       </div>
                       <input
                         type="file"
@@ -1462,9 +1419,7 @@ const BannersTab: React.FC = () => {
                   )}
                 </div>
                 {formErrors.image && (
-                  <p className="text-red-600 text-sm mt-1">
-                    {formErrors.image}
-                  </p>
+                  <p className="text-red-600 text-sm mt-1">{formErrors.image}</p>
                 )}
               </div>
             )}
@@ -1476,8 +1431,8 @@ const BannersTab: React.FC = () => {
                 </label>
                 <textarea
                   value={formData.html_content}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
+                  onChange={e =>
+                    setFormData(prev => ({
                       ...prev,
                       html_content: e.target.value,
                     }))
@@ -1490,9 +1445,7 @@ const BannersTab: React.FC = () => {
                   Use for Google AdSense, custom styled ads, or embedded content
                 </p>
                 {formErrors.html_content && (
-                  <p className="text-red-600 text-sm mt-1">
-                    {formErrors.html_content}
-                  </p>
+                  <p className="text-red-600 text-sm mt-1">{formErrors.html_content}</p>
                 )}
               </div>
             )}
@@ -1504,8 +1457,8 @@ const BannersTab: React.FC = () => {
                 </label>
                 <textarea
                   value={formData.text_content}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
+                  onChange={e =>
+                    setFormData(prev => ({
                       ...prev,
                       text_content: e.target.value,
                     }))
@@ -1515,9 +1468,7 @@ const BannersTab: React.FC = () => {
                   placeholder="Enter your text message, e.g., 'Special Offer: 50% Off!'"
                 />
                 {formErrors.text_content && (
-                  <p className="text-red-600 text-sm mt-1">
-                    {formErrors.text_content}
-                  </p>
+                  <p className="text-red-600 text-sm mt-1">{formErrors.text_content}</p>
                 )}
               </div>
             )}
@@ -1530,8 +1481,8 @@ const BannersTab: React.FC = () => {
               <input
                 type="url"
                 value={formData.click_url}
-                onChange={(e) =>
-                  setFormData((prev) => ({
+                onChange={e =>
+                  setFormData(prev => ({
                     ...prev,
                     click_url: e.target.value,
                   }))
@@ -1543,9 +1494,7 @@ const BannersTab: React.FC = () => {
                 Where users go when they click the banner
               </p>
               {formErrors.click_url && (
-                <p className="text-red-600 text-sm mt-1">
-                  {formErrors.click_url}
-                </p>
+                <p className="text-red-600 text-sm mt-1">{formErrors.click_url}</p>
               )}
             </div>
 
@@ -1555,39 +1504,32 @@ const BannersTab: React.FC = () => {
                 type="checkbox"
                 id="open_new_tab"
                 checked={formData.open_new_tab}
-                onChange={(e) =>
-                  setFormData((prev) => ({
+                onChange={e =>
+                  setFormData(prev => ({
                     ...prev,
                     open_new_tab: e.target.checked,
                   }))
                 }
                 className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
               />
-              <label
-                htmlFor="open_new_tab"
-                className="ml-2 block text-sm text-gray-700"
-              >
+              <label htmlFor="open_new_tab" className="ml-2 block text-sm text-gray-700">
                 Open link in new tab
               </label>
             </div>
 
             {/* Divider */}
             <div className="border-t border-gray-200 my-4"></div>
-            <h3 className="text-sm font-semibold text-gray-900">
-              Targeting & Priority
-            </h3>
+            <h3 className="text-sm font-semibold text-gray-900">Targeting & Priority</h3>
 
             {/* Target States - Dropdown Multi-Select */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Target States
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Target States</label>
               <select
                 value=""
-                onChange={(e) => {
+                onChange={e => {
                   const stateId = Number(e.target.value);
                   if (stateId && !formData.target_states.includes(stateId)) {
-                    setFormData((prev) => ({
+                    setFormData(prev => ({
                       ...prev,
                       target_states: [...prev.target_states, stateId],
                     }));
@@ -1597,8 +1539,8 @@ const BannersTab: React.FC = () => {
               >
                 <option value="">Select state to add...</option>
                 {states
-                  .filter((state) => !formData.target_states.includes(state.id))
-                  .map((state) => (
+                  .filter(state => !formData.target_states.includes(state.id))
+                  .map(state => (
                     <option key={state.id} value={state.id}>
                       {state.name}
                     </option>
@@ -1608,8 +1550,8 @@ const BannersTab: React.FC = () => {
               {/* Selected States Display */}
               {formData.target_states.length > 0 ? (
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {formData.target_states.map((stateId) => {
-                    const state = states.find((s) => s.id === stateId);
+                  {formData.target_states.map(stateId => {
+                    const state = states.find(s => s.id === stateId);
                     return (
                       <span
                         key={stateId}
@@ -1620,11 +1562,9 @@ const BannersTab: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => {
-                            setFormData((prev) => ({
+                            setFormData(prev => ({
                               ...prev,
-                              target_states: prev.target_states.filter(
-                                (id) => id !== stateId
-                              ),
+                              target_states: prev.target_states.filter(id => id !== stateId),
                             }));
                           }}
                           className="ml-2 text-blue-600 hover:text-blue-800"
@@ -1649,10 +1589,10 @@ const BannersTab: React.FC = () => {
               </label>
               <select
                 value=""
-                onChange={(e) => {
+                onChange={e => {
                   const catId = Number(e.target.value);
                   if (catId && !formData.target_categories.includes(catId)) {
-                    setFormData((prev) => ({
+                    setFormData(prev => ({
                       ...prev,
                       target_categories: [...prev.target_categories, catId],
                     }));
@@ -1662,8 +1602,8 @@ const BannersTab: React.FC = () => {
               >
                 <option value="">Select category to add...</option>
                 {categories
-                  .filter((cat) => !formData.target_categories.includes(cat.id))
-                  .map((category) => (
+                  .filter(cat => !formData.target_categories.includes(cat.id))
+                  .map(category => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
@@ -1673,8 +1613,8 @@ const BannersTab: React.FC = () => {
               {/* Selected Categories Display */}
               {formData.target_categories.length > 0 ? (
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {formData.target_categories.map((catId) => {
-                    const category = categories.find((c) => c.id === catId);
+                  {formData.target_categories.map(catId => {
+                    const category = categories.find(c => c.id === catId);
                     return (
                       <span
                         key={catId}
@@ -1685,11 +1625,9 @@ const BannersTab: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => {
-                            setFormData((prev) => ({
+                            setFormData(prev => ({
                               ...prev,
-                              target_categories: prev.target_categories.filter(
-                                (id) => id !== catId
-                              ),
+                              target_categories: prev.target_categories.filter(id => id !== catId),
                             }));
                           }}
                           className="ml-2 text-purple-600 hover:text-purple-800"
@@ -1707,6 +1645,69 @@ const BannersTab: React.FC = () => {
               )}
             </div>
 
+            {/* Target Cities - Tag Style Picker */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Target Cities (Optional)
+              </label>
+              <select
+                value=""
+                onChange={e => {
+                  const cityId = Number(e.target.value);
+                  if (cityId && !formData.target_cities.includes(cityId)) {
+                    setFormData(prev => ({
+                      ...prev,
+                      target_cities: [...prev.target_cities, cityId],
+                    }));
+                  }
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="">Select city to add...</option>
+                {cities
+                  .filter(city => !formData.target_cities.includes(city.id))
+                  .map(city => (
+                    <option key={city.id} value={city.id}>
+                      {city.name} ({city.state_code})
+                    </option>
+                  ))}
+              </select>
+
+              {/* Selected Cities Display */}
+              {formData.target_cities.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {formData.target_cities.map(cityId => {
+                    const city = cities.find(c => c.id === cityId);
+                    return (
+                      <span
+                        key={cityId}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800"
+                      >
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {city?.name}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              target_cities: prev.target_cities.filter(id => id !== cityId),
+                            }));
+                          }}
+                          className="ml-2 text-green-600 hover:text-green-800"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500 mt-2">
+                  No cities selected - banner will show in ALL cities
+                </p>
+              )}
+            </div>
+
             {/* Priority Slider */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1718,8 +1719,8 @@ const BannersTab: React.FC = () => {
                   min="0"
                   max="100"
                   value={formData.priority}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
+                  onChange={e =>
+                    setFormData(prev => ({
                       ...prev,
                       priority: Number(e.target.value),
                     }))
@@ -1751,9 +1752,9 @@ const BannersTab: React.FC = () => {
               </div>
               <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-xs text-blue-800">
-                  <strong>How it works:</strong> Banners with higher priority values display first. 
-                  If multiple banners have the same priority, newer ones appear first. 
-                  Set to 100 for maximum visibility, 0 for lowest.
+                  <strong>How it works:</strong> Banners with higher priority values display first.
+                  If multiple banners have the same priority, newer ones appear first. Set to 100
+                  for maximum visibility, 0 for lowest.
                 </p>
               </div>
             </div>
@@ -1767,8 +1768,8 @@ const BannersTab: React.FC = () => {
                 <input
                   type="date"
                   value={formData.start_date}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
+                  onChange={e =>
+                    setFormData(prev => ({
                       ...prev,
                       start_date: e.target.value,
                     }))
@@ -1784,8 +1785,8 @@ const BannersTab: React.FC = () => {
                 <input
                   type="date"
                   value={formData.end_date}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
+                  onChange={e =>
+                    setFormData(prev => ({
                       ...prev,
                       end_date: e.target.value,
                     }))
@@ -1793,13 +1794,10 @@ const BannersTab: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
                 {formErrors.end_date && (
-                  <p className="text-red-600 text-sm mt-1">
-                    {formErrors.end_date}
-                  </p>
+                  <p className="text-red-600 text-sm mt-1">{formErrors.end_date}</p>
                 )}
               </div>
             </div>
-
           </div>
 
           {/* Form Actions */}
@@ -1820,11 +1818,7 @@ const BannersTab: React.FC = () => {
               disabled={submitting}
               className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitting
-                ? "Saving..."
-                : showEditModal
-                ? "Update Banner"
-                : "Create Banner"}
+              {submitting ? "Saving..." : showEditModal ? "Update Banner" : "Create Banner"}
             </button>
           </div>
         </form>
@@ -1858,25 +1852,19 @@ const BannersTab: React.FC = () => {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-blue-50 rounded-lg p-4">
-                  <p className="text-sm text-blue-600 font-medium">
-                    Total Impressions
-                  </p>
+                  <p className="text-sm text-blue-600 font-medium">Total Impressions</p>
                   <p className="text-2xl font-bold text-blue-900 mt-1">
                     {(analytics.banner_info?.total_impressions || 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="bg-green-50 rounded-lg p-4">
-                  <p className="text-sm text-green-600 font-medium">
-                    Total Clicks
-                  </p>
+                  <p className="text-sm text-green-600 font-medium">Total Clicks</p>
                   <p className="text-2xl font-bold text-green-900 mt-1">
                     {(analytics.banner_info?.total_clicks || 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-4">
-                  <p className="text-sm text-purple-600 font-medium">
-                    Click-Through Rate
-                  </p>
+                  <p className="text-sm text-purple-600 font-medium">Click-Through Rate</p>
                   <p className="text-2xl font-bold text-purple-900 mt-1">
                     {(analytics.banner_info?.ctr || 0).toFixed(2)}%
                   </p>
@@ -1889,7 +1877,7 @@ const BannersTab: React.FC = () => {
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     Daily Performance (Last 30 Days)
                   </h3>
-                  
+
                   {/* Daily Stats Table */}
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
@@ -1913,35 +1901,40 @@ const BannersTab: React.FC = () => {
                         {(() => {
                           // Merge daily impressions and clicks data
                           const dailyData = new Map();
-                          
+
                           // Add impressions data
                           analytics.daily_impressions?.forEach(item => {
-                            dailyData.set(item.day, { 
-                              date: item.day, 
-                              impressions: item.impressions, 
-                              clicks: 0 
+                            dailyData.set(item.day, {
+                              date: item.day,
+                              impressions: item.impressions,
+                              clicks: 0,
                             });
                           });
-                          
+
                           // Add clicks data
                           analytics.daily_clicks?.forEach(item => {
-                            const existing = dailyData.get(item.day) || { 
-                              date: item.day, 
-                              impressions: 0, 
-                              clicks: 0 
+                            const existing = dailyData.get(item.day) || {
+                              date: item.day,
+                              impressions: 0,
+                              clicks: 0,
                             };
                             existing.clicks = item.clicks;
                             dailyData.set(item.day, existing);
                           });
-                          
+
                           // Convert to array and sort by date (newest first)
-                          const sortedData = Array.from(dailyData.values())
-                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                          
+                          const sortedData = Array.from(dailyData.values()).sort(
+                            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+                          );
+
                           return sortedData.map((day, index) => {
-                            const ctr = day.impressions > 0 ? (day.clicks / day.impressions * 100) : 0;
+                            const ctr =
+                              day.impressions > 0 ? (day.clicks / day.impressions) * 100 : 0;
                             return (
-                              <tr key={day.date} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                              <tr
+                                key={day.date}
+                                className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                              >
                                 <td className="px-4 py-2 text-sm text-gray-900">
                                   {new Date(day.date).toLocaleDateString()}
                                 </td>
@@ -1961,52 +1954,73 @@ const BannersTab: React.FC = () => {
                       </tbody>
                     </table>
                   </div>
-                  
+
                   {/* Visual Performance Bars */}
                   <div className="mt-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">Daily Performance Trend</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">
+                      Daily Performance Trend
+                    </h4>
                     <div className="space-y-2">
                       {(() => {
                         // Get the last 7 days of data for visualization
-                        const last7Days = Array.from(new Set([
-                          ...(analytics.daily_impressions?.map(d => d.day) || []),
-                          ...(analytics.daily_clicks?.map(d => d.day) || [])
-                        ]))
-                        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
-                        .slice(0, 7);
-                        
-                        const maxImpressions = Math.max(...(analytics.daily_impressions?.map(d => d.impressions) || [1]));
-                        const maxClicks = Math.max(...(analytics.daily_clicks?.map(d => d.clicks) || [1]));
-                        
+                        const last7Days = Array.from(
+                          new Set([
+                            ...(analytics.daily_impressions?.map(d => d.day) || []),
+                            ...(analytics.daily_clicks?.map(d => d.day) || []),
+                          ])
+                        )
+                          .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+                          .slice(0, 7);
+
+                        const maxImpressions = Math.max(
+                          ...(analytics.daily_impressions?.map(d => d.impressions) || [1])
+                        );
+                        const maxClicks = Math.max(
+                          ...(analytics.daily_clicks?.map(d => d.clicks) || [1])
+                        );
+
                         return last7Days.map(day => {
-                          const impressions = analytics.daily_impressions?.find(d => d.day === day)?.impressions || 0;
-                          const clicks = analytics.daily_clicks?.find(d => d.day === day)?.clicks || 0;
-                          
+                          const impressions =
+                            analytics.daily_impressions?.find(d => d.day === day)?.impressions || 0;
+                          const clicks =
+                            analytics.daily_clicks?.find(d => d.day === day)?.clicks || 0;
+
                           return (
                             <div key={day} className="flex items-center space-x-3">
                               <div className="w-20 text-xs text-gray-600">
-                                {new Date(day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                {new Date(day).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                })}
                               </div>
                               <div className="flex-1 space-y-1">
                                 <div className="flex items-center space-x-2">
                                   <div className="w-16 text-xs text-blue-600">Impressions</div>
                                   <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                    <div 
+                                    <div
                                       className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                                      style={{ width: `${maxImpressions > 0 ? (impressions / maxImpressions) * 100 : 0}%` }}
+                                      style={{
+                                        width: `${maxImpressions > 0 ? (impressions / maxImpressions) * 100 : 0}%`,
+                                      }}
                                     ></div>
                                   </div>
-                                  <div className="w-8 text-xs text-gray-600 text-right">{impressions}</div>
+                                  <div className="w-8 text-xs text-gray-600 text-right">
+                                    {impressions}
+                                  </div>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                   <div className="w-16 text-xs text-green-600">Clicks</div>
                                   <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                    <div 
+                                    <div
                                       className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                                      style={{ width: `${maxClicks > 0 ? (clicks / maxClicks) * 100 : 0}%` }}
+                                      style={{
+                                        width: `${maxClicks > 0 ? (clicks / maxClicks) * 100 : 0}%`,
+                                      }}
                                     ></div>
                                   </div>
-                                  <div className="w-8 text-xs text-gray-600 text-right">{clicks}</div>
+                                  <div className="w-8 text-xs text-gray-600 text-right">
+                                    {clicks}
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -2015,7 +2029,7 @@ const BannersTab: React.FC = () => {
                       })()}
                     </div>
                   </div>
-                  
+
                   {/* Summary for daily data */}
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div className="bg-blue-50 rounded-lg p-3">
@@ -2044,16 +2058,12 @@ const BannersTab: React.FC = () => {
               )}
 
               <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Banner Details
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Banner Details</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-gray-600">Type</p>
                     <p className="font-medium text-gray-900 mt-1">
-                      {getBannerTypeLabel(
-                        selectedBanner?.banner_type || "image"
-                      )}
+                      {getBannerTypeLabel(selectedBanner?.banner_type || "image")}
                     </p>
                   </div>
                   <div>

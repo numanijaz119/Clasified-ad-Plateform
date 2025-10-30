@@ -55,24 +55,17 @@ const BaseModal = ({
       >
         <div
           className={`bg-white rounded-xl ${maxWidth} w-full max-h-[90vh] overflow-y-auto z-[10000]`}
-          onClick={(e) => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         >
           {(title || showCloseButton) && (
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              {title && (
-                <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-              )}
+              {title && <h2 className="text-2xl font-bold text-gray-900">{title}</h2>}
               {showCloseButton && (
                 <button
                   onClick={onClose}
                   className="text-gray-400 hover:text-gray-600 transition-colors ml-auto"
                 >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"

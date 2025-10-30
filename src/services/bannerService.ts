@@ -19,8 +19,9 @@ class BannerService extends BaseApiService {
         });
       }
 
-      const url = `${API_CONFIG.ENDPOINTS.CONTENT.BANNERS}${queryParams.toString() ? "?" + queryParams.toString() : ""
-        }`;
+      const url = `${API_CONFIG.ENDPOINTS.CONTENT.BANNERS}${
+        queryParams.toString() ? "?" + queryParams.toString() : ""
+      }`;
 
       const response = await this.get<PublicBanner[]>(url, false);
 
@@ -28,9 +29,10 @@ class BannerService extends BaseApiService {
         // Ensure image URLs are absolute
         return response.data.map(banner => ({
           ...banner,
-          image: banner.image && !banner.image.startsWith('http')
-            ? `${API_CONFIG.BASE_URL}${banner.image}`
-            : banner.image
+          image:
+            banner.image && !banner.image.startsWith("http")
+              ? `${API_CONFIG.BASE_URL}${banner.image}`
+              : banner.image,
         }));
       }
 

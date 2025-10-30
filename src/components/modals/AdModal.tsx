@@ -30,12 +30,7 @@ const AdModal: React.FC<AdModalProps> = ({
   onAdButtonClick,
 }) => {
   return (
-    <BaseModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Advertisement"
-      maxWidth="max-w-2xl"
-    >
+    <BaseModal isOpen={isOpen} onClose={onClose} title="Advertisement" maxWidth="max-w-2xl">
       <div className="p-6">
         <div
           className={`bg-gradient-to-r ${currentAd.bgColor} ${currentAd.textColor} rounded-lg p-8 mb-6`}
@@ -50,9 +45,9 @@ const AdModal: React.FC<AdModalProps> = ({
 
           <div className="mb-6">
             <p className="text-base opacity-90 mb-4">
-              This is a premium advertisement space. Contact us to learn more
-              about advertising opportunities and how we can help promote your
-              business to the Illinois Desi community.
+              This is a premium advertisement space. Contact us to learn more about advertising
+              opportunities and how we can help promote your business to the Illinois Desi
+              community.
             </p>
             <ul className="list-disc list-inside space-y-2 text-sm opacity-80">
               <li>Reach thousands of potential customers</li>
@@ -71,9 +66,7 @@ const AdModal: React.FC<AdModalProps> = ({
         </div>
 
         <div className="text-center">
-          <p className="text-gray-600 mb-4">
-            Interested in advertising with us?
-          </p>
+          <p className="text-gray-600 mb-4">Interested in advertising with us?</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 font-semibold"

@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import AdModal, { AdData } from "../modals/AdModal"; // Adjust path as needed
 
-const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
-  size = "medium",
-}) => {
+const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({ size = "medium" }) => {
   const [currentAdIndex, setCurrentAdIndex] = React.useState(0);
   const [selectedAd, setSelectedAd] = useState<any>(null);
   const [isAdModalOpen, setIsAdModalOpen] = useState(false);
@@ -85,7 +83,7 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentAdIndex((prevIndex) => (prevIndex + 1) % ads.length);
+      setCurrentAdIndex(prevIndex => (prevIndex + 1) % ads.length);
     }, 3000);
 
     return () => clearInterval(interval);
@@ -104,9 +102,9 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
   const currentAd = ads[currentAdIndex];
 
   const sizeClasses = {
-    small: "h-32 p-4",
-    medium: "h-40 p-4",
-    large: "h-48 p-4",
+    small: "h-32 p-4 ",
+    medium: "h-40 p-4 ",
+    large: "h-48 p-4 ",
   };
 
   const textSizes = {
@@ -130,7 +128,7 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
   return (
     <>
       <div
-        className={`bg-gradient-to-r ${currentAd.bgColor} ${currentAd.textColor} rounded-lg shadow-lg ${sizeClasses[size]} transition-all duration-500 ease-in-out transform hover:scale-105 cursor-pointer overflow-hidden relative`}
+        className={`bg-gradient-to-r ${currentAd.bgColor} ${currentAd.textColor} rounded-lg shadow-lg ${sizeClasses[size]} transition-all duration-500 ease-in-out !mt-0 transform hover:scale-105 cursor-pointer overflow-hidden relative`}
         onClick={handleAdClick}
       >
         <div className="absolute inset-0 opacity-10 pointer-events-none">
@@ -143,13 +141,9 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-2">
                 <span className="text-2xl">{currentAd.icon}</span>
-                <h3 className={`font-bold ${textSizes[size].title}`}>
-                  {currentAd.title}
-                </h3>
+                <h3 className={`font-bold ${textSizes[size].title}`}>{currentAd.title}</h3>
               </div>
-              <p className={`${textSizes[size].subtitle} opacity-90`}>
-                {currentAd.subtitle}
-              </p>
+              <p className={`${textSizes[size].subtitle} opacity-90`}>{currentAd.subtitle}</p>
             </div>
           </div>
 
@@ -177,11 +171,7 @@ const FlippingAd: React.FC<{ size?: "small" | "medium" | "large" }> = ({
       </div>
 
       {selectedAd && (
-        <AdModal
-          isOpen={isAdModalOpen}
-          onClose={handleCloseAdModal}
-          currentAd={selectedAd}
-        />
+        <AdModal isOpen={isAdModalOpen} onClose={handleCloseAdModal} currentAd={selectedAd} />
       )}
     </>
   );

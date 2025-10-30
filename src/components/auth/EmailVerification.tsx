@@ -8,13 +8,8 @@ interface EmailVerificationProps {
   onBack: () => void;
 }
 
-const EmailVerification: React.FC<EmailVerificationProps> = ({
-  email,
-  onSuccess,
-  onBack,
-}) => {
-  const { verifyEmail, resendVerification, isLoading, error, clearError } =
-    useAuth();
+const EmailVerification: React.FC<EmailVerificationProps> = ({ email, onSuccess, onBack }) => {
+  const { verifyEmail, resendVerification, isLoading, error, clearError } = useAuth();
   const [verificationCode, setVerificationCode] = useState("");
   const [sendingOtp, setSendingOtp] = useState(false);
   const isCodeShort = verificationCode.length < 6 ? true : false;
@@ -73,9 +68,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
             <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
               <Mail className="h-8 w-8 text-orange-500" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Check your email
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Check your email</h3>
             <p className="text-gray-600 text-sm mb-4">
               We've sent a verification code to
               <br />
@@ -102,7 +95,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
               <input
                 type="text"
                 value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
+                onChange={e => setVerificationCode(e.target.value)}
                 placeholder="Enter verification code"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-center text-lg tracking-wide"
                 disabled={isLoading}
@@ -127,9 +120,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
           </form>
 
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">
-              Didn't receive the email?
-            </p>
+            <p className="text-sm text-gray-600 mb-2">Didn't receive the email?</p>
             <button
               onClick={resendVerificationEmail}
               disabled={isLoading}

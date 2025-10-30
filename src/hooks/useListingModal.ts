@@ -2,17 +2,10 @@ import { useState, useCallback } from "react";
 import { useAdDetails, type BasicAd, type ModalListing } from "./useAdDetails";
 
 export const useListingModal = () => {
-  const [selectedListing, setSelectedListing] = useState<ModalListing | null>(
-    null
-  );
+  const [selectedListing, setSelectedListing] = useState<ModalListing | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const {
-    loading,
-    error,
-    fetchAdDetails,
-    transformToModalListing,
-    createFallbackModalListing,
-  } = useAdDetails();
+  const { loading, error, fetchAdDetails, transformToModalListing, createFallbackModalListing } =
+    useAdDetails();
 
   const handleListingClick = useCallback(
     async (basicAd: BasicAd) => {

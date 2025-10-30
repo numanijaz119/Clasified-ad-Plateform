@@ -7,6 +7,7 @@ interface UseBannersOptions {
   position: BannerPosition;
   stateCode?: string;
   categoryId?: number;
+  cityId?: number;
   autoRefresh?: boolean;
   refreshInterval?: number;
 }
@@ -22,6 +23,7 @@ export const useBanners = ({
   position,
   stateCode,
   categoryId,
+  cityId,
   autoRefresh = false,
   refreshInterval = 300000, // 5 minutes
 }: UseBannersOptions): UseBannersReturn => {
@@ -36,12 +38,12 @@ export const useBanners = ({
         position,
         state: stateCode,
         category: categoryId,
+        city: cityId,
       };
-      
+
       const data = await bannerService.getBanners(params);
       setBanners(data);
     } catch (err) {
-      console.error("Failed to fetch banners:", err);
       setError("Failed to load banners");
       setBanners([]);
     } finally {
@@ -56,14 +58,14 @@ export const useBanners = ({
 
   useEffect(() => {
     fetchBanners();
-  }, [position, stateCode, categoryId]);
+  }, [position, stateCode, categoryId, cityId]);
 
   useEffect(() => {
     if (autoRefresh && refreshInterval > 0) {
       const interval = setInterval(fetchBanners, refreshInterval);
       return () => clearInterval(interval);
     }
-  }, [autoRefresh, refreshInterval, position, stateCode, categoryId]);
+  }, [autoRefresh, refreshInterval, position, stateCode, categoryId, cityId]);
 
   return {
     banners,
@@ -79,7 +81,7 @@ export const useBannerTracking = () => {
     try {
       await bannerService.trackImpression(bannerId);
     } catch (error) {
-      console.error("Failed to track impression:", error);
+      // Silently fail
     }
   };
 
@@ -87,7 +89,7 @@ export const useBannerTracking = () => {
     try {
       await bannerService.trackClick(bannerId);
     } catch (error) {
-      console.error("Failed to track click:", error);
+      // Silently fail
     }
   };
 

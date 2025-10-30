@@ -23,12 +23,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
           <Bell className="w-5 h-5 text-blue-600" />
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            Notification Settings
-          </h3>
-          <p className="text-sm text-gray-600">
-            Manage how you receive notifications and updates
-          </p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Notification Settings</h3>
+          <p className="text-sm text-gray-600">Manage how you receive notifications and updates</p>
         </div>
       </div>
 
@@ -40,7 +36,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
             <div>
               <h4 className="font-medium text-gray-900">Email Notifications</h4>
               <p className="text-sm text-gray-600 mt-1">
-                Receive email notifications for important updates, ad status changes, and system announcements
+                Receive email notifications for important updates, ad status changes, and system
+                announcements
               </p>
             </div>
           </div>
@@ -88,7 +85,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
         {/* Info Box */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-800">
-            <strong>Note:</strong> Critical security notifications and account-related emails will always be sent regardless of these settings.
+            <strong>Note:</strong> Critical security notifications and account-related emails will
+            always be sent regardless of these settings.
           </p>
         </div>
       </div>

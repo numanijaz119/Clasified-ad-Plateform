@@ -49,7 +49,7 @@ const OverviewTab: React.FC = () => {
   const fetchStates = useCallback(async () => {
     try {
       const statesData = await contentService.getStates();
-      setStates(statesData.filter((s) => s.is_active));
+      setStates(statesData.filter(s => s.is_active));
     } catch (err) {
       console.error("Failed to fetch states:", err);
     }
@@ -81,18 +81,14 @@ const OverviewTab: React.FC = () => {
       <>
         {/* Header with Filters */}
         <div className="flex sm:items-center flex-col sm:flex-row gap-y-2 sm:gap-y-0  justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Dashboard Overview
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900">Dashboard Overview</h2>
           <div className="flex items-center self-end sm:self-auto space-x-4">
             <button
               onClick={handleRefresh}
               disabled={refreshing}
               className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
               <span>Refresh</span>
             </button>
           </div>
@@ -113,18 +109,14 @@ const OverviewTab: React.FC = () => {
       <>
         {/* Header with Filters */}
         <div className="flex sm:items-center flex-col sm:flex-row gap-y-2 sm:gap-y-0  justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Dashboard Overview
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900">Dashboard Overview</h2>
           <div className="flex items-center self-end sm:self-auto space-x-4">
             <button
               onClick={handleRefresh}
               disabled={refreshing}
               className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
               <span>Refresh</span>
             </button>
           </div>
@@ -134,9 +126,7 @@ const OverviewTab: React.FC = () => {
           <div className="flex items-center">
             <AlertCircle className="h-5 w-5 text-red-600 mr-3" />
             <div className="flex-1">
-              <h3 className="text-red-800 font-semibold">
-                Failed to Load Dashboard
-              </h3>
+              <h3 className="text-red-800 font-semibold">Failed to Load Dashboard</h3>
               <p className="text-red-600 text-sm mt-1">{error}</p>
             </div>
             <button
@@ -159,19 +149,17 @@ const OverviewTab: React.FC = () => {
     <div className="space-y-6">
       {/* Header with Filters */}
       <div className="flex sm:items-center flex-col sm:flex-row gap-y-2 sm:gap-y-0  justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">
-          Dashboard Overview
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-900">Dashboard Overview</h2>
         <div className="flex items-center self-end sm:self-auto space-x-4">
           <div className="flex items-center space-x-2">
             <Filter className="h-4 w-4 text-gray-500" />
             <select
               value={selectedState}
-              onChange={(e) => setSelectedState(e.target.value)}
+              onChange={e => setSelectedState(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="all">All States</option>
-              {states.map((state) => {
+              {states.map(state => {
                 return (
                   <option key={state?.id} value={state.code}>
                     {state.name}
@@ -185,9 +173,7 @@ const OverviewTab: React.FC = () => {
             disabled={refreshing}
             className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
           >
-            <RefreshCw
-              className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-            />
+            <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
             <span>Refresh</span>
           </button>
         </div>
@@ -195,17 +181,13 @@ const OverviewTab: React.FC = () => {
 
       {/* Ads Statistics */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Ad Statistics
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Ad Statistics</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Total Ads */}
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-700 mb-1">
-                  Total Ads
-                </p>
+                <p className="text-sm font-medium text-blue-700 mb-1">Total Ads</p>
                 <p className="text-3xl font-bold text-blue-900">
                   {stats.ads.total.toLocaleString()}
                 </p>
@@ -226,9 +208,7 @@ const OverviewTab: React.FC = () => {
           <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-700 mb-1">
-                  Active Ads
-                </p>
+                <p className="text-sm font-medium text-green-700 mb-1">Active Ads</p>
                 <p className="text-3xl font-bold text-green-900">
                   {stats.ads.active.toLocaleString()}
                 </p>
@@ -238,8 +218,7 @@ const OverviewTab: React.FC = () => {
               </div>
             </div>
             <div className="mt-3 text-xs text-green-700">
-              {((stats.ads.active / stats.ads.total) * 100).toFixed(1)}% of
-              total
+              {((stats.ads.active / stats.ads.total) * 100).toFixed(1)}% of total
             </div>
           </div>
 
@@ -247,9 +226,7 @@ const OverviewTab: React.FC = () => {
           <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-6 border border-yellow-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-yellow-700 mb-1">
-                  Pending Review
-                </p>
+                <p className="text-sm font-medium text-yellow-700 mb-1">Pending Review</p>
                 <p className="text-3xl font-bold text-yellow-900">
                   {stats.ads.pending.toLocaleString()}
                 </p>
@@ -259,9 +236,7 @@ const OverviewTab: React.FC = () => {
               </div>
             </div>
             {stats.ads.pending > 0 && (
-              <div className="mt-3 text-xs text-yellow-700">
-                Requires attention
-              </div>
+              <div className="mt-3 text-xs text-yellow-700">Requires attention</div>
             )}
           </div>
 
@@ -269,9 +244,7 @@ const OverviewTab: React.FC = () => {
           <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-700 mb-1">
-                  Featured Ads
-                </p>
+                <p className="text-sm font-medium text-purple-700 mb-1">Featured Ads</p>
                 <p className="text-3xl font-bold text-purple-900">
                   {stats.ads.featured.toLocaleString()}
                 </p>
@@ -287,9 +260,7 @@ const OverviewTab: React.FC = () => {
           <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-6 border border-red-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-red-700 mb-1">
-                  Rejected
-                </p>
+                <p className="text-sm font-medium text-red-700 mb-1">Rejected</p>
                 <p className="text-3xl font-bold text-red-900">
                   {stats.ads.rejected.toLocaleString()}
                 </p>
@@ -299,8 +270,7 @@ const OverviewTab: React.FC = () => {
               </div>
             </div>
             <div className="mt-3 text-xs text-red-700">
-              {((stats.ads.rejected / stats.ads.total) * 100).toFixed(1)}% of
-              total
+              {((stats.ads.rejected / stats.ads.total) * 100).toFixed(1)}% of total
             </div>
           </div>
         </div>
@@ -308,9 +278,7 @@ const OverviewTab: React.FC = () => {
 
       {/* User Statistics */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          User Statistics
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">User Statistics</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total Users */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -319,9 +287,7 @@ const OverviewTab: React.FC = () => {
                 <Users className="h-5 w-5 text-blue-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {stats.users.total.toLocaleString()}
-            </p>
+            <p className="text-2xl font-bold text-gray-900">{stats.users.total.toLocaleString()}</p>
             <p className="text-sm text-gray-600 mt-1">Total Users</p>
             {stats.users.new_this_week > 0 && (
               <div className="mt-2 flex items-center text-xs text-green-600">
@@ -343,8 +309,7 @@ const OverviewTab: React.FC = () => {
             </p>
             <p className="text-sm text-gray-600 mt-1">Active Users</p>
             <div className="mt-2 text-xs text-gray-500">
-              {((stats.users.active / stats.users.total) * 100).toFixed(1)}% of
-              total
+              {((stats.users.active / stats.users.total) * 100).toFixed(1)}% of total
             </div>
           </div>
 
@@ -380,9 +345,7 @@ const OverviewTab: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Engagement Statistics */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Engagement
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Engagement</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -430,9 +393,7 @@ const OverviewTab: React.FC = () => {
 
         {/* Moderation */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Moderation Queue
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Moderation Queue</h3>
           <div className="space-y-4">
             <div
               className={`p-4 rounded-lg border-2 ${
@@ -445,9 +406,7 @@ const OverviewTab: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <AlertCircle
                     className={`h-8 w-8 ${
-                      stats.moderation.pending_reports > 0
-                        ? "text-yellow-600"
-                        : "text-gray-400"
+                      stats.moderation.pending_reports > 0 ? "text-yellow-600" : "text-gray-400"
                     }`}
                   />
                   <div>

@@ -15,7 +15,7 @@ class BaseApiService {
   }
 
   private async delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   private async makeRequest<T>(
@@ -149,9 +149,7 @@ class BaseApiService {
   private shouldRetry(error: any): boolean {
     // Retry on network errors, timeout, or 5xx server errors
     return (
-      error.name === "AbortError" ||
-      !error.status ||
-      (error.status >= 500 && error.status < 600)
+      error.name === "AbortError" || !error.status || (error.status >= 500 && error.status < 600)
     );
   }
 
@@ -163,14 +161,11 @@ class BaseApiService {
         return false;
       }
 
-      const response = await fetch(
-        `${this.baseURL}${API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN}`,
-        {
-          method: "POST",
-          headers: getHeaders(false),
-          body: JSON.stringify({ refresh: refreshToken }),
-        }
-      );
+      const response = await fetch(`${this.baseURL}${API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN}`, {
+        method: "POST",
+        headers: getHeaders(false),
+        body: JSON.stringify({ refresh: refreshToken }),
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -204,10 +199,7 @@ class BaseApiService {
   }
 
   // HTTP Methods
-  protected async get<T>(
-    url: string,
-    includeAuth: boolean = true
-  ): Promise<ApiResponse<T>> {
+  protected async get<T>(url: string, includeAuth: boolean = true): Promise<ApiResponse<T>> {
     return this.makeRequest<T>(url, { method: "GET" }, includeAuth);
   }
 
@@ -274,10 +266,7 @@ class BaseApiService {
     return this.makeRequest<T>(url, options, includeAuth);
   }
 
-  protected async delete<T>(
-    url: string,
-    includeAuth: boolean = true
-  ): Promise<ApiResponse<T>> {
+  protected async delete<T>(url: string, includeAuth: boolean = true): Promise<ApiResponse<T>> {
     return this.makeRequest<T>(url, { method: "DELETE" }, includeAuth);
   }
 }

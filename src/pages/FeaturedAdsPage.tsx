@@ -2,10 +2,7 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Search, Star } from "lucide-react";
-import {
-  FlippingAd,
-  RecentListings,
-} from "../components/AdBanners";
+import { FlippingAd, RecentListings } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
 import AdCard from "../components/AdCard";
 import { useFeaturedAds } from "../hooks/useFeaturedAds";
@@ -32,8 +29,7 @@ const FeaturedAdsPage: React.FC = () => {
   });
 
   // Use reusable modal hook
-  const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } =
-    useListingModal();
+  const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } = useListingModal();
 
   const categories = [
     "all",
@@ -65,38 +61,28 @@ const FeaturedAdsPage: React.FC = () => {
   const filteredListings = useMemo(() => {
     if (!ads) return [];
 
-    let filtered = ads.filter((ad) => {
+    let filtered = ads.filter(ad => {
       // Search query filter
       const matchesSearch =
         searchQuery === "" ||
         ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         ad.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        `${ad.city.name}, ${ad.state.code}`
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+        `${ad.city.name}, ${ad.state.code}`.toLowerCase().includes(searchQuery.toLowerCase());
 
       // Category filter
-      const matchesCategory =
-        selectedCategory === "all" || ad.category.name === selectedCategory;
+      const matchesCategory = selectedCategory === "all" || ad.category.name === selectedCategory;
 
       // City filter
-      const matchesCity =
-        selectedCity === "all" || ad.city.name.includes(selectedCity);
+      const matchesCity = selectedCity === "all" || ad.city.name.includes(selectedCity);
 
       return matchesSearch && matchesCategory && matchesCity;
     });
 
     // Sort listings
     if (sortBy === "newest") {
-      filtered.sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
+      filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     } else if (sortBy === "oldest") {
-      filtered.sort(
-        (a, b) =>
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-      );
+      filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     } else if (sortBy === "alphabetical") {
       filtered.sort((a, b) => a.title.localeCompare(b.title));
     } else if (sortBy === "views") {
@@ -114,14 +100,14 @@ const FeaturedAdsPage: React.FC = () => {
       // Fetch detailed ad data in background
       if (ad.slug) {
         const detailedAd = (await adsService.getAd(ad.slug)) as any;
-        
+
         // Create enhanced listing with all images
         const images =
           detailedAd.images?.length > 0
             ? detailedAd.images.map((img: any) => img.image)
             : ad.primary_image?.image
-            ? [ad.primary_image.image]
-            : [];
+              ? [ad.primary_image.image]
+              : [];
 
         // The hook will handle updating the modal with enhanced data
       }
@@ -132,20 +118,37 @@ const FeaturedAdsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Banner */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="px-4 py-2">
-          <HeaderBanner />
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Link
+                to="/"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Back to home"
+              >
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 capitalize">Featured Ads</h1>
+                <p className="text-sm text-gray-600 mt-0.5">Discover Featured Ads</p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <main className="max-w-7xl mx-auto px-4">
+      <main className="max-w-7xl mx-auto my-4 px-4">
         <div className="flex gap-2 md:gap-4 lg:gap-6">
           {/* Left Sidebar with Ads */}
           <div className="md:w-48 xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
             <div className="sticky top-24 space-y-4 z-10">
               <div className="block">
-                <SidebarBanner />
+                <SidebarBanner
+                  categoryId={selectedCategory !== "all" ? undefined : undefined}
+                  cityId={selectedCity !== "all" ? undefined : undefined}
+                />
               </div>
               <FlippingAd size="medium" />
             </div>
@@ -153,39 +156,14 @@ const FeaturedAdsPage: React.FC = () => {
 
           {/* Main Content */}
           <div className="flex-1 min-w-0">
-            {/* Header */}
-            <div className="mb-6">
-              <div className="flex items-center mb-4">
-                <Link
-                  to="/"
-                  className="flex items-center text-orange-500 hover:text-orange-600 transition-colors mr-4 text-sm"
-                  aria-label="Back to home"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-1" />
-                  <span className="font-medium">Back to Home</span>
-                </Link>
+            {/* Header Banner */}
+            <div className="bg-white border-b border-gray-200">
+              <div>
+                <HeaderBanner
+                  categoryId={selectedCategory !== "all" ? undefined : undefined}
+                  cityId={selectedCity !== "all" ? undefined : undefined}
+                />
               </div>
-
-              <div className="flex items-center mb-1">
-                <Star className="h-5 w-5 text-orange-500 mr-2 fill-current" aria-hidden="true" />
-                <h1 className="text-xl font-bold text-gray-900">
-                  Featured Advertisements
-                </h1>
-              </div>
-              <p className="text-sm text-gray-600">
-                {filteredListings.length} featured listings • Premium ads from
-                our community
-              </p>
-              {selectedCategory !== "all" && (
-                <p className="text-sm text-orange-600">
-                  Filtered by category: {selectedCategory}
-                </p>
-              )}
-              {selectedCity !== "all" && (
-                <p className="text-sm text-orange-600">
-                  Filtered by city: {selectedCity}
-                </p>
-              )}
             </div>
 
             {/* Filters */}
@@ -200,7 +178,7 @@ const FeaturedAdsPage: React.FC = () => {
                   <input
                     type="search"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Search featured ads..."
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     aria-label="Search featured ads"
@@ -221,11 +199,11 @@ const FeaturedAdsPage: React.FC = () => {
                   <select
                     id="category-filter"
                     value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    onChange={e => setSelectedCategory(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     aria-label="Filter by category"
                   >
-                    {categories.map((cat) => (
+                    {categories.map(cat => (
                       <option key={cat} value={cat}>
                         {cat === "all" ? "All Categories" : cat}
                       </option>
@@ -244,11 +222,11 @@ const FeaturedAdsPage: React.FC = () => {
                   <select
                     id="city-filter"
                     value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
+                    onChange={e => setSelectedCity(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     aria-label="Filter by city"
                   >
-                    {cities.map((city) => (
+                    {cities.map(city => (
                       <option key={city} value={city}>
                         {city === "all" ? "All Cities" : city}
                       </option>
@@ -267,7 +245,7 @@ const FeaturedAdsPage: React.FC = () => {
                   <select
                     id="sort-filter"
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                    onChange={e => setSortBy(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     aria-label="Sort listings"
                   >
@@ -282,13 +260,8 @@ const FeaturedAdsPage: React.FC = () => {
 
             {/* Error State */}
             {error && (
-              <div
-                className="bg-red-50 border border-red-200 rounded-lg p-6 mb-4"
-                role="alert"
-              >
-                <p className="text-red-800 font-medium mb-2">
-                  Unable to load featured ads
-                </p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-4" role="alert">
+                <p className="text-red-800 font-medium mb-2">Unable to load featured ads</p>
                 <p className="text-red-600 text-sm mb-4">{error}</p>
                 <button
                   onClick={refetch}
@@ -304,9 +277,7 @@ const FeaturedAdsPage: React.FC = () => {
             {loading && (
               <div className="text-center py-12" role="status">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-                <p className="text-sm text-gray-600 mt-4">
-                  Loading featured ads...
-                </p>
+                <p className="text-sm text-gray-600 mt-4">Loading featured ads...</p>
               </div>
             )}
 
@@ -340,47 +311,61 @@ const FeaturedAdsPage: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    {/* Grid with Banner Injection every 6 ads */}
-                    {Array.from({
-                      length: Math.ceil(filteredListings.length / 6),
-                    }).map((_, chunkIndex) => {
-                      const startIndex = chunkIndex * 6;
-                      const endIndex = Math.min(
-                        startIndex + 6,
-                        filteredListings.length
-                      );
-                      const chunkAds = filteredListings.slice(
-                        startIndex,
-                        endIndex
-                      );
+                    {/* Grid with Banner Injection */}
+                    {(() => {
+                      // Determine banner interval: 6 if >= 6 ads, 3 if >= 3 ads, all ads if < 3
+                      const totalAds = filteredListings.length;
+                      const bannerInterval = totalAds >= 6 ? 6 : totalAds >= 3 ? 3 : totalAds;
 
-                      return (
-                        <React.Fragment key={chunkIndex}>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                            {chunkAds.map((ad) => (
-                              <AdCard
-                                key={ad.id}
-                                ad={ad}
-                                user={user}
-                                onClick={() => handleAdClick(ad)}
-                                showFeaturedBadge={true}
-                              />
-                            ))}
-                          </div>
+                      return Array.from({
+                        length: Math.ceil(filteredListings.length / bannerInterval),
+                      }).map((_, chunkIndex) => {
+                        const startIndex = chunkIndex * bannerInterval;
+                        const endIndex = Math.min(
+                          startIndex + bannerInterval,
+                          filteredListings.length
+                        );
+                        const chunkAds = filteredListings.slice(startIndex, endIndex);
 
-                          {/* Inject Banner Between Chunks */}
-                          {endIndex < filteredListings.length && (
-                            <div className="w-full mb-6">
-                              <BetweenAdsBanner />
+                        return (
+                          <React.Fragment key={chunkIndex}>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                              {chunkAds.map(ad => (
+                                <AdCard
+                                  key={ad.id}
+                                  ad={ad}
+                                  user={user}
+                                  onClick={() => handleAdClick(ad)}
+                                  showFeaturedBadge={true}
+                                />
+                              ))}
                             </div>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
+
+                            {/* Inject Banner Between Chunks */}
+                            {endIndex < filteredListings.length && (
+                              <div className="w-full mb-6">
+                                <BetweenAdsBanner
+                                  categoryId={selectedCategory !== "all" ? undefined : undefined}
+                                  cityId={selectedCity !== "all" ? undefined : undefined}
+                                />
+                              </div>
+                            )}
+                          </React.Fragment>
+                        );
+                      });
+                    })()}
                   </>
                 )}
               </div>
             )}
+
+            {/* Bottom Banner Ad */}
+            <div className="md:block hidden">
+              <FooterBanner
+                categoryId={selectedCategory !== "all" ? undefined : undefined}
+                cityId={selectedCity !== "all" ? undefined : undefined}
+              />
+            </div>
           </div>
 
           {/* Right Sidebar with Ads */}
@@ -397,11 +382,6 @@ const FeaturedAdsPage: React.FC = () => {
         <FlippingAd size="medium" />
       </div>
 
-      {/* Bottom Banner Ad */}
-      <div className="mx-4">
-        <FooterBanner />
-      </div>
-
       {/* Listing Modal */}
       <ListingModal
         listing={selectedListing}
@@ -409,6 +389,14 @@ const FeaturedAdsPage: React.FC = () => {
         onClose={handleCloseModal}
         isLoggedIn={isAuthenticated}
       />
+
+      {/* Bottom Banner Ad */}
+      <div className="md:hidden mx-4 mb-4">
+        <FooterBanner
+          categoryId={selectedCategory !== "all" ? undefined : undefined}
+          cityId={selectedCity !== "all" ? undefined : undefined}
+        />
+      </div>
     </div>
   );
 };

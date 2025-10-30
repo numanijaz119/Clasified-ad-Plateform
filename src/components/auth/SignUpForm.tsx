@@ -70,10 +70,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         }
       } else {
         // Registration successful - switch to verification step
-        onSuccess(
-          email,
-          response.message || "Registration successful! Please check your email."
-        );
+        onSuccess(email, response.message || "Registration successful! Please check your email.");
       }
     } catch (err: any) {
       console.error("Registration error:", err);
@@ -129,7 +126,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             <input
               type="text"
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onChange={e => setFirstName(e.target.value)}
               placeholder="First Name *"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               required
@@ -140,7 +137,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             <input
               type="text"
               value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              onChange={e => setLastName(e.target.value)}
               placeholder="Last Name *"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               required
@@ -154,7 +151,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           <input
             type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={e => setPhone(e.target.value)}
             placeholder="Phone Number (optional)"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             disabled={isLoading}
@@ -166,7 +163,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             placeholder="Email address"
             className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             required
@@ -180,7 +177,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           <input
             type={showPassword ? "text" : "password"}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             placeholder="Password"
             className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             required
@@ -193,11 +190,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600"
             disabled={isLoading}
           >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
+            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
         </div>
 
@@ -206,7 +199,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           <input
             type={showPassword ? "text" : "password"}
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={e => setConfirmPassword(e.target.value)}
             placeholder="Confirm Password"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             required

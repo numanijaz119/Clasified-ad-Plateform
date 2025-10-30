@@ -1,7 +1,7 @@
 // src/components/messaging/BlockUserModal.tsx
-import React from 'react';
-import { AlertTriangle, Ban } from 'lucide-react';
-import BaseModal from '../modals/BaseModal';
+import React from "react";
+import { AlertTriangle, Ban } from "lucide-react";
+import BaseModal from "../modals/BaseModal";
 
 interface BlockUserModalProps {
   isOpen: boolean;
@@ -24,12 +24,7 @@ const BlockUserModal: React.FC<BlockUserModalProps> = ({
   };
 
   return (
-    <BaseModal
-      isOpen={isOpen}
-      onClose={onClose}
-      maxWidth="max-w-md"
-      closeOnOverlayClick={false}
-    >
+    <BaseModal isOpen={isOpen} onClose={onClose} maxWidth="max-w-md" closeOnOverlayClick={false}>
       <div className="p-6">
         {/* Icon */}
         <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full">
@@ -37,20 +32,21 @@ const BlockUserModal: React.FC<BlockUserModalProps> = ({
         </div>
 
         {/* Title */}
-        <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
-          Block {userName}?
-        </h3>
+        <h3 className="text-xl font-bold text-gray-900 text-center mb-2">Block {userName}?</h3>
 
         {/* Description */}
         <div className="space-y-3 mb-6">
           <p className="text-sm text-gray-600 text-center">
             {conversationCount > 1 ? (
               <>
-                This will block <span className="font-semibold">{conversationCount} conversations</span> with this user.
+                This will block{" "}
+                <span className="font-semibold">{conversationCount} conversations</span> with this
+                user.
               </>
             ) : (
               <>
-                This will block your conversation with <span className="font-semibold">{userName}</span>.
+                This will block your conversation with{" "}
+                <span className="font-semibold">{userName}</span>.
               </>
             )}
           </p>

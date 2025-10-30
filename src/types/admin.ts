@@ -86,12 +86,7 @@ export interface AdminAdListResponse {
   results: AdminAd[];
 }
 
-export type AdminAdAction =
-  | "approve"
-  | "reject"
-  | "delete"
-  | "feature"
-  | "unfeature";
+export type AdminAdAction = "approve" | "reject" | "delete" | "feature" | "unfeature";
 
 export interface AdminAdActionRequest {
   action: AdminAdAction;
@@ -268,8 +263,10 @@ export interface AdminBanner {
   position: BannerPosition;
   target_states: number[];
   target_categories: number[];
+  target_cities: number[];
   target_states_display?: Array<{ id: number; name: string }>;
   target_categories_display?: Array<{ id: number; name: string }>;
+  target_cities_display?: Array<{ id: number; name: string }>;
   click_url?: string;
   open_new_tab: boolean;
   is_active: boolean;
@@ -311,6 +308,7 @@ export interface AdminBannerCreateRequest {
   position: BannerPosition;
   target_states?: number[];
   target_categories?: number[];
+  target_cities?: number[];
   click_url?: string;
   open_new_tab?: boolean;
   is_active?: boolean;
@@ -329,6 +327,7 @@ export interface AdminBannerUpdateRequest {
   position?: BannerPosition;
   target_states?: number[];
   target_categories?: number[];
+  target_cities?: number[];
   click_url?: string;
   open_new_tab?: boolean;
   is_active?: boolean;
@@ -477,8 +476,7 @@ export interface AdminCategoryCreateRequest {
   sort_order?: number;
 }
 
-export interface AdminCategoryUpdateRequest
-  extends Partial<AdminCategoryCreateRequest> {
+export interface AdminCategoryUpdateRequest extends Partial<AdminCategoryCreateRequest> {
   is_active?: boolean;
 }
 
@@ -493,8 +491,7 @@ export interface AdminCityCreateRequest {
   is_active?: boolean;
 }
 
-export interface AdminCityUpdateRequest
-  extends Partial<AdminCityCreateRequest> {
+export interface AdminCityUpdateRequest extends Partial<AdminCityCreateRequest> {
   is_active?: boolean;
 }
 

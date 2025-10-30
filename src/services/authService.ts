@@ -94,9 +94,7 @@ class AuthService extends BaseApiService {
   /**
    * Verify email with 6-digit code
    */
-  async verifyEmail(
-    data: EmailVerificationRequest
-  ): Promise<EmailVerificationResponse> {
+  async verifyEmail(data: EmailVerificationRequest): Promise<EmailVerificationResponse> {
     try {
       const response = await this.post<EmailVerificationResponse>(
         API_CONFIG.ENDPOINTS.AUTH.VERIFY_EMAIL,
@@ -173,9 +171,7 @@ class AuthService extends BaseApiService {
         localStorage.setItem("user", JSON.stringify(updatedUser));
 
         // Dispatch custom event so auth context can update
-        window.dispatchEvent(
-          new CustomEvent("auth:login", { detail: updatedUser })
-        );
+        window.dispatchEvent(new CustomEvent("auth:login", { detail: updatedUser }));
 
         return updatedUser;
       }
@@ -190,9 +186,7 @@ class AuthService extends BaseApiService {
   /**
    * Forgot password - send reset code
    */
-  async forgotPassword(
-    data: ForgotPasswordRequest
-  ): Promise<ForgotPasswordResponse> {
+  async forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
     try {
       const response = await this.post<ForgotPasswordResponse>(
         API_CONFIG.ENDPOINTS.AUTH.FORGOT_PASSWORD,
@@ -200,9 +194,7 @@ class AuthService extends BaseApiService {
         false
       );
 
-      return (
-        response.data || { message: "Password reset code sent to your email" }
-      );
+      return response.data || { message: "Password reset code sent to your email" };
     } catch (error: any) {
       console.error("Forgot password error:", error);
       throw error;
@@ -212,9 +204,7 @@ class AuthService extends BaseApiService {
   /**
    * Reset password using code
    */
-  async resetPassword(
-    data: ResetPasswordRequest
-  ): Promise<ResetPasswordResponse> {
+  async resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
     try {
       const response = await this.post<ResetPasswordResponse>(
         API_CONFIG.ENDPOINTS.AUTH.RESET_PASSWORD,
@@ -232,9 +222,7 @@ class AuthService extends BaseApiService {
   /**
    * Change password for authenticated users
    */
-  async changePassword(
-    data: ChangePasswordRequest
-  ): Promise<ChangePasswordResponse> {
+  async changePassword(data: ChangePasswordRequest): Promise<ChangePasswordResponse> {
     try {
       // Transform field names to match backend expectations
       const requestData = {
@@ -261,10 +249,7 @@ class AuthService extends BaseApiService {
    */
   async deleteAvatar(): Promise<User> {
     try {
-      await this.delete<{ message: string }>(
-        API_CONFIG.ENDPOINTS.AUTH.DELETE_AVATAR,
-        true
-      );
+      await this.delete<{ message: string }>(API_CONFIG.ENDPOINTS.AUTH.DELETE_AVATAR, true);
 
       // Reload profile to get updated user data
       const updatedUser = await this.getProfile();
@@ -300,17 +285,10 @@ class AuthService extends BaseApiService {
       // Call backend logout endpoint if refresh token exists
       if (refreshToken) {
         try {
-          await this.post(
-            API_CONFIG.ENDPOINTS.AUTH.LOGOUT,
-            { refresh_token: refreshToken },
-            true
-          );
+          await this.post(API_CONFIG.ENDPOINTS.AUTH.LOGOUT, { refresh_token: refreshToken }, true);
         } catch (error) {
           // Continue with logout even if backend call fails
-          console.warn(
-            "Backend logout failed, continuing with local logout:",
-            error
-          );
+          console.warn("Backend logout failed, continuing with local logout:", error);
         }
       }
 
@@ -365,10 +343,7 @@ class AuthService extends BaseApiService {
   /**
    * Store authentication data
    */
-  private storeAuthData(
-    tokens: { access: string; refresh: string },
-    user: User
-  ): void {
+  private storeAuthData(tokens: { access: string; refresh: string }, user: User): void {
     try {
       localStorage.setItem("access_token", tokens.access);
       localStorage.setItem("refresh_token", tokens.refresh);

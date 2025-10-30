@@ -111,17 +111,9 @@ export interface AuthContextType extends AuthState {
   logout: () => Promise<void>;
   clearError: () => void;
   updateUser: (userData: Partial<User>) => void;
-  verifyEmail: (
-    data: EmailVerificationRequest
-  ) => Promise<EmailVerificationResponse>;
-  resendVerification: (
-    data: ResendVerificationRequest
-  ) => Promise<EmailVerificationResponse>;
-  forgotPassword: (
-    data: ForgotPasswordRequest
-  ) => Promise<ForgotPasswordResponse>;
+  verifyEmail: (data: EmailVerificationRequest) => Promise<EmailVerificationResponse>;
+  resendVerification: (data: ResendVerificationRequest) => Promise<EmailVerificationResponse>;
+  forgotPassword: (data: ForgotPasswordRequest) => Promise<ForgotPasswordResponse>;
   resetPassword: (data: ResetPasswordRequest) => Promise<ResetPasswordResponse>;
-  changePassword: (
-    data: ChangePasswordRequest
-  ) => Promise<ChangePasswordResponse>;
+  changePassword: (data: ChangePasswordRequest) => Promise<ChangePasswordResponse>;
 }

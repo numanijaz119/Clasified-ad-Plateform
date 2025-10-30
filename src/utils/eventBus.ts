@@ -17,8 +17,10 @@ class EventBus {
   }
 
   emit<T = any>(event: string, payload: T) {
-    this.listeners[event]?.forEach((h) => {
-      try { h(payload); } catch {}
+    this.listeners[event]?.forEach(h => {
+      try {
+        h(payload);
+      } catch {}
     });
   }
 }
@@ -33,4 +35,4 @@ export type ConversationPreviewUpdate = {
   unreadDelta?: number; // +1 for incoming, -X for read, 0 for send self
 };
 
-export type RefreshConversationsEvent = { reason: 'unread_bump' | 'manual'; };
+export type RefreshConversationsEvent = { reason: "unread_bump" | "manual" };

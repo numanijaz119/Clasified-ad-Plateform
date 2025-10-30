@@ -83,20 +83,18 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
           {/* User Info */}
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900">
-              {user.full_name}
-            </h1>
-       
-              <div className="flex items-center space-x-2 mt-2">
-                <Mail className="w-4 h-4 text-gray-500" />
-                <span className="text-gray-600">{user.email}</span>
-                {user.email_verified ? (
-                  <Badge variant="success">Verified</Badge>
-                ) : (
-                  <Badge variant="error">Not Verified</Badge>
-                )}
-              </div>
-            
+            <h1 className="text-3xl font-bold text-gray-900">{user.full_name}</h1>
+
+            <div className="flex items-center space-x-2 mt-2">
+              <Mail className="w-4 h-4 text-gray-500" />
+              <span className="text-gray-600">{user.email}</span>
+              {user.email_verified ? (
+                <Badge variant="success">Verified</Badge>
+              ) : (
+                <Badge variant="error">Not Verified</Badge>
+              )}
+            </div>
+
             {user.phone && (
               <div className="flex items-center space-x-2 mt-1">
                 <Phone className="w-4 h-4 text-gray-500" />

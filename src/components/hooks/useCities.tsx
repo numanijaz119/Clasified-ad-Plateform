@@ -22,10 +22,7 @@ interface UseCitiesReturn {
   refetch: (stateCode?: string) => Promise<void>;
 }
 
-export const useCities = (
-  stateCode?: string,
-  useCache: boolean = true
-): UseCitiesReturn => {
+export const useCities = (stateCode?: string, useCache: boolean = true): UseCitiesReturn => {
   const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,10 +34,7 @@ export const useCities = (
         setError(null);
 
         // Service now handles pagination extraction
-        const data = await contentService.getCities(
-          filterStateCode || stateCode,
-          useCache
-        );
+        const data = await contentService.getCities(filterStateCode || stateCode, useCache);
 
         // Sort: major cities first, then alphabetically
         const sortedCities = [...data].sort((a, b) => {
@@ -52,8 +46,7 @@ export const useCities = (
 
         setCities(sortedCities);
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to load cities";
+        const errorMessage = err instanceof Error ? err.message : "Failed to load cities";
         setError(errorMessage);
         console.error("Error fetching cities:", err);
       } finally {

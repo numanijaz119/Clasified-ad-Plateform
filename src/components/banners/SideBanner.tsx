@@ -5,10 +5,7 @@ interface SideBannerProps {
   size?: "small" | "medium" | "large";
 }
 
-const SideBanner: React.FC<SideBannerProps> = ({
-  position = "left",
-  size = "medium",
-}) => {
+const SideBanner: React.FC<SideBannerProps> = ({ position = "left", size = "medium" }) => {
   const sizeClasses = {
     small: "h-32 w-full",
     medium: "h-48 w-full",

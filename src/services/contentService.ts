@@ -1,13 +1,7 @@
 // src/services/contentService.ts
 import BaseApiService from "./baseApiService";
 import { API_CONFIG } from "../config/api";
-import type {
-  Category,
-  City,
-  State,
-  ContentStats,
-  LocationSearchResult,
-} from "../types/content";
+import type { Category, City, State, ContentStats, LocationSearchResult } from "../types/content";
 
 class ContentService extends BaseApiService {
   // Cache for frequently accessed data
@@ -40,10 +34,7 @@ class ContentService extends BaseApiService {
         return this.categoriesCache;
       }
 
-      const response = await this.get<any>(
-        API_CONFIG.ENDPOINTS.CONTENT.CATEGORIES,
-        false
-      );
+      const response = await this.get<any>(API_CONFIG.ENDPOINTS.CONTENT.CATEGORIES, false);
 
       const categories = this.extractArray<Category>(response.data);
 
@@ -83,10 +74,7 @@ class ContentService extends BaseApiService {
   /**
    * Get all cities
    */
-  async getCities(
-    stateCode?: string,
-    useCache: boolean = true
-  ): Promise<City[]> {
+  async getCities(stateCode?: string, useCache: boolean = true): Promise<City[]> {
     try {
       if (useCache && this.citiesCache && !stateCode) {
         return this.citiesCache;
@@ -142,10 +130,7 @@ class ContentService extends BaseApiService {
         return this.statesCache;
       }
 
-      const response = await this.get<any>(
-        API_CONFIG.ENDPOINTS.CONTENT.STATES,
-        false
-      );
+      const response = await this.get<any>(API_CONFIG.ENDPOINTS.CONTENT.STATES, false);
 
       const states = this.extractArray<State>(response.data);
 
@@ -193,21 +178,18 @@ class ContentService extends BaseApiService {
    */
   async searchLocations(query: string): Promise<LocationSearchResult> {
     try {
-      const [cities, states] = await Promise.all([
-        this.getCities(),
-        this.getStates(),
-      ]);
+      const [cities, states] = await Promise.all([this.getCities(), this.getStates()]);
 
       const searchQuery = query.toLowerCase();
 
       const filteredCities = cities.filter(
-        (city) =>
+        city =>
           city.name.toLowerCase().includes(searchQuery) ||
           (city.slug && city.slug.toLowerCase().includes(searchQuery))
       );
 
       const filteredStates = states.filter(
-        (state) =>
+        state =>
           state.name.toLowerCase().includes(searchQuery) ||
           state.code.toLowerCase().includes(searchQuery)
       );

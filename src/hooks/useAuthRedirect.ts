@@ -26,17 +26,17 @@ export const useAuthRedirect = () => {
       try {
         // Decode and validate the redirect URL
         const decodedRedirect = decodeURIComponent(redirectTo);
-        
+
         // Security check: ensure redirect is to internal path
         if (decodedRedirect.startsWith("/") && !decodedRedirect.startsWith("//")) {
           // Remove the redirect parameter from current URL
           searchParams.delete("redirect");
           const newSearch = searchParams.toString();
           const currentPathWithoutRedirect = location.pathname + (newSearch ? `?${newSearch}` : "");
-          
+
           // Replace current history entry to clean up URL
           window.history.replaceState(null, "", currentPathWithoutRedirect);
-          
+
           // Navigate to intended destination
           navigate(decodedRedirect, { replace: true });
         }

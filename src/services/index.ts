@@ -87,7 +87,7 @@ export const buildQueryParams = (params: Record<string, any>): string => {
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
       if (Array.isArray(value)) {
-        value.forEach((item) => queryParams.append(key, item.toString()));
+        value.forEach(item => queryParams.append(key, item.toString()));
       } else {
         queryParams.append(key, value.toString());
       }
@@ -101,8 +101,4 @@ export { bannerService } from "./bannerService";
 export { adminBannerService } from "./adminBannerService";
 
 // Also export types if needed
-export type {
-  PublicBanner,
-  BannerPosition,
-  BannerType,
-} from "../types/banners";
+export type { PublicBanner, BannerPosition, BannerType } from "../types/banners";

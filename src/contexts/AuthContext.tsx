@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  useEffect,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
 import authService from "../services/authService";
 import {
   AuthState,
@@ -88,9 +82,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 
     case "UPDATE_USER":
       // Merge updated user data, ensuring we have a clean user object
-      const updatedUser = state.user
-        ? { ...state.user, ...action.payload }
-        : action.payload;
+      const updatedUser = state.user ? { ...state.user, ...action.payload } : action.payload;
 
       // Also update localStorage to keep it in sync
       if (updatedUser) {
@@ -163,10 +155,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     window.addEventListener("auth:logout", handleAuthLogout);
 
     return () => {
-      window.removeEventListener(
-        "auth:login",
-        handleAuthLogin as EventListener
-      );
+      window.removeEventListener("auth:login", handleAuthLogin as EventListener);
       window.removeEventListener("auth:logout", handleAuthLogout);
     };
   }, []);
@@ -195,9 +184,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Register function
-  const register = async (
-    userData: RegisterRequest
-  ): Promise<RegisterResponse> => {
+  const register = async (userData: RegisterRequest): Promise<RegisterResponse> => {
     try {
       dispatch({ type: "AUTH_START" });
 
@@ -207,8 +194,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       dispatch({ type: "SET_LOADING", payload: false });
       return response;
     } catch (error: any) {
-      const errorMessage =
-        error.message || "Registration failed. Please try again.";
+      const errorMessage = error.message || "Registration failed. Please try again.";
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }
@@ -229,15 +215,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const fullProfile = await authService.getProfile();
         dispatch({ type: "AUTH_SUCCESS", payload: fullProfile });
       } catch (profileError) {
-        console.warn(
-          "Failed to fetch full profile after Google login:",
-          profileError
-        );
+        console.warn("Failed to fetch full profile after Google login:", profileError);
         // Don't throw error, user is still logged in with basic info
       }
     } catch (error: any) {
-      const errorMessage =
-        error.message || "Google login failed. Please try again.";
+      const errorMessage = error.message || "Google login failed. Please try again.";
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }
@@ -263,9 +245,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Update user function
   const updateUser = (userData: Partial<User>): void => {
     // Clean the user data - remove any nested 'user' property if it exists
-    const cleanUserData = userData.hasOwnProperty("user")
-      ? (userData as any).user
-      : userData;
+    const cleanUserData = userData.hasOwnProperty("user") ? (userData as any).user : userData;
 
     dispatch({ type: "UPDATE_USER", payload: cleanUserData });
   };
@@ -284,8 +264,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       return response;
     } catch (error: any) {
-      const errorMessage =
-        error.message || "Email verification failed. Please try again.";
+      const errorMessage = error.message || "Email verification failed. Please try again.";
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }
@@ -302,17 +281,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return response;
     } catch (error: any) {
       const errorMessage =
-        error.message ||
-        "Failed to resend verification email. Please try again.";
+        error.message || "Failed to resend verification email. Please try again.";
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
       throw error;
     }
   };
 
   // Forgot password function
-  const forgotPassword = async (
-    data: ForgotPasswordRequest
-  ): Promise<ForgotPasswordResponse> => {
+  const forgotPassword = async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
     try {
       dispatch({ type: "AUTH_START" });
       const response = await authService.forgotPassword(data);
@@ -360,15 +336,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error.status) {
         switch (error.status) {
           case 404:
-            errorMessage =
-              "We couldn't find an account with this email address.";
+            errorMessage = "We couldn't find an account with this email address.";
             break;
           case 400:
             // Keep the detailed message from backend for 400 errors
             break;
           case 429:
-            errorMessage =
-              "Too many requests. Please wait before trying again.";
+            errorMessage = "Too many requests. Please wait before trying again.";
             break;
           case 500:
             errorMessage = "Server error. Please try again later.";
@@ -383,9 +357,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Reset password function
 
-  const resetPassword = async (
-    data: ResetPasswordRequest
-  ): Promise<ResetPasswordResponse> => {
+  const resetPassword = async (data: ResetPasswordRequest): Promise<ResetPasswordResponse> => {
     try {
       dispatch({ type: "AUTH_START" });
       const response = await authService.resetPassword(data);
@@ -395,10 +367,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       let errorMessage = "Password reset failed. Please try again.";
 
       if (error.details) {
-        if (
-          error.details.new_password &&
-          Array.isArray(error.details.new_password)
-        ) {
+        if (error.details.new_password && Array.isArray(error.details.new_password)) {
           const passwordErrors = error.details.new_password;
 
           for (const passwordError of passwordErrors) {
@@ -407,18 +376,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               errorMessage = "Password must be at least 8 characters long";
               break;
             } else if (lowerError.includes("too common")) {
-              errorMessage =
-                "This password is too common. Please choose a stronger password";
+              errorMessage = "This password is too common. Please choose a stronger password";
               break;
             } else if (lowerError.includes("entirely numeric")) {
               errorMessage = "Password cannot be entirely numeric";
               break;
-            } else if (
-              lowerError.includes("similar") ||
-              lowerError.includes("attribute")
-            ) {
-              errorMessage =
-                "Password is too similar to your personal information";
+            } else if (lowerError.includes("similar") || lowerError.includes("attribute")) {
+              errorMessage = "Password is too similar to your personal information";
               break;
             } else {
               errorMessage = passwordError;
@@ -442,8 +406,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Handle specific status codes
       if (error.status === 400 && errorMessage.includes("Invalid or expired")) {
-        errorMessage =
-          "The verification code has expired or is invalid. Please request a new one.";
+        errorMessage = "The verification code has expired or is invalid. Please request a new one.";
       }
 
       dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
@@ -452,9 +415,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Change password function
-  const changePassword = async (
-    data: ChangePasswordRequest
-  ): Promise<ChangePasswordResponse> => {
+  const changePassword = async (data: ChangePasswordRequest): Promise<ChangePasswordResponse> => {
     try {
       dispatch({ type: "AUTH_START" });
       const response = await authService.changePassword(data);
@@ -464,16 +425,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       let errorMessage = "Password change failed. Please try again.";
 
       if (error.details) {
-        if (
-          error.details.new_password &&
-          Array.isArray(error.details.new_password)
-        ) {
+        if (error.details.new_password && Array.isArray(error.details.new_password)) {
           const passwordErrors = error.details.new_password;
           errorMessage = passwordErrors[0];
-        } else if (
-          error.details.old_password &&
-          Array.isArray(error.details.old_password)
-        ) {
+        } else if (error.details.old_password && Array.isArray(error.details.old_password)) {
           errorMessage = error.details.old_password[0];
         } else if (
           error.details.confirm_password &&

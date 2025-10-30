@@ -5,11 +5,7 @@ import { adsService } from "../services/adsService";
 import { contentService } from "../services/contentService";
 import { useAuth } from "../contexts/AuthContext";
 import type { Category, City } from "../types/content";
-import type {
-  PostAdFormState,
-  PostAdFormErrors,
-  CreateAdRequest,
-} from "../types/ads";
+import type { PostAdFormState, PostAdFormErrors, CreateAdRequest } from "../types/ads";
 
 export const usePostAd = () => {
   const { user } = useAuth();
@@ -46,7 +42,7 @@ export const usePostAd = () => {
   // Set user email as default
   useEffect(() => {
     if (user?.email && !formData.contact_email) {
-      setFormData((prev) => ({
+      setFormData(prev => ({
         ...prev,
         contact_email: user.email,
       }));
@@ -62,8 +58,8 @@ export const usePostAd = () => {
         contentService.getCities(),
       ]);
 
-      setCategories(categoriesData.filter((cat) => cat.is_active));
-      setCities(citiesData.filter((city) => city.is_active));
+      setCategories(categoriesData.filter(cat => cat.is_active));
+      setCities(citiesData.filter(city => city.is_active));
     } catch (error) {
       console.error("Error loading data:", error);
       setErrors({ submit: "Failed to load categories and cities" });
@@ -75,14 +71,14 @@ export const usePostAd = () => {
   // Update form field
   const updateField = useCallback(
     (field: keyof PostAdFormState, value: string | boolean) => {
-      setFormData((prev) => ({
+      setFormData(prev => ({
         ...prev,
         [field]: value,
       }));
 
       // Clear error
       if (errors[field]) {
-        setErrors((prev) => ({
+        setErrors(prev => ({
           ...prev,
           [field]: undefined,
         }));
@@ -108,9 +104,7 @@ export const usePostAd = () => {
       }
 
       // Validate file sizes (5MB max)
-      const invalidFiles = fileArray.filter(
-        (file) => file.size > 5 * 1024 * 1024
-      );
+      const invalidFiles = fileArray.filter(file => file.size > 5 * 1024 * 1024);
       if (invalidFiles.length > 0) {
         setErrors({
           ...errors,
@@ -124,8 +118,8 @@ export const usePostAd = () => {
       setImages(newImages);
 
       // Create previews
-      const newPreviews = fileArray.map((file) => URL.createObjectURL(file));
-      setImagePreview((prev) => [...prev, ...newPreviews]);
+      const newPreviews = fileArray.map(file => URL.createObjectURL(file));
+      setImagePreview(prev => [...prev, ...newPreviews]);
 
       // Clear errors
       if (errors.images) {
@@ -172,10 +166,7 @@ export const usePostAd = () => {
     }
 
     // Price validation
-    if (
-      formData.price_type === "fixed" ||
-      formData.price_type === "negotiable"
-    ) {
+    if (formData.price_type === "fixed" || formData.price_type === "negotiable") {
       if (!formData.price || parseFloat(formData.price) <= 0) {
         newErrors.price = "Valid price is required";
       }
@@ -223,18 +214,13 @@ export const usePostAd = () => {
       };
 
       // Add price for fixed/negotiable
-      if (
-        formData.price_type === "fixed" ||
-        formData.price_type === "negotiable"
-      ) {
+      if (formData.price_type === "fixed" || formData.price_type === "negotiable") {
         createAdRequest.price = parseFloat(formData.price);
       }
 
       // Update progress for images
       if (images.length > 0) {
-        setUploadProgress(
-          `Creating ad and uploading ${images.length} image(s)...`
-        );
+        setUploadProgress(`Creating ad and uploading ${images.length} image(s)...`);
       }
 
       const adData = await adsService.createAd(createAdRequest);
@@ -276,8 +262,7 @@ export const usePostAd = () => {
           setErrors({ ...backendErrors, submit: firstError });
         }
       } else {
-        const errorMessage =
-          error.message || "Failed to create ad. Please try again.";
+        const errorMessage = error.message || "Failed to create ad. Please try again.";
         setErrors({ submit: errorMessage });
       }
 
@@ -305,7 +290,7 @@ export const usePostAd = () => {
     });
 
     // Cleanup image previews
-    imagePreview.forEach((preview) => URL.revokeObjectURL(preview));
+    imagePreview.forEach(preview => URL.revokeObjectURL(preview));
     setImages([]);
     setImagePreview([]);
     setErrors({});
@@ -318,9 +303,7 @@ export const usePostAd = () => {
   const formatPhoneDisplay = useCallback((phone: string): string => {
     const cleaned = phone.replace(/\D/g, "");
     if (cleaned.length === 10) {
-      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(
-        6
-      )}`;
+      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
     }
     return phone;
   }, []);

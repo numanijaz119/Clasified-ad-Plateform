@@ -93,10 +93,7 @@ class AdminService extends BaseApiService {
 
   async getAdDetail(id: number) {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.AD_DETAIL.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.AD_DETAIL.replace(":id", id.toString());
       const response = await this.get(url);
       return response.data;
     } catch (error: any) {
@@ -105,15 +102,9 @@ class AdminService extends BaseApiService {
     }
   }
 
-  async performAdAction(
-    id: number,
-    data: AdminAdActionRequest
-  ): Promise<AdminAdActionResponse> {
+  async performAdAction(id: number, data: AdminAdActionRequest): Promise<AdminAdActionResponse> {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.AD_ACTION.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.AD_ACTION.replace(":id", id.toString());
       const response = await this.post<AdminAdActionResponse>(url, data);
       return response.data!;
     } catch (error: any) {
@@ -124,10 +115,7 @@ class AdminService extends BaseApiService {
 
   async performBulkAdAction(data: AdminBulkAdActionRequest) {
     try {
-      const response = await this.post(
-        API_CONFIG.ENDPOINTS.ADMIN.BULK_AD_ACTION,
-        data
-      );
+      const response = await this.post(API_CONFIG.ENDPOINTS.ADMIN.BULK_AD_ACTION, data);
       return response.data;
     } catch (error: any) {
       console.error("Perform bulk ad action error:", error);
@@ -137,10 +125,7 @@ class AdminService extends BaseApiService {
 
   async deleteAd(id: number): Promise<void> {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.AD_DELETE.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.AD_DELETE.replace(":id", id.toString());
       await this.delete(url);
     } catch (error: any) {
       console.error("Delete ad error:", error);
@@ -179,10 +164,7 @@ class AdminService extends BaseApiService {
 
   async getUserDetail(id: number) {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.USER_DETAIL.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.USER_DETAIL.replace(":id", id.toString());
       const response = await this.get(url);
       return response.data;
     } catch (error: any) {
@@ -196,10 +178,7 @@ class AdminService extends BaseApiService {
     data: AdminUserActionRequest
   ): Promise<AdminUserActionResponse> {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.USER_ACTION.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.USER_ACTION.replace(":id", id.toString());
       const response = await this.post<AdminUserActionResponse>(url, data);
       return response.data!;
     } catch (error: any) {
@@ -210,10 +189,7 @@ class AdminService extends BaseApiService {
 
   async getUserActivity(id: number): Promise<AdminUserActivity[]> {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.USER_ACTIVITY.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.USER_ACTIVITY.replace(":id", id.toString());
       const response = await this.get<AdminUserActivity[]>(url);
       return response.data!;
     } catch (error: any) {
@@ -224,10 +200,7 @@ class AdminService extends BaseApiService {
 
   async performBulkUserAction(data: AdminBulkUserActionRequest) {
     try {
-      const response = await this.post(
-        API_CONFIG.ENDPOINTS.ADMIN.BULK_USER_ACTION,
-        data
-      );
+      const response = await this.post(API_CONFIG.ENDPOINTS.ADMIN.BULK_USER_ACTION, data);
       return response.data;
     } catch (error: any) {
       console.error("Perform bulk user action error:", error);
@@ -239,9 +212,7 @@ class AdminService extends BaseApiService {
   // REPORTS MANAGEMENT
   // ============================================================================
 
-  async getReports(
-    params?: AdminReportListParams
-  ): Promise<AdminReportListResponse> {
+  async getReports(params?: AdminReportListParams): Promise<AdminReportListResponse> {
     try {
       let url = API_CONFIG.ENDPOINTS.ADMIN.REPORTS_LIST;
 
@@ -268,10 +239,7 @@ class AdminService extends BaseApiService {
 
   async getReportDetail(id: number) {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.REPORT_DETAIL.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.REPORT_DETAIL.replace(":id", id.toString());
       const response = await this.get(url);
       return response.data;
     } catch (error: any) {
@@ -285,10 +253,7 @@ class AdminService extends BaseApiService {
     data: AdminReportActionRequest
   ): Promise<AdminReportActionResponse> {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.REPORT_ACTION.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.REPORT_ACTION.replace(":id", id.toString());
       const response = await this.post<AdminReportActionResponse>(url, data);
       return response.data!;
     } catch (error: any) {
@@ -299,10 +264,7 @@ class AdminService extends BaseApiService {
 
   async performBulkReportAction(data: AdminBulkReportActionRequest) {
     try {
-      const response = await this.post(
-        API_CONFIG.ENDPOINTS.ADMIN.BULK_REPORT_ACTION,
-        data
-      );
+      const response = await this.post(API_CONFIG.ENDPOINTS.ADMIN.BULK_REPORT_ACTION, data);
       return response.data;
     } catch (error: any) {
       console.error("Perform bulk report action error:", error);
@@ -319,9 +281,7 @@ class AdminService extends BaseApiService {
   // BANNER MANAGEMENT
   // ============================================================================
 
-  async getBanners(
-    params?: AdminBannerListParams
-  ): Promise<AdminBannerListResponse> {
+  async getBanners(params?: AdminBannerListParams): Promise<AdminBannerListResponse> {
     try {
       let url = API_CONFIG.ENDPOINTS.ADMIN.BANNERS_LIST;
 
@@ -348,10 +308,7 @@ class AdminService extends BaseApiService {
 
   async getBannerDetail(id: number) {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.BANNER_DETAIL.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.BANNER_DETAIL.replace(":id", id.toString());
       const response = await this.get(url);
       return response.data;
     } catch (error: any) {
@@ -397,20 +354,17 @@ class AdminService extends BaseApiService {
 
       // ManyToMany fields - append each ID separately
       if (data.target_states && data.target_states.length > 0) {
-        data.target_states.forEach((stateId) => {
+        data.target_states.forEach(stateId => {
           formData.append("target_states", stateId.toString());
         });
       }
       if (data.target_categories && data.target_categories.length > 0) {
-        data.target_categories.forEach((catId) => {
+        data.target_categories.forEach(catId => {
           formData.append("target_categories", catId.toString());
         });
       }
 
-      const response = await this.post(
-        API_CONFIG.ENDPOINTS.ADMIN.BANNER_CREATE,
-        formData
-      );
+      const response = await this.post(API_CONFIG.ENDPOINTS.ADMIN.BANNER_CREATE, formData);
       return response.data;
     } catch (error: any) {
       console.error("Create banner error:", error);
@@ -420,40 +374,31 @@ class AdminService extends BaseApiService {
 
   async updateBanner(id: number, data: AdminBannerUpdateRequest) {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.BANNER_UPDATE.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.BANNER_UPDATE.replace(":id", id.toString());
 
       const formData = new FormData();
 
       // Only append fields that are provided
       if (data.title) formData.append("title", data.title);
-      if (data.description !== undefined)
-        formData.append("description", data.description);
+      if (data.description !== undefined) formData.append("description", data.description);
       if (data.banner_type) formData.append("banner_type", data.banner_type);
       if (data.position) formData.append("position", data.position);
 
       // Content fields
       if (data.image) formData.append("image", data.image);
-      if (data.html_content !== undefined)
-        formData.append("html_content", data.html_content);
-      if (data.text_content !== undefined)
-        formData.append("text_content", data.text_content);
+      if (data.html_content !== undefined) formData.append("html_content", data.html_content);
+      if (data.text_content !== undefined) formData.append("text_content", data.text_content);
 
       // Optional fields
-      if (data.click_url !== undefined)
-        formData.append("click_url", data.click_url);
+      if (data.click_url !== undefined) formData.append("click_url", data.click_url);
       if (data.open_new_tab !== undefined) {
         formData.append("open_new_tab", data.open_new_tab.toString());
       }
       if (data.is_active !== undefined) {
         formData.append("is_active", data.is_active.toString());
       }
-      if (data.start_date !== undefined)
-        formData.append("start_date", data.start_date);
-      if (data.end_date !== undefined)
-        formData.append("end_date", data.end_date);
+      if (data.start_date !== undefined) formData.append("start_date", data.start_date);
+      if (data.end_date !== undefined) formData.append("end_date", data.end_date);
       if (data.priority !== undefined) {
         formData.append("priority", data.priority.toString());
       }
@@ -461,7 +406,7 @@ class AdminService extends BaseApiService {
       // ManyToMany fields
       if (data.target_states !== undefined) {
         if (data.target_states.length > 0) {
-          data.target_states.forEach((stateId) => {
+          data.target_states.forEach(stateId => {
             formData.append("target_states", stateId.toString());
           });
         } else {
@@ -471,7 +416,7 @@ class AdminService extends BaseApiService {
       }
       if (data.target_categories !== undefined) {
         if (data.target_categories.length > 0) {
-          data.target_categories.forEach((catId) => {
+          data.target_categories.forEach(catId => {
             formData.append("target_categories", catId.toString());
           });
         } else {
@@ -489,10 +434,7 @@ class AdminService extends BaseApiService {
 
   async deleteBanner(id: number): Promise<void> {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.BANNER_DELETE.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.BANNER_DELETE.replace(":id", id.toString());
       await this.delete(url);
     } catch (error: any) {
       console.error("Delete banner error:", error);
@@ -502,10 +444,7 @@ class AdminService extends BaseApiService {
 
   async toggleBanner(id: number): Promise<AdminBannerToggleResponse> {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.BANNER_TOGGLE.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.BANNER_TOGGLE.replace(":id", id.toString());
       const response = await this.post<AdminBannerToggleResponse>(url);
       return response.data!;
     } catch (error: any) {
@@ -516,10 +455,7 @@ class AdminService extends BaseApiService {
 
   async getBannerAnalytics(id: number): Promise<AdminBannerAnalytics> {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.BANNER_ANALYTICS.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.BANNER_ANALYTICS.replace(":id", id.toString());
       const response = await this.get<AdminBannerAnalytics>(url);
       return response.data!;
     } catch (error: any) {
@@ -532,9 +468,7 @@ class AdminService extends BaseApiService {
   // ANALYTICS
   // ============================================================================
 
-  async getAnalyticsOverview(
-    params?: AdminAnalyticsParams
-  ): Promise<AdminAnalyticsOverview> {
+  async getAnalyticsOverview(params?: AdminAnalyticsParams): Promise<AdminAnalyticsOverview> {
     try {
       let url = API_CONFIG.ENDPOINTS.ADMIN.ANALYTICS_OVERVIEW;
 
@@ -556,9 +490,7 @@ class AdminService extends BaseApiService {
     }
   }
 
-  async getAnalyticsUsers(
-    params?: AdminAnalyticsParams
-  ): Promise<AdminAnalyticsUsers> {
+  async getAnalyticsUsers(params?: AdminAnalyticsParams): Promise<AdminAnalyticsUsers> {
     try {
       let url = API_CONFIG.ENDPOINTS.ADMIN.ANALYTICS_USERS;
 
@@ -574,9 +506,7 @@ class AdminService extends BaseApiService {
     }
   }
 
-  async getAnalyticsRevenue(
-    params?: AdminAnalyticsParams
-  ): Promise<AdminAnalyticsRevenue> {
+  async getAnalyticsRevenue(params?: AdminAnalyticsParams): Promise<AdminAnalyticsRevenue> {
     try {
       let url = API_CONFIG.ENDPOINTS.ADMIN.ANALYTICS_REVENUE;
 
@@ -634,10 +564,7 @@ class AdminService extends BaseApiService {
 
   async createState(data: FormData) {
     try {
-      const response = await this.post(
-        API_CONFIG.ENDPOINTS.ADMIN.STATES_LIST,
-        data
-      );
+      const response = await this.post(API_CONFIG.ENDPOINTS.ADMIN.STATES_LIST, data);
       return response.data;
     } catch (error: any) {
       console.error("Create state error:", error);
@@ -680,10 +607,7 @@ class AdminService extends BaseApiService {
 
   async createCategory(data: AdminCategoryCreateRequest) {
     try {
-      const response = await this.post(
-        API_CONFIG.ENDPOINTS.ADMIN.CATEGORY_CREATE,
-        data
-      );
+      const response = await this.post(API_CONFIG.ENDPOINTS.ADMIN.CATEGORY_CREATE, data);
       return response.data;
     } catch (error: any) {
       console.error("Create category error:", error);
@@ -693,10 +617,7 @@ class AdminService extends BaseApiService {
 
   async updateCategory(id: number, data: AdminCategoryUpdateRequest) {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.CATEGORY_UPDATE.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.CATEGORY_UPDATE.replace(":id", id.toString());
       const response = await this.put(url, data);
       return response.data;
     } catch (error: any) {
@@ -707,10 +628,7 @@ class AdminService extends BaseApiService {
 
   async deleteCategory(id: number): Promise<void> {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.CATEGORY_DELETE.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.CATEGORY_DELETE.replace(":id", id.toString());
       await this.delete(url);
     } catch (error: any) {
       console.error("Delete category error:", error);
@@ -725,7 +643,7 @@ class AdminService extends BaseApiService {
         const formData = new FormData();
         Object.entries(data).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
-            if (key === 'photo' && value instanceof File) {
+            if (key === "photo" && value instanceof File) {
               formData.append(key, value);
             } else {
               formData.append(key, value.toString());
@@ -733,17 +651,11 @@ class AdminService extends BaseApiService {
           }
         });
 
-        const response = await this.post(
-          API_CONFIG.ENDPOINTS.ADMIN.CITY_CREATE,
-          formData
-        );
+        const response = await this.post(API_CONFIG.ENDPOINTS.ADMIN.CITY_CREATE, formData);
         return response.data;
       } else {
         // No photo, use regular JSON
-        const response = await this.post(
-          API_CONFIG.ENDPOINTS.ADMIN.CITY_CREATE,
-          data
-        );
+        const response = await this.post(API_CONFIG.ENDPOINTS.ADMIN.CITY_CREATE, data);
         return response.data;
       }
     } catch (error: any) {
@@ -754,17 +666,14 @@ class AdminService extends BaseApiService {
 
   async updateCity(id: number, data: AdminCityUpdateRequest) {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.CITY_UPDATE.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.CITY_UPDATE.replace(":id", id.toString());
 
       // If there's a photo, use FormData
       if (data.photo) {
         const formData = new FormData();
         Object.entries(data).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
-            if (key === 'photo' && value instanceof File) {
+            if (key === "photo" && value instanceof File) {
               formData.append(key, value);
             } else {
               formData.append(key, value.toString());
@@ -791,14 +700,14 @@ class AdminService extends BaseApiService {
 
       if (params) {
         const queryParams = new URLSearchParams();
-        if (params.state && params.state !== 'all') {
-          queryParams.append('state', params.state);
+        if (params.state && params.state !== "all") {
+          queryParams.append("state", params.state);
         }
         if (params.is_active !== undefined) {
-          queryParams.append('is_active', params.is_active.toString());
+          queryParams.append("is_active", params.is_active.toString());
         }
         if (params.is_major !== undefined) {
-          queryParams.append('is_major', params.is_major.toString());
+          queryParams.append("is_major", params.is_major.toString());
         }
 
         const queryString = queryParams.toString();
@@ -817,10 +726,7 @@ class AdminService extends BaseApiService {
 
   async deleteCity(id: number): Promise<void> {
     try {
-      const url = API_CONFIG.ENDPOINTS.ADMIN.CITY_DELETE.replace(
-        ":id",
-        id.toString()
-      );
+      const url = API_CONFIG.ENDPOINTS.ADMIN.CITY_DELETE.replace(":id", id.toString());
       await this.delete(url);
     } catch (error: any) {
       console.error("Delete city error:", error);
@@ -850,14 +756,14 @@ class AdminService extends BaseApiService {
       }
 
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Export failed');
+        throw new Error("Export failed");
       }
 
       return await response.blob();
@@ -885,14 +791,14 @@ class AdminService extends BaseApiService {
       }
 
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Export failed');
+        throw new Error("Export failed");
       }
 
       return await response.blob();
@@ -920,14 +826,14 @@ class AdminService extends BaseApiService {
       }
 
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Export failed');
+        throw new Error("Export failed");
       }
 
       return await response.blob();
@@ -963,10 +869,8 @@ class AdminService extends BaseApiService {
       throw error;
     }
   }
-
-
 }
 
-// Export singleton instance  
+// Export singleton instance
 const adminService = new AdminService();
 export { adminService };

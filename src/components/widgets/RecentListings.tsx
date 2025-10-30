@@ -14,27 +14,20 @@ interface RecentListingsProps {
 const RecentListings: React.FC<RecentListingsProps> = () => {
   const { isAuthenticated, user } = useAuth(); // Added user to check ownership
   const [currentIndex, setCurrentIndex] = React.useState(0);
-  
+
   // Fetch 10 most recent ads from API
   const { ads, loading, error } = useAds({
     sort_by: "newest",
     page_size: 10,
   });
-  
+
   // Use reusable modal hook
-  const {
-    selectedListing,
-    isModalOpen,
-    handleListingClick,
-    handleCloseModal,
-  } = useListingModal();
+  const { selectedListing, isModalOpen, handleListingClick, handleCloseModal } = useListingModal();
 
   React.useEffect(() => {
     if (ads && ads.length > 0) {
       const interval = setInterval(() => {
-        setCurrentIndex((prevIndex) =>
-          prevIndex >= ads.length - 1 ? 0 : prevIndex + 1
-        );
+        setCurrentIndex(prevIndex => (prevIndex >= ads.length - 1 ? 0 : prevIndex + 1));
       }, 2000);
 
       return () => clearInterval(interval);
@@ -48,7 +41,7 @@ const RecentListings: React.FC<RecentListingsProps> = () => {
           <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
           Recent Listings
         </h3>
-        
+
         {loading ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, index) => (
@@ -69,17 +62,17 @@ const RecentListings: React.FC<RecentListingsProps> = () => {
               className="transition-transform duration-500 ease-in-out"
               style={{ transform: `translateY(-${currentIndex * 26}px)` }}
             >
-              {ads.map((ad) => {
+              {ads.map(ad => {
                 // Check if current user owns this ad
                 const isOwnAd = user && (ad.is_owner || ad.user_id === user.id);
-                
+
                 return (
                   <div
                     key={ad.id}
                     className={`h-9 flex items-center justify-between py-1 mb-1 cursor-pointer hover:bg-gray-50 transition-colors rounded px-2 border-l-2 ${
-                      isOwnAd 
-                        ? 'border-blue-500' // Blue border for own ads
-                        : 'border-transparent hover:border-orange-500' // Original styling
+                      isOwnAd
+                        ? "border-blue-500" // Blue border for own ads
+                        : "border-transparent hover:border-orange-500" // Original styling
                     }`}
                     onClick={() => handleListingClick(ad)}
                   >
@@ -108,7 +101,7 @@ const RecentListings: React.FC<RecentListingsProps> = () => {
           </div>
         )}
       </div>
-      
+
       {/* Listing Modal */}
       <ListingModal
         listing={selectedListing}

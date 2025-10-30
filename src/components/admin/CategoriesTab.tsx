@@ -31,8 +31,7 @@ const CategoriesTab: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [editingCategory, setEditingCategory] =
-    useState<AdminCategoryStats | null>(null);
+  const [editingCategory, setEditingCategory] = useState<AdminCategoryStats | null>(null);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -49,9 +48,7 @@ const CategoriesTab: React.FC = () => {
     sort_order: 0,
   });
 
-  const [formErrors, setFormErrors] = useState<
-    Partial<Record<keyof CategoryFormData, string>>
-  >({});
+  const [formErrors, setFormErrors] = useState<Partial<Record<keyof CategoryFormData, string>>>({});
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -116,7 +113,7 @@ const CategoriesTab: React.FC = () => {
   };
 
   const handleNameChange = (name: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       name,
       slug: prev.slug || generateSlug(name),
@@ -133,8 +130,7 @@ const CategoriesTab: React.FC = () => {
     if (!formData.slug.trim()) {
       errors.slug = "Slug is required";
     } else if (!/^[a-z0-9-]+$/.test(formData.slug)) {
-      errors.slug =
-        "Slug can only contain lowercase letters, numbers, and hyphens";
+      errors.slug = "Slug can only contain lowercase letters, numbers, and hyphens";
     }
 
     setFormErrors(errors);
@@ -156,10 +152,7 @@ const CategoriesTab: React.FC = () => {
       await fetchCategories();
       handleCloseModal();
     } catch (err: any) {
-      setError(
-        err.message ||
-          `Failed to ${editingCategory ? "update" : "create"} category`
-      );
+      setError(err.message || `Failed to ${editingCategory ? "update" : "create"} category`);
     } finally {
       setActionLoading(null);
     }
@@ -178,7 +171,7 @@ const CategoriesTab: React.FC = () => {
     }
   };
 
-  const filteredCategories = categories.filter((cat) =>
+  const filteredCategories = categories.filter(cat =>
     cat.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -197,12 +190,8 @@ const CategoriesTab: React.FC = () => {
     <div className="space-y-6">
       <div className="flex sm:items-center flex-col sm:flex-row gap-y-2 sm:gap-y-0   justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">
-            Categories Management
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            {categories.length} total categories
-          </p>
+          <h2 className="text-xl font-semibold text-gray-900">Categories Management</h2>
+          <p className="text-sm text-gray-600 mt-1">{categories.length} total categories</p>
         </div>
         <div className="flex items-center self-end sm:self-auto space-x-3">
           <button
@@ -226,7 +215,7 @@ const CategoriesTab: React.FC = () => {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search categories..."
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
@@ -252,7 +241,7 @@ const CategoriesTab: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCategories.map((category) => (
+        {filteredCategories.map(category => (
           <div
             key={category.id}
             className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
@@ -261,9 +250,7 @@ const CategoriesTab: React.FC = () => {
               <div className="flex items-center space-x-3">
                 <div className="text-3xl">{category.icon || "📦"}</div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {category.name}
-                  </h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
                   <p className="text-xs text-gray-500">{category.slug}</p>
                 </div>
               </div>
@@ -276,9 +263,7 @@ const CategoriesTab: React.FC = () => {
                   <Edit className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={() =>
-                    setConfirmDelete({ isOpen: true, categoryId: category.id })
-                  }
+                  onClick={() => setConfirmDelete({ isOpen: true, categoryId: category.id })}
                   disabled={actionLoading === category.id}
                   className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
                   title="Delete"
@@ -290,21 +275,15 @@ const CategoriesTab: React.FC = () => {
 
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">
-                  {category.total_ads}
-                </div>
+                <div className="text-2xl font-bold text-gray-900">{category.total_ads}</div>
                 <div className="text-xs text-gray-600">Total</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {category.active_ads}
-                </div>
+                <div className="text-2xl font-bold text-green-600">{category.active_ads}</div>
                 <div className="text-xs text-gray-600">Active</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-600">
-                  {category.pending_ads}
-                </div>
+                <div className="text-2xl font-bold text-yellow-600">{category.pending_ads}</div>
                 <div className="text-xs text-gray-600">Pending</div>
               </div>
             </div>
@@ -316,9 +295,7 @@ const CategoriesTab: React.FC = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
           <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 mb-2">No categories found</p>
-          <p className="text-sm text-gray-500">
-            Try adjusting your search or add a new category
-          </p>
+          <p className="text-sm text-gray-500">Try adjusting your search or add a new category</p>
         </div>
       )}
 
@@ -337,15 +314,13 @@ const CategoriesTab: React.FC = () => {
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => handleNameChange(e.target.value)}
+                onChange={e => handleNameChange(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                   formErrors.name ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="e.g., Electronics"
               />
-              {formErrors.name && (
-                <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>
-              )}
+              {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
             </div>
 
             <div>
@@ -355,32 +330,24 @@ const CategoriesTab: React.FC = () => {
               <input
                 type="text"
                 value={formData.slug}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, slug: e.target.value }))
-                }
+                onChange={e => setFormData(prev => ({ ...prev, slug: e.target.value }))}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                   formErrors.slug ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="e.g., electronics"
               />
-              {formErrors.slug && (
-                <p className="text-red-500 text-xs mt-1">{formErrors.slug}</p>
-              )}
+              {formErrors.slug && <p className="text-red-500 text-xs mt-1">{formErrors.slug}</p>}
               <p className="text-xs text-gray-500 mt-1">
                 URL-friendly identifier (lowercase, no spaces)
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Icon (Emoji)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Icon (Emoji)</label>
               <input
                 type="text"
                 value={formData.icon}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, icon: e.target.value }))
-                }
+                onChange={e => setFormData(prev => ({ ...prev, icon: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="📦"
                 maxLength={2}
@@ -388,13 +355,11 @@ const CategoriesTab: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData((prev) => ({
+                onChange={e =>
+                  setFormData(prev => ({
                     ...prev,
                     description: e.target.value,
                   }))
@@ -435,16 +400,8 @@ const CategoriesTab: React.FC = () => {
             >
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              onClick={handleSubmit}
-              disabled={actionLoading !== null}
-            >
-              {actionLoading !== null
-                ? "Saving..."
-                : editingCategory
-                ? "Update"
-                : "Create"}
+            <Button variant="primary" onClick={handleSubmit} disabled={actionLoading !== null}>
+              {actionLoading !== null ? "Saving..." : editingCategory ? "Update" : "Create"}
             </Button>
           </div>
         </BaseModal>
@@ -453,9 +410,7 @@ const CategoriesTab: React.FC = () => {
       <ConfirmModal
         isOpen={confirmDelete.isOpen}
         onClose={() => setConfirmDelete({ isOpen: false, categoryId: null })}
-        onConfirm={() =>
-          confirmDelete.categoryId && handleDelete(confirmDelete.categoryId)
-        }
+        onConfirm={() => confirmDelete.categoryId && handleDelete(confirmDelete.categoryId)}
         title="Delete Category"
         message="Are you sure you want to delete this category? This will deactivate it but not remove existing ads."
         confirmText="Delete"

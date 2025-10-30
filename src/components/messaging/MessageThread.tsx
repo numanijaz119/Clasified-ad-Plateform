@@ -1,8 +1,8 @@
 // src/components/messaging/MessageThread.tsx
-import React, { useEffect, useRef, useState } from 'react';
-import { Clock, ArrowDown } from 'lucide-react';
-import type { Message } from '../../types/messaging';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useEffect, useRef, useState } from "react";
+import { Clock, ArrowDown } from "lucide-react";
+import type { Message } from "../../types/messaging";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface MessageThreadProps {
   messages: Message[];
@@ -12,11 +12,7 @@ interface MessageThreadProps {
 
 const SCROLL_THRESHOLD = 150; // px from bottom to be considered "at bottom"
 
-const MessageThread: React.FC<MessageThreadProps> = ({
-  messages,
-  loading,
-  conversationId,
-}) => {
+const MessageThread: React.FC<MessageThreadProps> = ({ messages, loading, conversationId }) => {
   const { user } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
   const lastMessageId = useRef<number | null>(null);
@@ -55,13 +51,13 @@ const MessageThread: React.FC<MessageThreadProps> = ({
         // User is at bottom → auto scroll
         container.scrollTo({
           top: container.scrollHeight,
-          behavior: isOwnMessage ? 'smooth' : 'auto',
+          behavior: isOwnMessage ? "smooth" : "auto",
         });
         setIsAtBottom(true);
         setUnreadCount(0);
       } else {
         // User is reading old messages → show unread badge
-        setUnreadCount((prev) => prev + 1);
+        setUnreadCount(prev => prev + 1);
       }
 
       lastMessageId.current = lastMsg.id;
@@ -88,7 +84,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({
   const scrollToBottom = () => {
     const container = containerRef.current;
     if (container) {
-      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
       setIsAtBottom(true);
       setUnreadCount(0);
     }
@@ -121,8 +117,8 @@ const MessageThread: React.FC<MessageThreadProps> = ({
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin"
         style={{
-          overflowAnchor: 'none',
-          scrollBehavior: 'smooth',
+          overflowAnchor: "none",
+          scrollBehavior: "smooth",
         }}
       >
         {sortedMessages.map((message, index) => {
@@ -138,33 +134,31 @@ const MessageThread: React.FC<MessageThreadProps> = ({
               {showDate && (
                 <div className="flex justify-center my-4">
                   <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
-                    {new Date(message.created_at).toLocaleDateString('en-US', {
-                      weekday: 'short',
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
+                    {new Date(message.created_at).toLocaleDateString("en-US", {
+                      weekday: "short",
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
                     })}
                   </div>
                 </div>
               )}
 
               {/* Message bubble */}
-              <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[70%] ${isOwn ? 'items-end' : 'items-start'}`}>
+              <div className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[70%] ${isOwn ? "items-end" : "items-start"}`}>
                   {!isOwn && (
-                    <p className="text-xs text-gray-500 mb-1 px-1">
-                      {message.sender_name}
-                    </p>
+                    <p className="text-xs text-gray-500 mb-1 px-1">{message.sender_name}</p>
                   )}
 
                   <div
                     className={`px-4 py-2 rounded-lg break-words ${
                       isOwn
-                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-br-none'
-                        : 'bg-white text-gray-900 border border-gray-200 rounded-bl-none'
+                        ? "bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-br-none"
+                        : "bg-white text-gray-900 border border-gray-200 rounded-bl-none"
                     }`}
                   >
-                    {message.message_type === 'system' ? (
+                    {message.message_type === "system" ? (
                       <p className="text-sm italic">{message.content}</p>
                     ) : (
                       <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -183,23 +177,19 @@ const MessageThread: React.FC<MessageThreadProps> = ({
                   {/* Timestamp */}
                   <div
                     className={`flex items-center gap-1 mt-1 px-1 text-xs text-gray-400 ${
-                      isOwn ? 'justify-end' : 'justify-start'
+                      isOwn ? "justify-end" : "justify-start"
                     }`}
                   >
                     <Clock className="h-3 w-3" />
                     <span>
-                      {new Date(message.created_at).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
+                      {new Date(message.created_at).toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "2-digit",
                         hour12: true,
                       })}
                     </span>
-                    {isOwn && message.is_read && (
-                      <span className="text-green-600 ml-1">✓✓</span>
-                    )}
-                    {isOwn && !message.is_read && (
-                      <span className="text-gray-400 ml-1">✓</span>
-                    )}
+                    {isOwn && message.is_read && <span className="text-green-600 ml-1">✓✓</span>}
+                    {isOwn && !message.is_read && <span className="text-gray-400 ml-1">✓</span>}
                   </div>
                 </div>
               </div>
@@ -218,7 +208,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({
           <ArrowDown className="h-5 w-5" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold rounded-full w-4 h-4 flex items-center justify-center">
-              {unreadCount > 9 ? '9+' : unreadCount}
+              {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
         </button>

@@ -21,7 +21,7 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
     if (!googleInitialized) {
       initializeGoogleAuth(handleGoogleLoginWrapper)
         .then(() => setGoogleInitialized(true))
-        .catch((err) => {
+        .catch(err => {
           console.error("Google OAuth initialization failed:", err);
           setError("Google sign-in is temporarily unavailable");
         });
@@ -53,38 +53,36 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
       await signInWithGoogle(handleGoogleLoginWrapper);
     } catch (err: any) {
       console.error("Google sign-in error:", err);
-      
+
       // Don't show error if user simply dismissed the popup
-      const isDismissed = err.message?.includes('dismissed') || 
-                         err.message?.includes('closed') ||
-                         err.message?.includes('popup');
-      
+      const isDismissed =
+        err.message?.includes("dismissed") ||
+        err.message?.includes("closed") ||
+        err.message?.includes("popup");
+
       if (!isDismissed) {
         // Show user-friendly error messages
         let errorMessage = "Google sign-in failed. Please try again.";
-        
-        if (err.message?.includes('clock') || err.message?.includes('time')) {
-          errorMessage = "Your computer's clock is not synchronized. Please check your system time settings and try again.";
-        } else if (err.message?.includes('expired')) {
+
+        if (err.message?.includes("clock") || err.message?.includes("time")) {
+          errorMessage =
+            "Your computer's clock is not synchronized. Please check your system time settings and try again.";
+        } else if (err.message?.includes("expired")) {
           errorMessage = "Google sign-in session expired. Please try again.";
         } else if (err.message) {
           errorMessage = err.message;
         }
-        
+
         setError(errorMessage);
       }
-      
+
       setIsLoading(false);
     }
     // Don't set loading to false here - let it stay until success callback
   };
 
   if (error) {
-    return (
-      <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg text-center">
-        {error}
-      </div>
-    );
+    return <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg text-center">{error}</div>;
   }
 
   return (

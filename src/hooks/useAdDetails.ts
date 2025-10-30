@@ -1,6 +1,6 @@
 // src/hooks/useAdDetails.ts
-import { useState, useCallback } from 'react';
-import { adsService } from '../services';
+import { useState, useCallback } from "react";
+import { adsService } from "../services";
 
 // Interface for the detailed ad response
 export interface DetailedAd {
@@ -60,7 +60,7 @@ export interface DetailedAd {
   created_at: string;
   updated_at: string;
   expires_at: string;
-  is_owner?: boolean;  // Backend ownership flag
+  is_owner?: boolean; // Backend ownership flag
 }
 
 // Interface for basic ad from search results
@@ -97,8 +97,8 @@ export interface BasicAd {
   time_since_posted: string;
   is_featured_active: boolean;
   created_at: string;
-  is_owner?: boolean;  // Backend ownership flag
-  user_id?: number;    // Owner's user ID
+  is_owner?: boolean; // Backend ownership flag
+  user_id?: number; // Owner's user ID
 }
 
 // Interface for modal listing (what ListingModal expects)
@@ -122,8 +122,8 @@ export interface ModalListing {
     full_name: string;
     avatar: string | null;
   };
-  is_owner?: boolean;  // CRITICAL: Ownership flag
-  user_id?: number;    // CRITICAL: Owner's user ID
+  is_owner?: boolean; // CRITICAL: Ownership flag
+  user_id?: number; // CRITICAL: Owner's user ID
 }
 
 export const useAdDetails = () => {
@@ -134,63 +134,65 @@ export const useAdDetails = () => {
     try {
       setLoading(true);
       setError(null);
-      const detailedAd = await adsService.getAd(slug) as unknown as DetailedAd;
+      const detailedAd = (await adsService.getAd(slug)) as unknown as DetailedAd;
       return detailedAd;
     } catch (err) {
-      console.error('Error fetching ad details:', err);
-      setError('Failed to load ad details');
+      console.error("Error fetching ad details:", err);
+      setError("Failed to load ad details");
       return null;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const transformToModalListing = useCallback((
-    detailedAd: DetailedAd, 
-    fallbackAd?: BasicAd
-  ): ModalListing => {
-    // Get images with proper fallback
-    const images = detailedAd.images?.length > 0 
-      ? detailedAd.images.map(img => img.image)
-      : fallbackAd?.primary_image?.image 
-        ? [fallbackAd.primary_image.image]
-        : ['/placeholder.svg'];
+  const transformToModalListing = useCallback(
+    (detailedAd: DetailedAd, fallbackAd?: BasicAd): ModalListing => {
+      // Get images with proper fallback
+      const images =
+        detailedAd.images?.length > 0
+          ? detailedAd.images.map(img => img.image)
+          : fallbackAd?.primary_image?.image
+            ? [fallbackAd.primary_image.image]
+            : ["/placeholder.svg"];
 
-    // Get primary image
-    const primaryImage = detailedAd.images?.find(img => img.is_primary)?.image || 
-                        detailedAd.images?.[0]?.image || 
-                        fallbackAd?.primary_image?.image ||
-                        '/placeholder.svg';
+      // Get primary image
+      const primaryImage =
+        detailedAd.images?.find(img => img.is_primary)?.image ||
+        detailedAd.images?.[0]?.image ||
+        fallbackAd?.primary_image?.image ||
+        "/placeholder.svg";
 
-    return {
-      id: detailedAd.id,
-      title: detailedAd.title,
-      category: detailedAd.category.name,
-      price: detailedAd.display_price,
-      location: `${detailedAd.city.name}, ${detailedAd.state.code}`,
-      image: primaryImage,
-      views: detailedAd.view_count,
-      timeAgo: detailedAd.time_since_posted,
-      postedDate: new Date(detailedAd.created_at),
-      featured: detailedAd.is_featured_active,
-      description: detailedAd.description,
-      phone: detailedAd.hide_phone ? undefined : detailedAd.contact_phone,
-      email: detailedAd.contact_email_display,
-      images,
-      user: {
-        id: detailedAd.user.id,
-        full_name: detailedAd.user.full_name,
-        avatar: detailedAd.user.avatar,
-      },
-      // CRITICAL: Pass ownership data
-      is_owner: detailedAd.is_owner || fallbackAd?.is_owner,
-      user_id: detailedAd.user.id,
-    };
-  }, []);
+      return {
+        id: detailedAd.id,
+        title: detailedAd.title,
+        category: detailedAd.category.name,
+        price: detailedAd.display_price,
+        location: `${detailedAd.city.name}, ${detailedAd.state.code}`,
+        image: primaryImage,
+        views: detailedAd.view_count,
+        timeAgo: detailedAd.time_since_posted,
+        postedDate: new Date(detailedAd.created_at),
+        featured: detailedAd.is_featured_active,
+        description: detailedAd.description,
+        phone: detailedAd.hide_phone ? undefined : detailedAd.contact_phone,
+        email: detailedAd.contact_email_display,
+        images,
+        user: {
+          id: detailedAd.user.id,
+          full_name: detailedAd.user.full_name,
+          avatar: detailedAd.user.avatar,
+        },
+        // CRITICAL: Pass ownership data
+        is_owner: detailedAd.is_owner || fallbackAd?.is_owner,
+        user_id: detailedAd.user.id,
+      };
+    },
+    []
+  );
 
   const createFallbackModalListing = useCallback((basicAd: BasicAd): ModalListing => {
-    const fallbackImage = basicAd.primary_image?.image || '/placeholder.svg';
-    
+    const fallbackImage = basicAd.primary_image?.image || "/placeholder.svg";
+
     return {
       id: basicAd.id,
       title: basicAd.title,

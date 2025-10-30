@@ -6,10 +6,7 @@ interface AccountDeletionProps {
   updating: boolean;
 }
 
-const AccountDeletion: React.FC<AccountDeletionProps> = ({
-  onDelete,
-  updating,
-}) => {
+const AccountDeletion: React.FC<AccountDeletionProps> = ({ onDelete, updating }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmText, setConfirmText] = useState("");
 
@@ -37,9 +34,7 @@ const AccountDeletion: React.FC<AccountDeletionProps> = ({
           <Trash2 className="w-5 h-5 text-red-600" />
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            Delete Account
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Delete Account</h3>
           <p className="text-sm text-gray-600">
             Permanently delete your account and all associated data
           </p>
@@ -92,7 +87,7 @@ const AccountDeletion: React.FC<AccountDeletionProps> = ({
             <input
               type="text"
               value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
+              onChange={e => setConfirmText(e.target.value)}
               placeholder="DELETE"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
               disabled={updating}

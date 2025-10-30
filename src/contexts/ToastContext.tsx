@@ -74,13 +74,7 @@ const ToastItem: React.FC<{
     }
   };
 
-  const {
-    icon: Icon,
-    bgColor,
-    iconColor,
-    textColor,
-    borderColor,
-  } = getToastStyles();
+  const { icon: Icon, bgColor, iconColor, textColor, borderColor } = getToastStyles();
 
   // Entry animation
   useEffect(() => {
@@ -109,9 +103,7 @@ const ToastItem: React.FC<{
       className={`
         ${bgColor} ${borderColor} rounded-lg p-4 shadow-lg mb-3 max-w-sm min-w-80
         transform transition-all duration-300 ease-out cursor-pointer
-        ${
-          isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-        }
+        ${isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"}
         ${toast.isExiting ? "translate-x-full opacity-0" : ""}
       `}
       style={{
@@ -122,11 +114,9 @@ const ToastItem: React.FC<{
     >
       <div className="flex items-start">
         <Icon className={`h-5 w-5 ${iconColor} mt-0.5 flex-shrink-0`} />
-        <p className={`ml-3 text-sm font-medium ${textColor} flex-1 leading-5`}>
-          {toast.message}
-        </p>
+        <p className={`ml-3 text-sm font-medium ${textColor} flex-1 leading-5`}>{toast.message}</p>
         <button
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             handleRemove();
           }}
@@ -161,9 +151,7 @@ const ToastContainer: React.FC<{
 };
 
 // Provider Component
-export const ToastProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   // Create toast portal root on mount
@@ -175,8 +163,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
-  const generateId = () =>
-    `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const generateId = () => `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
   const addToast = useCallback((toastData: Omit<Toast, "id">) => {
     const id = generateId();
@@ -186,7 +173,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({
       ...toastData,
     };
 
-    setToasts((prev) => {
+    setToasts(prev => {
       // Keep max 5 toasts to prevent overflow
       const newToasts = [toast, ...prev];
       return newToasts.slice(0, 5);
@@ -194,7 +181,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    setToasts(prev => prev.filter(toast => toast.id !== id));
   }, []);
 
   const success = useCallback(

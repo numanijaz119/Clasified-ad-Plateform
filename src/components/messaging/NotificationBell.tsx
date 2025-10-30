@@ -1,9 +1,9 @@
 // src/components/messaging/NotificationBell.tsx
-import React, { useState, useRef, useEffect } from 'react';
-import { Bell, Check, X } from 'lucide-react';
-import { useNotifications } from '../../hooks/useMessaging';
-import { useNavigate } from 'react-router-dom';
-import { useNotificationContext } from '../../contexts/NotificationContext';
+import React, { useState, useRef, useEffect } from "react";
+import { Bell, Check, X } from "lucide-react";
+import { useNotifications } from "../../hooks/useMessaging";
+import { useNavigate } from "react-router-dom";
+import { useNotificationContext } from "../../contexts/NotificationContext";
 
 const NotificationBell: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -17,12 +17,12 @@ const NotificationBell: React.FC = () => {
     markAllAsRead,
     refetch: refetchNotifications,
   } = useNotifications();
-  
+
   const { unreadNotificationCount, refreshUnreadCounts } = useNotificationContext();
-  
+
   // Exclude chat-related notifications from dropdown to avoid redundancy
   const filteredNotifications = notifications.filter(
-    (n) => n.notification_type !== 'new_message' && n.notification_type !== 'new_conversation'
+    n => n.notification_type !== "new_message" && n.notification_type !== "new_conversation"
   );
   // Calculate actual unread count from filtered list
   const actualUnreadCount = filteredNotifications.filter(n => !n.is_read).length;
@@ -36,11 +36,11 @@ const NotificationBell: React.FC = () => {
     };
 
     if (showDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showDropdown]);
 
@@ -71,18 +71,18 @@ const NotificationBell: React.FC = () => {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'new_message':
-      case 'new_conversation':
-        return '💬';
-      case 'ad_approved':
-        return '✅';
-      case 'ad_rejected':
-        return '❌';
-      case 'ad_expired':
-      case 'ad_expiring_soon':
-        return '⏰';
+      case "new_message":
+      case "new_conversation":
+        return "💬";
+      case "ad_approved":
+        return "✅";
+      case "ad_rejected":
+        return "❌";
+      case "ad_expired":
+      case "ad_expiring_soon":
+        return "⏰";
       default:
-        return '📢';
+        return "📢";
     }
   };
 
@@ -97,7 +97,7 @@ const NotificationBell: React.FC = () => {
         <Bell className="h-6 w-6" />
         {unreadNotificationCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center font-semibold px-1 shadow-lg animate-pulse">
-            {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+            {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
           </span>
         )}
       </button>
@@ -137,13 +137,13 @@ const NotificationBell: React.FC = () => {
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
-                {filteredNotifications.slice(0, 10).map((notification) => (
+                {filteredNotifications.slice(0, 10).map(notification => (
                   <button
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
                     className={`
                       w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors
-                      ${!notification.is_read ? 'bg-orange-50' : ''}
+                      ${!notification.is_read ? "bg-orange-50" : ""}
                     `}
                   >
                     <div className="flex items-start gap-3">
@@ -154,15 +154,13 @@ const NotificationBell: React.FC = () => {
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium text-gray-900 mb-1 ${!notification.is_read ? 'font-semibold' : ''}`}>
+                        <p
+                          className={`text-sm font-medium text-gray-900 mb-1 ${!notification.is_read ? "font-semibold" : ""}`}
+                        >
                           {notification.title}
                         </p>
-                        <p className="text-xs text-gray-600 truncate">
-                          {notification.message}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {notification.time_ago}
-                        </p>
+                        <p className="text-xs text-gray-600 truncate">{notification.message}</p>
+                        <p className="text-xs text-gray-400 mt-1">{notification.time_ago}</p>
                       </div>
 
                       {/* Unread Indicator */}
@@ -181,7 +179,7 @@ const NotificationBell: React.FC = () => {
             <div className="px-4 py-3 border-t border-gray-200 text-center">
               <button
                 onClick={() => {
-                  navigate('/notifications');
+                  navigate("/notifications");
                   setShowDropdown(false);
                 }}
                 className="text-sm text-orange-500 hover:text-orange-600 font-medium"

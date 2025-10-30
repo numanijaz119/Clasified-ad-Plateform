@@ -1,17 +1,8 @@
 // src/pages/CityPage.tsx
 import React, { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import {
-  ArrowLeft,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-} from "lucide-react";
-import {
-  FlippingAd,
-  RecentListings,
-} from "../components/AdBanners";
+import { ArrowLeft, Search, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { FlippingAd, RecentListings } from "../components/AdBanners";
 import ListingModal from "../components/ListingModal";
 import AdCard from "../components/AdCard";
 import { useAds } from "../hooks/useAds";
@@ -23,6 +14,7 @@ import {
   BetweenAdsBanner,
   FooterBanner,
   HeaderBanner,
+  SidebarBanner,
 } from "../components/common/BannerLayouts";
 
 interface Listing {
@@ -58,28 +50,24 @@ const CityPage: React.FC = () => {
   // Find current city by name
   const currentCity = useMemo(() => {
     if (!citiesData || !cityName) return null;
-    return citiesData.find(
-      (c) => c.name.toLowerCase() === cityName.toLowerCase().replace(/-/g, " ")
-    );
+    return citiesData.find(c => c.name.toLowerCase() === cityName.toLowerCase().replace(/-/g, " "));
   }, [citiesData, cityName]);
 
   // Fetch categories for dropdown
   const { categories: categoriesData } = useCategories(true);
 
   // Fetch ads filtered by city with pagination
-  const { ads, loading, error, totalCount, hasNext, hasPrevious, refetch } =
-    useAds({
-      city: currentCity?.id,
-      category:
-        selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
-      search: searchQuery || undefined,
-      sort_by: sortBy as any,
-      page: currentPage,
-    });
+  const { ads, loading, error, totalCount, hasNext, hasPrevious, refetch } = useAds({
+    city: currentCity?.id,
+    category: selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
+    search: searchQuery || undefined,
+    sort_by: sortBy as any,
+    page: currentPage,
+  });
 
   // Build categories array for dropdown
   const categories = useMemo(() => {
-    return ["all", ...categoriesData.map((cat) => cat.name)];
+    return ["all", ...categoriesData.map(cat => cat.name)];
   }, [categoriesData]);
 
   // Refetch when filters or page change
@@ -88,8 +76,7 @@ const CityPage: React.FC = () => {
 
     refetch({
       city: currentCity.id,
-      category:
-        selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
+      category: selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
       search: searchQuery || undefined,
       sort_by: sortBy as any,
       page: currentPage,
@@ -168,11 +155,6 @@ const CityPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Banner */}
-      <div className="md:mx-4 mx-2 mt-2">
-        <HeaderBanner />
-      </div>
-
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -189,9 +171,7 @@ const CityPage: React.FC = () => {
                 <h1 className="text-2xl font-bold text-gray-900 capitalize">
                   {currentCity?.name || cityName} Classifieds
                 </h1>
-                <p className="text-sm text-gray-600 mt-0.5">
-                  Discover local listings in your area
-                </p>
+                <p className="text-sm text-gray-600 mt-0.5">Discover local listings in your area</p>
               </div>
             </div>
           </div>
@@ -199,39 +179,39 @@ const CityPage: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl my-4 mx-auto px-4">
         <div className="flex gap-6">
-           {/* Sidebar Ads (Desktop Left) */}
-                    <aside className="hidden lg:block lg:w-48 xl:w-60 flex-shrink-0">
-                      <div className="sticky top-24 space-y-4">
-                      
-                        <FlippingAd size="medium"/>
-                      </div>
-                    </aside>
+          {/* Left Sidebar with Ads */}
+          <div className="md:w-48 xl:w-72 lg:w-64 hidden md:block flex-shrink-0">
+            <div className="sticky top-24 space-y-4 z-10">
+              <div className="block">
+                <SidebarBanner cityId={currentCity?.id} />
+              </div>
+              <FlippingAd size="medium" />
+            </div>
+          </div>
 
           {/* Left Content */}
           <div className="flex-1 min-w-0">
             {/* Results Summary */}
-            <div className="flex items-center justify-between mb-4">
+            {/* <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-gray-600" role="status">
-                {loading
-                  ? "Loading..."
-                  : `${totalCount || ads.length} listings found`}
                 {selectedCategory !== "all" && (
                   <span className="text-orange-600 ml-2">
                     • Filtered by category:{" "}
-                    {
-                      categoriesData.find(
-                        (c) => c.id === parseInt(selectedCategory)
-                      )?.name
-                    }
+                    {categoriesData.find(c => c.id === parseInt(selectedCategory))?.name}
                   </span>
                 )}
               </p>
+            </div> */}
+
+            {/* Header Banner */}
+            <div>
+              <HeaderBanner cityId={currentCity?.id} />
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-2">
               {/* Search Bar */}
               <div className="mb-3">
                 <div className="relative">
@@ -242,7 +222,7 @@ const CityPage: React.FC = () => {
                   <input
                     type="search"
                     value={searchQuery}
-                    onChange={(e) => {
+                    onChange={e => {
                       setSearchQuery(e.target.value);
                       setCurrentPage(1); // Reset to first page on search
                     }}
@@ -269,9 +249,7 @@ const CityPage: React.FC = () => {
                     className="px-3 py-1.5 border border-gray-300 rounded-md bg-gray-100 text-gray-600 text-sm"
                     aria-label="City filter (disabled)"
                   >
-                    <option value={cityName}>
-                      {currentCity?.name || cityName}
-                    </option>
+                    <option value={cityName}>{currentCity?.name || cityName}</option>
                   </select>
                 </div>
 
@@ -285,19 +263,18 @@ const CityPage: React.FC = () => {
                   <select
                     id="category-filter"
                     value={selectedCategory}
-                    onChange={(e) => {
+                    onChange={e => {
                       setSelectedCategory(e.target.value);
                       setCurrentPage(1); // Reset to first page on category change
                     }}
                     className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
                     aria-label="Filter by category"
                   >
-                    {categories.map((category) => (
+                    {categories.map(category => (
                       <option key={category} value={category}>
                         {category === "all"
                           ? "All Categories"
-                          : categoriesData.find((c) => c.name === category)
-                              ?.name || category}
+                          : categoriesData.find(c => c.name === category)?.name || category}
                       </option>
                     ))}
                   </select>
@@ -313,7 +290,7 @@ const CityPage: React.FC = () => {
                   <select
                     id="sort-filter"
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                    onChange={e => setSortBy(e.target.value)}
                     className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
                     aria-label="Sort listings"
                   >
@@ -329,13 +306,8 @@ const CityPage: React.FC = () => {
 
             {/* Error State */}
             {error && (
-              <div
-                className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
-                role="alert"
-              >
-                <p className="text-red-800 text-sm font-medium">
-                  Error loading listings
-                </p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4" role="alert">
+                <p className="text-red-800 text-sm font-medium">Error loading listings</p>
                 <p className="text-red-600 text-sm mt-1">{error}</p>
                 <button
                   onClick={() => refetch()}
@@ -345,6 +317,9 @@ const CityPage: React.FC = () => {
                 </button>
               </div>
             )}
+            <p className="mb-2">
+              {loading ? "Loading..." : `${totalCount || ads.length} listings found`}
+            </p>
 
             {/* Listings Grid */}
             {!error && (
@@ -352,16 +327,12 @@ const CityPage: React.FC = () => {
                 {loading ? (
                   <div className="text-center py-12" role="status">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-                    <p className="text-sm text-gray-600 mt-4">
-                      Loading listings...
-                    </p>
+                    <p className="text-sm text-gray-600 mt-4">Loading listings...</p>
                   </div>
                 ) : ads.length === 0 ? (
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
                     <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      No listings found
-                    </h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No listings found</h3>
                     <p className="text-gray-600 mb-4">
                       Try adjusting your filters to see more results.
                     </p>
@@ -380,36 +351,48 @@ const CityPage: React.FC = () => {
                 ) : (
                   <>
                     {/* Ads Grid with Banner Injection */}
-                    {Array.from({
-                      length: Math.ceil(ads.length / 6),
-                    }).map((_, chunkIndex) => {
-                      const startIndex = chunkIndex * 6;
-                      const endIndex = Math.min(startIndex + 6, ads.length);
-                      const chunkAds = ads.slice(startIndex, endIndex);
+                    {(() => {
+                      // Determine banner interval: 6 if >= 6 ads, 3 if >= 3 ads, all ads if < 3
+                      const totalAds = ads.length;
+                      const bannerInterval = totalAds >= 6 ? 6 : totalAds >= 3 ? 3 : totalAds;
 
-                      return (
-                        <React.Fragment key={chunkIndex}>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                            {chunkAds.map((ad) => (
-                              <AdCard
-                                key={ad.id}
-                                ad={ad}
-                                user={user}
-                                onClick={() => handleListingClick(ad)}
-                                showFeaturedBadge={true}
-                              />
-                            ))}
-                          </div>
-
-                          {/* Inject Banner Between Chunks */}
-                          {chunkIndex < Math.ceil(ads.length / 6) - 1 && (
-                            <div className="mb-6">
-                              <BetweenAdsBanner />
+                      return Array.from({
+                        length: Math.ceil(ads.length / bannerInterval),
+                      }).map((_, chunkIndex) => {
+                        const startIndex = chunkIndex * bannerInterval;
+                        const endIndex = Math.min(startIndex + bannerInterval, ads.length);
+                        const chunkAds = ads.slice(startIndex, endIndex);
+                        return (
+                          <React.Fragment key={chunkIndex}>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                              {chunkAds.map(ad => (
+                                <AdCard
+                                  key={ad.id}
+                                  ad={ad}
+                                  user={user}
+                                  onClick={() => handleListingClick(ad)}
+                                  showFeaturedBadge={true}
+                                />
+                              ))}
                             </div>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
+
+                            {/* Inject Banner Between Chunks */}
+                            {endIndex < ads.length && (
+                              <div className="mb-6">
+                                <BetweenAdsBanner
+                                  cityId={currentCity?.id}
+                                  categoryId={
+                                    selectedCategory !== "all"
+                                      ? parseInt(selectedCategory)
+                                      : undefined
+                                  }
+                                />
+                              </div>
+                            )}
+                          </React.Fragment>
+                        );
+                      });
+                    })()}
                   </>
                 )}
               </div>
@@ -422,8 +405,7 @@ const CityPage: React.FC = () => {
                 aria-label="Pagination"
               >
                 <div className="text-sm text-gray-600">
-                  Page {currentPage} of {totalPages} • {totalCount} total
-                  listings
+                  Page {currentPage} of {totalPages} • {totalCount} total listings
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
@@ -455,6 +437,10 @@ const CityPage: React.FC = () => {
                 </div>
               </nav>
             )}
+            {/* Footer Banner -Desktop */}
+            <div className="hidden md:block">
+              <FooterBanner cityId={currentCity?.id} />
+            </div>
           </div>
 
           {/* Right Sidebar */}
@@ -462,7 +448,7 @@ const CityPage: React.FC = () => {
             className="md:w-48 hidden md:block xl:w-72 lg:w-60 flex-shrink-0"
             aria-label="Sidebar"
           >
-            <div className="sticky top-24 space-y-4">
+            <div className="sticky  top-24 space-y-4">
               <RecentListings />
             </div>
           </aside>
@@ -472,14 +458,9 @@ const CityPage: React.FC = () => {
       {/* Mobile Ad */}
       <div className="md:hidden m-4 mt-0">
         <FlippingAd size="medium" />
-      </div> 
-       <div className="md:hidden m-4 mt-0">
-        <RecentListings />
       </div>
-
-      {/* Footer Banner */}
-      <div className="mx-4 mb-4">
-        <FooterBanner />
+      <div className="md:hidden m-4 mt-0">
+        <RecentListings />
       </div>
 
       {/* Listing Modal */}
@@ -489,6 +470,11 @@ const CityPage: React.FC = () => {
         onClose={handleCloseModal}
         isLoggedIn={isAuthenticated}
       />
+
+      {/* Footer Banner - Mobile*/}
+      <div className="md:hidden mx-4 mb-4">
+        <FooterBanner cityId={currentCity?.id} />
+      </div>
     </div>
   );
 };

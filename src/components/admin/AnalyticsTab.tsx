@@ -31,7 +31,7 @@ const AnalyticsTab: React.FC = () => {
   const fetchStates = useCallback(async () => {
     try {
       const statesData = await contentService.getStates();
-      setStates(statesData.filter((s) => s.is_active));
+      setStates(statesData.filter(s => s.is_active));
     } catch (err) {
       console.error("Failed to fetch states:", err);
     }
@@ -68,21 +68,17 @@ const AnalyticsTab: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              Platform Analytics
-            </h2>
-            <p className="text-gray-600 mt-1">
-              Overview of key metrics and performance indicators
-            </p>
+            <h2 className="text-2xl font-bold text-gray-900">Platform Analytics</h2>
+            <p className="text-gray-600 mt-1">Overview of key metrics and performance indicators</p>
           </div>
           <div className="flex items-center space-x-3">
             <select
               value={selectedState}
-              onChange={(e) => setSelectedState(e.target.value)}
+              onChange={e => setSelectedState(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
             >
               <option value="all">All States</option>
-              {states.map((state) => (
+              {states.map(state => (
                 <option key={state.id} value={state.code}>
                   {state.name}
                 </option>
@@ -93,9 +89,7 @@ const AnalyticsTab: React.FC = () => {
               disabled={loading}
               className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
               <span>Refresh</span>
             </button>
           </div>
@@ -114,21 +108,17 @@ const AnalyticsTab: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              Platform Analytics
-            </h2>
-            <p className="text-gray-600 mt-1">
-              Overview of key metrics and performance indicators
-            </p>
+            <h2 className="text-2xl font-bold text-gray-900">Platform Analytics</h2>
+            <p className="text-gray-600 mt-1">Overview of key metrics and performance indicators</p>
           </div>
           <div className="flex items-center space-x-3">
             <select
               value={selectedState}
-              onChange={(e) => setSelectedState(e.target.value)}
+              onChange={e => setSelectedState(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
             >
               <option value="all">All States</option>
-              {states.map((state) => (
+              {states.map(state => (
                 <option key={state.id} value={state.code}>
                   {state.name}
                 </option>
@@ -139,9 +129,7 @@ const AnalyticsTab: React.FC = () => {
               disabled={loading}
               className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
               <span>Refresh</span>
             </button>
           </div>
@@ -169,50 +157,36 @@ const AnalyticsTab: React.FC = () => {
 
   // Calculate percentages and trends
   const adApprovalRate =
-    stats.ads.total > 0
-      ? ((stats.ads.active / stats.ads.total) * 100).toFixed(1)
-      : "0.0";
+    stats.ads.total > 0 ? ((stats.ads.active / stats.ads.total) * 100).toFixed(1) : "0.0";
 
   const adRejectionRate =
-    stats.ads.total > 0
-      ? ((stats.ads.rejected / stats.ads.total) * 100).toFixed(1)
-      : "0.0";
+    stats.ads.total > 0 ? ((stats.ads.rejected / stats.ads.total) * 100).toFixed(1) : "0.0";
 
   const userActiveRate =
-    stats.users.total > 0
-      ? ((stats.users.active / stats.users.total) * 100).toFixed(1)
-      : "0.0";
+    stats.users.total > 0 ? ((stats.users.active / stats.users.total) * 100).toFixed(1) : "0.0";
 
   const avgViewsPerAd =
-    stats.ads.active > 0
-      ? (stats.engagement.total_views / stats.ads.active).toFixed(0)
-      : "0";
+    stats.ads.active > 0 ? (stats.engagement.total_views / stats.ads.active).toFixed(0) : "0";
 
   const avgContactsPerAd =
-    stats.ads.active > 0
-      ? (stats.engagement.total_contacts / stats.ads.active).toFixed(1)
-      : "0";
+    stats.ads.active > 0 ? (stats.engagement.total_contacts / stats.ads.active).toFixed(1) : "0";
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            Platform Analytics
-          </h2>
-          <p className="text-gray-600 mt-1">
-            Overview of key metrics and performance indicators
-          </p>
+          <h2 className="text-2xl font-bold text-gray-900">Platform Analytics</h2>
+          <p className="text-gray-600 mt-1">Overview of key metrics and performance indicators</p>
         </div>
         <div className="flex items-center space-x-3">
           <select
             value={selectedState}
-            onChange={(e) => setSelectedState(e.target.value)}
+            onChange={e => setSelectedState(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
           >
             <option value="all">All States</option>
-            {states.map((state) => (
+            {states.map(state => (
               <option key={state.id} value={state.code}>
                 {state.name}
               </option>
@@ -238,9 +212,7 @@ const AnalyticsTab: React.FC = () => {
               <FileText className="h-6 w-6 text-white" />
             </div>
           </div>
-          <p className="text-3xl font-bold text-blue-900">
-            {stats.ads.total.toLocaleString()}
-          </p>
+          <p className="text-3xl font-bold text-blue-900">{stats.ads.total.toLocaleString()}</p>
           <p className="text-sm text-blue-700 mt-1">Total Ads</p>
           {stats.ads.new_this_week > 0 && (
             <div className="mt-2 flex items-center text-xs text-blue-700">
@@ -257,9 +229,7 @@ const AnalyticsTab: React.FC = () => {
               <Users className="h-6 w-6 text-white" />
             </div>
           </div>
-          <p className="text-3xl font-bold text-purple-900">
-            {stats.users.total.toLocaleString()}
-          </p>
+          <p className="text-3xl font-bold text-purple-900">{stats.users.total.toLocaleString()}</p>
           <p className="text-sm text-purple-700 mt-1">Total Users</p>
           {stats.users.new_this_week > 0 && (
             <div className="mt-2 flex items-center text-xs text-purple-700">
@@ -280,9 +250,7 @@ const AnalyticsTab: React.FC = () => {
             {stats.engagement.total_views.toLocaleString()}
           </p>
           <p className="text-sm text-green-700 mt-1">Total Views</p>
-          <p className="text-xs text-green-700 mt-2">
-            {avgViewsPerAd} avg per ad
-          </p>
+          <p className="text-xs text-green-700 mt-2">{avgViewsPerAd} avg per ad</p>
         </div>
 
         {/* Total Contacts */}
@@ -296,26 +264,20 @@ const AnalyticsTab: React.FC = () => {
             {stats.engagement.total_contacts.toLocaleString()}
           </p>
           <p className="text-sm text-orange-700 mt-1">Total Contacts</p>
-          <p className="text-xs text-orange-700 mt-2">
-            {avgContactsPerAd} avg per ad
-          </p>
+          <p className="text-xs text-orange-700 mt-2">{avgContactsPerAd} avg per ad</p>
         </div>
       </div>
 
       {/* Ad Performance */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Ad Performance
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Ad Performance</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-gray-600">Active</p>
               <CheckCircle className="h-5 w-5 text-green-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {stats.ads.active.toLocaleString()}
-            </p>
+            <p className="text-2xl font-bold text-gray-900">{stats.ads.active.toLocaleString()}</p>
             <div className="mt-2 flex items-center">
               <div className="flex-1 bg-gray-200 rounded-full h-2">
                 <div
@@ -325,9 +287,7 @@ const AnalyticsTab: React.FC = () => {
                   }}
                 />
               </div>
-              <span className="ml-2 text-xs text-gray-600">
-                {adApprovalRate}%
-              </span>
+              <span className="ml-2 text-xs text-gray-600">{adApprovalRate}%</span>
             </div>
           </div>
 
@@ -336,9 +296,7 @@ const AnalyticsTab: React.FC = () => {
               <p className="text-sm text-gray-600">Pending</p>
               <Clock className="h-5 w-5 text-yellow-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {stats.ads.pending.toLocaleString()}
-            </p>
+            <p className="text-2xl font-bold text-gray-900">{stats.ads.pending.toLocaleString()}</p>
             <div className="mt-2 flex items-center">
               <div className="flex-1 bg-gray-200 rounded-full h-2">
                 <div
@@ -371,9 +329,7 @@ const AnalyticsTab: React.FC = () => {
                   }}
                 />
               </div>
-              <span className="ml-2 text-xs text-gray-600">
-                {adRejectionRate}%
-              </span>
+              <span className="ml-2 text-xs text-gray-600">{adRejectionRate}%</span>
             </div>
           </div>
 
@@ -404,9 +360,7 @@ const AnalyticsTab: React.FC = () => {
 
       {/* User Metrics */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          User Metrics
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">User Metrics</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
@@ -429,9 +383,7 @@ const AnalyticsTab: React.FC = () => {
                   }}
                 />
               </div>
-              <span className="ml-2 text-xs text-gray-600">
-                {userActiveRate}%
-              </span>
+              <span className="ml-2 text-xs text-gray-600">{userActiveRate}%</span>
             </div>
           </div>
 
@@ -448,8 +400,7 @@ const AnalyticsTab: React.FC = () => {
               </div>
             </div>
             <p className="text-xs text-gray-600">
-              {((stats.users.suspended / stats.users.total) * 100).toFixed(1)}%
-              of total
+              {((stats.users.suspended / stats.users.total) * 100).toFixed(1)}% of total
             </p>
           </div>
 
@@ -466,8 +417,7 @@ const AnalyticsTab: React.FC = () => {
               </div>
             </div>
             <p className="text-xs text-gray-600">
-              {((stats.users.banned / stats.users.total) * 100).toFixed(1)}% of
-              total
+              {((stats.users.banned / stats.users.total) * 100).toFixed(1)}% of total
             </p>
           </div>
         </div>
@@ -475,9 +425,7 @@ const AnalyticsTab: React.FC = () => {
 
       {/* Engagement Stats */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-6">
-          Engagement Statistics
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">Engagement Statistics</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -487,9 +435,7 @@ const AnalyticsTab: React.FC = () => {
             <p className="text-2xl font-bold text-gray-900">
               {stats.engagement.total_views.toLocaleString()}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Average {avgViewsPerAd} views per ad
-            </p>
+            <p className="text-xs text-gray-500 mt-1">Average {avgViewsPerAd} views per ad</p>
           </div>
 
           <div>
@@ -500,9 +446,7 @@ const AnalyticsTab: React.FC = () => {
             <p className="text-2xl font-bold text-gray-900">
               {stats.engagement.total_contacts.toLocaleString()}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Average {avgContactsPerAd} contacts per ad
-            </p>
+            <p className="text-xs text-gray-500 mt-1">Average {avgContactsPerAd} contacts per ad</p>
           </div>
 
           <div>
@@ -515,9 +459,7 @@ const AnalyticsTab: React.FC = () => {
             </p>
             <p className="text-xs text-gray-500 mt-1">
               {stats.ads.active > 0
-                ? (stats.engagement.total_favorites / stats.ads.active).toFixed(
-                    1
-                  )
+                ? (stats.engagement.total_favorites / stats.ads.active).toFixed(1)
                 : "0"}{" "}
               favorites per ad
             </p>
@@ -529,17 +471,11 @@ const AnalyticsTab: React.FC = () => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Moderation Queue
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Reports and actions requiring attention
-            </p>
+            <h3 className="text-lg font-semibold text-gray-900">Moderation Queue</h3>
+            <p className="text-sm text-gray-600 mt-1">Reports and actions requiring attention</p>
           </div>
           <div className="text-right">
-            <p className="text-4xl font-bold text-orange-600">
-              {stats.moderation.pending_reports}
-            </p>
+            <p className="text-4xl font-bold text-orange-600">{stats.moderation.pending_reports}</p>
             <p className="text-sm text-gray-600 mt-1">Pending Reports</p>
           </div>
         </div>

@@ -108,17 +108,15 @@ const Hero: React.FC = () => {
     }));
   }, [citiesData]);
 
-  // Process categories: limit to 8, map icons and colors from backend
+  // Process categories: limit to 8, use actual icons from backend
   const categories = useMemo(() => {
     if (!categoriesData || categoriesData.length === 0) return [];
 
     return categoriesData.slice(0, 8).map(cat => ({
       name: cat.name,
       slug: cat.slug,
-      icon:
-        categoryEmojiMap[cat.icon.toLowerCase()] ||
-        categoryEmojiMap[cat.slug.toLowerCase()] ||
-        "📋",
+      // Use the actual icon from backend, fallback to emoji map if needed
+      icon: cat.icon || categoryEmojiMap[cat.slug.toLowerCase()] || "📋",
       color: colorMap[cat.slug.toLowerCase()] || "from-gray-500 to-gray-600",
       count: cat.ads_count || cat.state_ads_count || 0,
     }));

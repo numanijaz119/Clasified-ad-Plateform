@@ -282,7 +282,8 @@ const ReportsTab: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="spinner h-8 w-8"></div>
+        <RefreshCw className="h-8 w-8 text-orange-500 animate-spin mx-auto mb-4" />
+
         <span className="ml-3 text-gray-600">Loading reports...</span>
       </div>
     );

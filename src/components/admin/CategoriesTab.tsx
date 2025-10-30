@@ -55,6 +55,18 @@ const CategoriesTab: React.FC = () => {
       setLoading(true);
       setError(null);
       const response = await adminService.getCategoryStats();
+      console.log("Categories from API:", response.categories);
+      // Log each category's icon to debug
+      response.categories.forEach(cat => {
+        console.log(
+          `Category "${cat.name}" icon:`,
+          cat.icon,
+          "Type:",
+          typeof cat.icon,
+          "Length:",
+          cat.icon?.length
+        );
+      });
       setCategories(response.categories);
     } catch (err: any) {
       setError(err.message || "Failed to load categories");
@@ -71,11 +83,21 @@ const CategoriesTab: React.FC = () => {
   const handleOpenModal = (category?: AdminCategoryStats) => {
     if (category) {
       setEditingCategory(category);
+      // Ensure icon is properly set, trim whitespace and use fallback
+      const categoryIcon = category.icon && category.icon.trim() ? category.icon.trim() : "📦";
+      console.log(
+        "Opening modal for category:",
+        category.name,
+        "Icon:",
+        category.icon,
+        "Processed:",
+        categoryIcon
+      );
       setFormData({
         name: category.name,
         slug: category.slug,
         description: category.description || "",
-        icon: category.icon || "📦",
+        icon: categoryIcon,
         sort_order: category.sort_order || 0,
       });
     } else {
@@ -248,7 +270,9 @@ const CategoriesTab: React.FC = () => {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="text-3xl">{category.icon || "📦"}</div>
+                <div className="text-3xl bg-gray-50 rounded-lg p-2 w-14 h-14 flex items-center justify-center">
+                  {category.icon && category.icon.trim() ? category.icon : "📦"}
+                </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
                   <p className="text-xs text-gray-500">{category.slug}</p>
@@ -343,15 +367,65 @@ const CategoriesTab: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Icon (Emoji)</label>
-              <input
-                type="text"
-                value={formData.icon}
-                onChange={e => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="📦"
-                maxLength={2}
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Icon (Emoji) <span className="text-gray-500 text-xs">- Click to select</span>
+              </label>
+              <div className="flex items-center space-x-3">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={formData.icon}
+                    onChange={e => {
+                      // Only allow emojis and single characters
+                      const value = e.target.value;
+                      if (value.length <= 4) {
+                        // Allow up to 4 chars to support multi-byte emojis
+                        setFormData(prev => ({ ...prev, icon: value }));
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-2xl text-center"
+                    placeholder="📦"
+                    maxLength={4}
+                  />
+                </div>
+                <div className="text-4xl bg-gray-50 border border-gray-300 rounded-lg p-3 w-16 h-16 flex items-center justify-center">
+                  {formData.icon || "📦"}
+                </div>
+              </div>
+              <div className="mt-2 grid grid-cols-8 gap-2">
+                {[
+                  "💼",
+                  "🏠",
+                  "🚗",
+                  "🛍️",
+                  "🔧",
+                  "🎓",
+                  "📅",
+                  "❤️",
+                  "🎮",
+                  "📦",
+                  "📱",
+                  "💻",
+                  "🎨",
+                  "🏋️",
+                ].map(emoji => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, icon: emoji }))}
+                    className={`text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110 ${
+                      formData.icon === emoji
+                        ? "border-orange-500 bg-orange-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Select from common icons or paste your own emoji
+              </p>
             </div>
 
             <div>

@@ -77,7 +77,7 @@ const MessagesPage: React.FC = () => {
 
       // Schedule next refresh only if component is still mounted
       if (isMounted) {
-        refreshTimer = setTimeout(() => fetchData(true), 30000); // 30 seconds (increased from 10)
+        refreshTimer = setTimeout(() => fetchData(true), 3000); // 3 seconds for faster notifications
       }
     };
 

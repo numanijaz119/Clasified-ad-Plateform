@@ -340,37 +340,6 @@ class AdsService extends BaseService {
   }
 
   /**
-   * Get user's own ads
-   */
-  async getMyAds(params?: AdListParams): Promise<AdListResponse> {
-    try {
-      const queryParams = new URLSearchParams();
-
-      if (params) {
-        Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== "") {
-            queryParams.append(key, value.toString());
-          }
-        });
-      }
-
-      const url = `${API_CONFIG.ENDPOINTS.ADS.USER_ADS}${
-        queryParams.toString() ? "?" + queryParams.toString() : ""
-      }`;
-      const response = await this.get<AdListResponse>(url, true);
-
-      if (response.data) {
-        return response.data;
-      }
-
-      throw new Error("Failed to fetch user ads");
-    } catch (error: any) {
-      console.error("Get user ads error:", error);
-      throw error;
-    }
-  }
-
-  /**
    * Delete ad
    */
   async deleteAd(slug: string): Promise<void> {

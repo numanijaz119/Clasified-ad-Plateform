@@ -293,7 +293,28 @@ class AdminSettings(models.Model):
         _('User Email Notifications'),
         default=True
     )
-    
+
+    # Payment settings - Simplified pricing
+    featured_base_price_per_day = models.DecimalField(
+        _('Featured Ad Base Price Per Day'),
+        max_digits=10,
+        decimal_places=2,
+        default=0.33,
+        help_text=_('Base price per day for featured ads (e.g., 0.33 = $0.33/day)')
+    )
+    boost_base_price_per_day = models.DecimalField(
+        _('Boost Base Price Per Day'),
+        max_digits=10,
+        decimal_places=2,
+        default=0.50,
+        help_text=_('Base price per day for ad boosts (e.g., 0.50 = $0.50/day)')
+    )
+    boost_enabled = models.BooleanField(
+        _('Ad Boost Enabled'),
+        default=True,
+        help_text=_('Enable ad boosting feature')
+    )
+
     # Timestamps
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey(

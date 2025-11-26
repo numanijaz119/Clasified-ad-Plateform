@@ -12,6 +12,7 @@ import {
   AlertCircle,
   RefreshCw,
   Flag,
+  CreditCard,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { adsService } from "../services";
@@ -27,8 +28,10 @@ import ListingModal from "../components/ListingModal";
 import ConfirmModal from "../components/admin/ConfirmModal";
 import type { BasicAd } from "../hooks/useAdDetails";
 import MyReportsTab from "../components/dashboard/MyReportsTab";
+import PaymentHistoryTab from "../components/dashboard/PaymentHistoryTab";
+import PaymentModal from "../components/PaymentModal";
 
-type TabId = "overview" | "ads" | "stats" | "promote" | "reports";
+type TabId = "overview" | "ads" | "stats" | "promote" | "reports" | "payments";
 
 interface DashboardData {
   total_ads: number;
@@ -58,6 +61,11 @@ const UserDashboard: React.FC = () => {
   );
   const [isDeleting, setIsDeleting] = useState(false);
   const [featuredPricing, setFeaturedPricing] = useState({ price: 9.99, duration_days: 30 });
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedAdForPayment, setSelectedAdForPayment] = useState<{
+    id: number;
+    slug: string;
+  } | null>(null);
 
   const toast = useToast();
 
@@ -175,15 +183,16 @@ const UserDashboard: React.FC = () => {
     }
   };
 
-  const handlePromoteAd = async (slug: string) => {
-    try {
-      await adsService.promoteAd(slug, { payment_method: "stripe" });
-      await Promise.all([fetchDashboardAnalytics(), fetchUserAds()]);
-      toast.success("Ad promoted to featured successfully!");
-    } catch (error: any) {
-      console.error("Failed to promote ad:", error);
-      toast.error("Failed to promote ad. Please try again.");
-    }
+  const handlePromoteAd = (adId: number, slug: string) => {
+    setSelectedAdForPayment({ id: adId, slug });
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPaymentModal(false);
+    setSelectedAdForPayment(null);
+    // Refresh data after successful payment
+    handleRefresh();
   };
 
   const getStatusColor = (status: string) => {
@@ -807,11 +816,11 @@ const UserDashboard: React.FC = () => {
                   <Button
                     variant="primary"
                     size="sm"
-                    onClick={() => handlePromoteAd(ad.slug)}
+                    onClick={() => handlePromoteAd(ad.id, ad.slug)}
                     className="ml-4 inline-flex items-center gap-2 self-end md:self-auto"
                   >
                     <Star className="h-4 w-4" />
-                    Promote - ${featuredPricing.price}
+                    Promote Now
                   </Button>
                 </div>
               </div>
@@ -877,6 +886,7 @@ const UserDashboard: React.FC = () => {
     { id: "ads", name: "My Ads", icon: Edit },
     { id: "stats", name: "Statistics", icon: TrendingUp },
     { id: "promote", name: "Promote Ads", icon: Star },
+    { id: "payments", name: "Payments", icon: CreditCard },
     { id: "reports", name: "My Reports", icon: Flag },
   ];
 
@@ -941,6 +951,7 @@ const UserDashboard: React.FC = () => {
           {activeTab === "ads" && renderMyAds()}
           {activeTab === "stats" && renderStats()}
           {activeTab === "promote" && renderPromoteAds()}
+          {activeTab === "payments" && <PaymentHistoryTab />}
           {activeTab === "reports" && <MyReportsTab />}
         </main>
       </div>
@@ -973,6 +984,19 @@ const UserDashboard: React.FC = () => {
         cancelText="Cancel"
         type="danger"
         loading={isDeleting}
+      />
+
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setSelectedAdForPayment(null);
+        }}
+        adId={selectedAdForPayment?.id.toString()}
+        adSlug={selectedAdForPayment?.slug}
+        productType="FEATURED"
+        onSuccess={handlePaymentSuccess}
       />
     </div>
   );

@@ -236,6 +236,57 @@ export const API_CONFIG = {
       CLEAR_CACHE: "/api/administrator/cache/clear/",
       MAINTENANCE_MODE: "/api/administrator/maintenance/",
     },
+
+    // ========================================================================
+    // PAYMENT ENDPOINTS
+    // ========================================================================
+    PAYMENTS: {
+      // Payment Products
+      PRODUCTS: "/api/payments/products/",
+      // Filters: ?type=FEATURED|BOOST
+      PRODUCT_DETAIL: "/api/payments/products/:id/",
+      PRODUCTS_FOR_AD: "/api/payments/products/for_ad/",
+      // Query: ?ad_slug=my-ad-slug
+
+      // Payment Operations
+      CHECKOUT: "/api/payments/payments/checkout/",
+      // POST: { product_id, ad_id?, success_url, cancel_url }
+
+      CONFIRM: "/api/payments/payments/confirm/",
+      // POST: { session_id }
+
+      HISTORY: "/api/payments/payments/",
+      PAYMENT_DETAIL: "/api/payments/payments/:id/",
+      RECEIPT: "/api/payments/payments/:id/receipt/",
+
+      // Ad Boosts
+      BOOSTS: "/api/payments/boosts/",
+      ACTIVE_BOOSTS: "/api/payments/boosts/active/",
+      BOOSTS_FOR_AD: "/api/payments/boosts/for_ad/",
+      // Query: ?ad_slug=my-ad-slug
+
+      // Stripe Configuration
+      CONFIG: "/api/payments/config/",
+      // Returns: { public_key, currency }
+
+      // Webhook (no auth required)
+      WEBHOOK: "/api/payments/webhook/",
+
+      // Admin Payment Management
+      ADMIN: {
+        PAYMENTS: "/api/payments/admin/payments/",
+        PAYMENT_DETAIL: "/api/payments/admin/payments/:id/",
+        REFUND: "/api/payments/admin/payments/:id/refund/",
+        // POST: { amount?, reason, admin_notes }
+
+        STATS: "/api/payments/admin/payments/stats/",
+        BY_PRODUCT: "/api/payments/admin/payments/by_product/",
+
+        PRODUCTS: "/api/payments/admin/products/",
+        PRODUCT_DETAIL: "/api/payments/admin/products/:id/",
+        SYNC_STRIPE: "/api/payments/admin/products/sync_stripe/",
+      },
+    },
   },
   TIMEOUT: 30000, // 30 seconds
   RETRY_ATTEMPTS: 3,

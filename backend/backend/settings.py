@@ -46,7 +46,7 @@ LOCAL_APPS = [
     'administrator',
     'core',
     'messaging',
-
+    'payments',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -251,10 +251,15 @@ NOTIFICATION_SETTINGS = {
 GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
 GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
 
+# Stripe settings
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY', default='')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+
 # Multi-state domain mapping
 STATE_DOMAIN_MAPPING = {
     'desiloginil.com': 'IL',
-    'desilogintx.com': 'TX', 
+    'desilogintx.com': 'TX',
     'desiloginfl.com': 'FL',
     'localhost': 'IL',  # Default for development
     '127.0.0.1': 'IL',

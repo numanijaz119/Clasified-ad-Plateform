@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/ads/', include('ads.urls')),
     path('api/administrator/', include('administrator.urls')),
     path('api/messaging/', include('messaging.urls')),
+    path('api/payments/', include('payments.urls')),
 ]
 
 # Serve media files in development

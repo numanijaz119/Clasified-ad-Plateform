@@ -46,6 +46,7 @@ LOCAL_APPS = [
     'administrator',
     'core',
     'messaging',
+    'payments',
 
 ]
 
@@ -107,8 +108,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-
 
 # Custom user model
 AUTH_USER_MODEL = 'accounts.User'

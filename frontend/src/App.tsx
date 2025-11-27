@@ -3,11 +3,15 @@ import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import Header from "./components/Header";
+import SubNavigation from "./components/SubNavigation";
 import HomePage from "./pages/HomePage";
 import CityPage from "./pages/CityPage";
 import CategoryPage from "./pages/CategoryPage";
 import SearchPage from "./pages/SearchPage";
 import FeaturedAdsPage from "./pages/FeaturedAdsPage";
+import FavoritesPage from "./pages/FavoritesPage";
+import EventsPage from "./pages/EventsPage";
+import ServicesPage from "./pages/ServicesPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserDashboard from "./pages/UserDashboard";
 import Footer from "./components/Footer";
@@ -110,7 +114,7 @@ function App() {
   // }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50 pt-[5.1rem]">
       <Header
         onPostAd={handlePostAd}
         onSignIn={() => setIsSignInModalOpen(true)}
@@ -119,11 +123,17 @@ function App() {
         onSignOut={handleSignOut}
       />
 
+      {/* Sub Navigation */}
+      <SubNavigation />
+
       {/* Auto scroll to top on route change */}
       <ScrollToTop />
 
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/events" element={<EventsPage />} />
+        <Route path="/services" element={<ServicesPage />} />
         <Route path="/city/:cityName" element={<CityPage />} />
         <Route path="/category/:categoryName" element={<CategoryPage />} />
         <Route path="/search" element={<SearchPage />} />

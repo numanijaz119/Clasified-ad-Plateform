@@ -57,7 +57,7 @@ const AdCard: React.FC<AdCardProps> = ({ ad, user, onClick, showFeaturedBadge = 
       aria-label={`View details for ${ad.title}`}
     >
       {/* Image Container */}
-      <div className="relative aspect-video bg-gray-100 rounded-t-lg overflow-hidden">
+      <div className="relative aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
         {ad.primary_image?.image ? (
           <img
             src={ad.primary_image.image}
@@ -136,7 +136,7 @@ const AdCard: React.FC<AdCardProps> = ({ ad, user, onClick, showFeaturedBadge = 
 
         {/* Meta Information */}
         <div className="flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center justify-between w-full space-x-3">
             <div className="flex items-center space-x-1" title="View count">
               <Eye className="h-3 w-3" aria-hidden="true" />
               <span>{ad.view_count}</span>

@@ -17,6 +17,7 @@ import {
   BetweenAdsBanner,
   SidebarBanner,
 } from "../components/common/BannerLayouts";
+import PageHeader from "../components/PageHeader";
 
 interface Listing {
   id: number;
@@ -146,34 +147,6 @@ const CategoryPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link
-                to="/"
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                aria-label="Back to home"
-              >
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
-              </Link>
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-3xl" role="img" aria-label={category?.name}>
-                    {getCategoryIcon(category?.name || "")}
-                  </span>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {category?.name || categoryName}
-                  </h1>
-                </div>
-                <p className="text-sm text-gray-600 mt-0.5">{"Browse listings in this category"}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto my-4 px-4">
         <div className="flex gap-2 md:gap-4 lg:gap-6">
@@ -204,6 +177,8 @@ const CategoryPage: React.FC = () => {
             <div className=" mx-2">
               <HeaderBanner categoryId={category?.id} />
             </div>
+
+            <PageHeader title="Category" description="Browse listings in this category" />
 
             {/* Filters */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-4">

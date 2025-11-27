@@ -241,14 +241,14 @@ const ListingModal: React.FC<ListingModalProps> = ({
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                    className="absolute left-2 top-1/2 flex items-center h-8 w-8 justify-center transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-[50%] hover:bg-black/70 transition-colors"
                     aria-label="Previous image"
                   >
                     ←
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                    className="absolute right-2 h-8 w-8  top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-[50%] flex justify-center items-center hover:bg-black/70 transition-colors"
                     aria-label="Next image"
                   >
                     →

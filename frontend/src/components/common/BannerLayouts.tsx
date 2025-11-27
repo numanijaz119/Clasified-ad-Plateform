@@ -16,7 +16,7 @@ export const HeaderBanner: React.FC<BannerLayoutProps> = ({ stateCode, categoryI
   const effectiveCategoryId = categoryId || contextCategoryId;
 
   return (
-    <div className="w-full bg-gray-50 border-b border-gray-200 overflow-hidden">
+    <div className="w-full bg-gray-50 overflow-hidden">
       <div className="max-w-7xl mx-auto pb-4">
         <BannerDisplay
           position="header"

@@ -107,15 +107,21 @@ const Header: React.FC<HeaderProps> = ({ onPostAd, onSignIn, isLoggedIn, onSignO
 
                 {/* Notification & Chat Icons - Always visible when logged in */}
                 <div className="flex items-center space-x-2">
-                  {/* Notifications */}
-                  <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+                  {/* Notifications - wrapper is not a button because NotificationBell renders its own button */}
+                  <div
+                    className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                    aria-hidden
+                  >
                     <NotificationBell />
-                  </button>
+                  </div>
 
-                  {/* Chat/Messages */}
-                  <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+                  {/* Chat/Messages - MessageIcon renders its own interactive element */}
+                  <div
+                    className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                    aria-hidden
+                  >
                     <MessageIcon />
-                  </button>
+                  </div>
                 </div>
 
                 {/* Profile Section - Desktop only */}

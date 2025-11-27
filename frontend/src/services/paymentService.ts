@@ -1,6 +1,6 @@
 // frontend/src/services/paymentService.ts
-import { BaseApiService } from './baseApiService';
-import { API_CONFIG, buildUrl, buildQueryString } from '../config/api';
+import BaseApiService from "./baseApiService";
+import { API_CONFIG, buildUrl, buildQueryString } from "../config/api";
 import type {
   PaymentProduct,
   Payment,
@@ -12,7 +12,7 @@ import type {
   AdBoost,
   PaymentStats,
   ProductStats,
-} from '../types/payment';
+} from "../types/payment";
 
 class PaymentService extends BaseApiService {
   // ==================== Payment Products ====================
@@ -22,7 +22,7 @@ class PaymentService extends BaseApiService {
    * @param productType - Optional filter by product type (FEATURED, BOOST, etc.)
    */
   async getProducts(productType?: string): Promise<PaymentProduct[]> {
-    const queryString = productType ? buildQueryString({ type: productType }) : '';
+    const queryString = productType ? buildQueryString({ type: productType }) : "";
     const url = `${API_CONFIG.ENDPOINTS.PAYMENTS.PRODUCTS}${queryString}`;
     return this.get<PaymentProduct[]>(url, false); // Public endpoint
   }
@@ -142,9 +142,9 @@ class PaymentService extends BaseApiService {
   /**
    * Format price for display
    */
-  formatPrice(amount: number, currency: string = 'USD'): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+  formatPrice(amount: number, currency: string = "USD"): string {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency: currency,
     }).format(amount);
   }

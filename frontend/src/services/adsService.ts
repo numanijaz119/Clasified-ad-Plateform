@@ -323,7 +323,7 @@ class AdsService extends BaseService {
         });
       }
 
-      const url = `${API_CONFIG.ENDPOINTS.ADS.MY_ADS}${
+      const url = `${API_CONFIG.ENDPOINTS.ADS.USER_ADS}${
         queryParams.toString() ? "?" + queryParams.toString() : ""
       }`;
       const response = await this.get<AdListResponse>(url, true);

@@ -12,6 +12,7 @@ import type {
   AdBoost,
   PaymentStats,
   ProductStats,
+  PaginatedResponse,
 } from "../types/payment";
 
 class PaymentService extends BaseApiService {
@@ -24,7 +25,8 @@ class PaymentService extends BaseApiService {
   async getProducts(productType?: string): Promise<PaymentProduct[]> {
     const queryString = productType ? buildQueryString({ type: productType }) : "";
     const url = `${API_CONFIG.ENDPOINTS.PAYMENTS.PRODUCTS}${queryString}`;
-    return this.get<PaymentProduct[]>(url, false); // Public endpoint
+    const response = await this.get<PaymentProduct[]>(url, false); // Public endpoint
+    return response.data || [];
   }
 
   /**
@@ -32,7 +34,9 @@ class PaymentService extends BaseApiService {
    */
   async getProduct(productId: string): Promise<PaymentProduct> {
     const url = buildUrl(API_CONFIG.ENDPOINTS.PAYMENTS.PRODUCT_DETAIL, { id: productId });
-    return this.get<PaymentProduct>(url, false);
+    const response = await this.get<PaymentProduct>(url, false);
+    if (!response.data) throw new Error('Product not found');
+    return response.data;
   }
 
   /**
@@ -40,7 +44,8 @@ class PaymentService extends BaseApiService {
    */
   async getProductsForAd(adSlug: string): Promise<PaymentProduct[]> {
     const url = `${API_CONFIG.ENDPOINTS.PAYMENTS.PRODUCTS_FOR_AD}${buildQueryString({ ad_slug: adSlug })}`;
-    return this.get<PaymentProduct[]>(url, false);
+    const response = await this.get<PaymentProduct[]>(url, false);
+    return response.data || [];
   }
 
   // ==================== Payment Operations ====================
@@ -50,7 +55,9 @@ class PaymentService extends BaseApiService {
    */
   async createCheckout(data: CreateCheckoutRequest): Promise<CheckoutSessionResponse> {
     const url = API_CONFIG.ENDPOINTS.PAYMENTS.CHECKOUT;
-    return this.post<CheckoutSessionResponse>(url, data, true);
+    const response = await this.post<CheckoutSessionResponse>(url, data, true);
+    if (!response.data) throw new Error('Failed to create checkout session');
+    return response.data;
   }
 
   /**
@@ -58,7 +65,9 @@ class PaymentService extends BaseApiService {
    */
   async confirmPayment(data: ConfirmPaymentRequest): Promise<PaymentDetailResponse> {
     const url = API_CONFIG.ENDPOINTS.PAYMENTS.CONFIRM;
-    return this.post<PaymentDetailResponse>(url, data, true);
+    const response = await this.post<PaymentDetailResponse>(url, data, true);
+    if (!response.data) throw new Error('Failed to confirm payment');
+    return response.data;
   }
 
   /**
@@ -66,7 +75,17 @@ class PaymentService extends BaseApiService {
    */
   async getPaymentHistory(): Promise<Payment[]> {
     const url = API_CONFIG.ENDPOINTS.PAYMENTS.HISTORY;
-    return this.get<Payment[]>(url, true);
+    const response = await this.get<Payment[] | PaginatedResponse<Payment>>(url, true);
+    
+    if (!response.data) return [];
+    
+    // Handle both paginated and non-paginated responses
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    
+    // If paginated, return the results array
+    return response.data.results || [];
   }
 
   /**
@@ -74,7 +93,9 @@ class PaymentService extends BaseApiService {
    */
   async getPayment(paymentId: string): Promise<PaymentDetailResponse> {
     const url = buildUrl(API_CONFIG.ENDPOINTS.PAYMENTS.PAYMENT_DETAIL, { id: paymentId });
-    return this.get<PaymentDetailResponse>(url, true);
+    const response = await this.get<PaymentDetailResponse>(url, true);
+    if (!response.data) throw new Error('Payment not found');
+    return response.data;
   }
 
   /**
@@ -82,7 +103,9 @@ class PaymentService extends BaseApiService {
    */
   async getReceipt(paymentId: string): Promise<{ receipt_url: string }> {
     const url = buildUrl(API_CONFIG.ENDPOINTS.PAYMENTS.RECEIPT, { id: paymentId });
-    return this.get<{ receipt_url: string }>(url, true);
+    const response = await this.get<{ receipt_url: string }>(url, true);
+    if (!response.data) throw new Error('Receipt not found');
+    return response.data;
   }
 
   // ==================== Ad Boosts ====================
@@ -92,7 +115,8 @@ class PaymentService extends BaseApiService {
    */
   async getBoosts(): Promise<AdBoost[]> {
     const url = API_CONFIG.ENDPOINTS.PAYMENTS.BOOSTS;
-    return this.get<AdBoost[]>(url, true);
+    const response = await this.get<AdBoost[]>(url, true);
+    return response.data || [];
   }
 
   /**
@@ -100,7 +124,8 @@ class PaymentService extends BaseApiService {
    */
   async getActiveBoosts(): Promise<AdBoost[]> {
     const url = API_CONFIG.ENDPOINTS.PAYMENTS.ACTIVE_BOOSTS;
-    return this.get<AdBoost[]>(url, true);
+    const response = await this.get<AdBoost[]>(url, true);
+    return response.data || [];
   }
 
   /**
@@ -108,7 +133,8 @@ class PaymentService extends BaseApiService {
    */
   async getBoostsForAd(adSlug: string): Promise<AdBoost[]> {
     const url = `${API_CONFIG.ENDPOINTS.PAYMENTS.BOOSTS_FOR_AD}${buildQueryString({ ad_slug: adSlug })}`;
-    return this.get<AdBoost[]>(url, true);
+    const response = await this.get<AdBoost[]>(url, true);
+    return response.data || [];
   }
 
   // ==================== Stripe Configuration ====================
@@ -118,7 +144,9 @@ class PaymentService extends BaseApiService {
    */
   async getStripeConfig(): Promise<StripeConfig> {
     const url = API_CONFIG.ENDPOINTS.PAYMENTS.CONFIG;
-    return this.get<StripeConfig>(url, false); // Public endpoint
+    const response = await this.get<StripeConfig>(url, false); // Public endpoint
+    if (!response.data) throw new Error('Stripe configuration not found');
+    return response.data;
   }
 
   // ==================== Helper Methods ====================
@@ -174,7 +202,9 @@ class PaymentService extends BaseApiService {
    */
   async getPaymentStats(): Promise<PaymentStats> {
     const url = API_CONFIG.ENDPOINTS.PAYMENTS.ADMIN.STATS;
-    return this.get<PaymentStats>(url, true);
+    const response = await this.get<PaymentStats>(url, true);
+    if (!response.data) throw new Error('Payment stats not found');
+    return response.data;
   }
 
   /**
@@ -182,7 +212,8 @@ class PaymentService extends BaseApiService {
    */
   async getProductStats(): Promise<ProductStats[]> {
     const url = API_CONFIG.ENDPOINTS.PAYMENTS.ADMIN.BY_PRODUCT;
-    return this.get<ProductStats[]>(url, true);
+    const response = await this.get<ProductStats[]>(url, true);
+    return response.data || [];
   }
 
   /**
@@ -193,7 +224,8 @@ class PaymentService extends BaseApiService {
     data: { amount?: number; reason: string; admin_notes?: string }
   ): Promise<any> {
     const url = buildUrl(API_CONFIG.ENDPOINTS.PAYMENTS.ADMIN.REFUND, { id: paymentId });
-    return this.post(url, data, true);
+    const response = await this.post(url, data, true);
+    return response.data;
   }
 
   /**
@@ -201,7 +233,9 @@ class PaymentService extends BaseApiService {
    */
   async syncStripeProducts(): Promise<{ synced: string[]; errors: string[] }> {
     const url = API_CONFIG.ENDPOINTS.PAYMENTS.ADMIN.SYNC_STRIPE;
-    return this.post<{ synced: string[]; errors: string[] }>(url, {}, true);
+    const response = await this.post<{ synced: string[]; errors: string[] }>(url, {}, true);
+    if (!response.data) throw new Error('Failed to sync Stripe products');
+    return response.data;
   }
 }
 
